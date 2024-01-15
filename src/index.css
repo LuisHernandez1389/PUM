@@ -1,0 +1,144 @@
+/* Barra de busqueda */
+.navbar{
+    background-color: #161624;
+    color: rgb(243, 243, 247);
+    text-align: center;
+   
+    
+    
+}
+.icono{
+    color: rgb(255, 255, 255);
+    display: inline-block; /* Mostrar elementos en línea */
+    
+    
+}
+/* Texto de barra de busqueda */
+.text{
+    color: rgb(5, 5, 5);
+    display: inline-block; /* Mostrar elementos en línea */
+  margin: 0 10px;
+}
+.text-navbar{
+    color: rgb(255, 255, 255);
+    display: inline-block; /* Mostrar elementos en línea */
+    margin: 0 10px;
+}
+/* Menu de usuario*/
+.dropdown-menu{
+    background-color: #161624;
+}
+.btn-carrito{
+    background-color: #161624;
+}
+
+/* Footer */
+.footer {
+    background-color: #161624;
+    color: rgb(243, 243, 247);
+    text-align: center;
+    padding: 10px;
+}
+
+/* Eventos */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background-size:auto;
+    background-attachment: fixed;
+    background-color: rgb(187, 184, 184);
+    
+    
+}
+* {
+    box-sizing: border-box;
+}
+.contenedor{
+    width: 100%;
+    padding: 15px;
+}
+.formulario{
+    background: #887e7e;
+    margin-top: 150px;
+    padding: 3px;
+}
+h1{
+    text-align: center;
+    color: #1a2537;
+    font-size: 40px;
+}
+input[type="text"],
+input[type="tel"]{
+    font-size: 20px;
+    width: 82%;
+    padding: 10px;
+    border: none;
+}
+.input-contenedor{
+    margin-bottom: 15px;
+    border: 1px solid #aaa;
+}
+.selecionador{
+   font-size: 20px;
+    width: 82%;
+    padding: 10px;
+    border: none; 
+}
+.fechaEvento{
+    font-size: 20px;
+    width: 82%;
+    padding: 10px;
+    border: none;  
+}
+.descripcion{
+    font-size: 20px;
+    width: 82%;
+    padding: 10px;
+    border: none
+}
+.button{
+    border: none;
+    width: 100%;
+    color: white;
+    font-size: 20px;
+    background:  #1a2537;
+    padding: 15px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.button:hover{
+    background: cadetblue;
+}
+p{
+    text-align: center;
+}
+.link{
+    text-decoration: none;
+      color: #1a2537;
+    font-weight: 600;
+}
+.link:hover{
+     color: cadetblue;
+}
+@media(min-width:768px)
+{
+    .formulario{
+        margin: auto;
+        width: 500px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-radius: 2%;
+    }
+}
+
+/*Carrusel*/
+.carousel-inner{
+    margin: auto;
+        width: 75%;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        border-radius: 2%;
+}
+.gradient{
+    color: rgb(0, 0, 0);
+}

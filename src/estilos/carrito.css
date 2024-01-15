@@ -1,0 +1,32 @@
+.popover-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* 100% del ancho de la ventana */
+  height: 100vh; /* 100% de la altura de la ventana */
+  background: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente detrás del popover */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+}
+
+.popover-content {
+  background: #fff;
+  padding: 40px; /* Ajusta el espacio alrededor del contenido */
+  border-radius: 5px;
+  text-align: center;
+  max-width: 80%; /* Ancho máximo del contenido del popover */
+  max-height: 80vh; /* Altura máxima del contenido del popover */
+  overflow-y: auto; /* Agrega una barra de desplazamiento vertical si el contenido es demasiado largo */
+}
+
+.close-button {
+  cursor: pointer;
+  background: #ff5656;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-top: 10px;
+}
