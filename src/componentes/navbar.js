@@ -70,10 +70,10 @@ const Navbar = ({ user }) => {
   return (
 
     <>
-      <div className="container">
-        <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+      <div>
+        <header class="navbar navbar-dark bg-dark">
           <button
-            className="btn btn-primary"
+            className="btn btn-light"
             id='boton_offcanva'
             type="button"
             data-bs-toggle="offcanvas"
@@ -94,7 +94,20 @@ const Navbar = ({ user }) => {
               />
             </svg>
           </button>
-
+          <ul class="nav nav-pills ">
+  <li class="nav-item">
+    <Link class="nav-link active" aria-current="page" to='/'>Active</Link>
+  </li>
+  <li class="nav-item">
+    <Link class="nav-link" to='/productos'>Link</Link>
+  </li>
+  <li class="nav-item">
+    <Link class="nav-link" to='/paquetes'>Link</Link>
+  </li>
+  <li class="nav-item">
+    <Link class="nav-link" aria-disabled="true" to='/'>Disabled</Link>
+  </li>
+</ul>
           <div className="d-flex align-items-center">
 
             <form className="w-100 me-3" role="search">
@@ -140,7 +153,7 @@ const Navbar = ({ user }) => {
 
 
 
-      <div className="offcanvas offcanvas-start" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+      <div className="offcanvas offcanvas-start bg-dark" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
         <div className="offcanvas-header">
           <h5 className="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
           <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -164,10 +177,10 @@ const Navbar = ({ user }) => {
 
         <div className="btn-group">
 
-          <button style={{ margin: "13px" }} className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button style={{ margin: "13px" }} className="btn btn-secondary dropdown-toggle text-dark bg-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             Opciones de cuenta
           </button>
-          <ul className="dropdown-menu dropdown-menu-dark">
+          <ul className="dropdown-menu dropdown-menu-light">
             {user ? (
               <>
                 <li>
@@ -214,12 +227,12 @@ const Navbar = ({ user }) => {
           </ul>
         </div>
 
-        <div className="offcanvas-body">
+        <div className="offcanvas-body bg-dark">
 
-          <ul className="list-group">
-            <li className="list-group-item d-flex justify-content-between align-items-center">
+          <ul className="list-group ">
+            <li className="list-group-item  justify-content-between align-items-center ">
               <Link className="nav-link" to="/">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-house" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" className="bi bi-house" viewBox="0 0 16 16">
                   <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
                 </svg>     Home
               </Link>

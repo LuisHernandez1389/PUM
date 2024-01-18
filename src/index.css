@@ -1,3 +1,7 @@
+*{
+    font:400;
+}
+
 /* Barra de busqueda */
 .navbar{
     background-color: #161624;

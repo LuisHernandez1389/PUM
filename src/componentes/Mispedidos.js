@@ -1,4 +1,4 @@
-import {database} from '../firebase'
+import { database } from '../firebase'
 import { useState, useEffect } from "react"
 import { ref, onValue } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
@@ -9,36 +9,49 @@ const Mispedidos = () => {
   const userUID = auth.currentUser.uid;
 
   useEffect(() => {
-      const databaseRef = ref(database, 'ordenes');
-      onValue(databaseRef, (snapshot) => {
-          const ordenes = [];
-          snapshot.forEach((childSnapshot) => {
-              const orden = {
-                  id: childSnapshot.key,
-                  ...childSnapshot.val(),
-              };
-              if (orden.usuario && orden.usuario.uid === userUID) {
-                  ordenes.push(orden);
-              }
-          });
-          setOrdenes(ordenes);
+    const databaseRef = ref(database, 'ordenes');
+    onValue(databaseRef, (snapshot) => {
+      const ordenes = [];
+      snapshot.forEach((childSnapshot) => {
+        const orden = {
+          id: childSnapshot.key,
+          ...childSnapshot.val(),
+        };
+        if (orden.usuario && orden.usuario.uid === userUID) {
+          ordenes.push(orden);
+        }
       });
+      setOrdenes(ordenes);
+      console.log(ordenes)
+    });
   }, [userUID]);
-    return (
-      <div>
-        <form class="w-100 me-3" role="search">
-          <input type="search" class="form-control" placeholder="Search..." aria-label="Search"/>
-        </form>
-      <h3>Lista de Órdenes</h3>
-      <ul>
-          {ordenes.map((orden, index) => (
-              <li key={index}>{orden.id}</li>
 
-          ))}
-      </ul>
-      
+  return (
+    <div className="card text-center">
+          <div className="card-header">
+      PEDIDOS
+    </div>
+      {ordenes.map((orden, index) => (
+  <div key={index} className="card text-center">
+
+    <div className="card-body">
+    <ul key={index}>
+      <li>{orden.id}</li>
+      <li>{orden.usuario.nombre} {orden.usuario.apellido}</li>
+      <li>{orden.usuario.email}</li>
+      <li>{orden.usuario.direccion}</li>
+      <li>{orden.total}</li>
+    </ul>
+
+      <a href="#" className="btn btn-primary">VOLVER A COMPRAR</a>
+    </div>
+    <div className="card-footer text-body-secondary">
+    <p>Fecha de Compra: {orden.fechaCompra ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(orden.fechaCompra)) : new Date().toLocaleString()}</p>
+    </div>
   </div>
-    )
+))}
+    </div>
+  )
 }
 
 export default Mispedidos

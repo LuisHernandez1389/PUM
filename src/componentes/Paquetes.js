@@ -82,6 +82,7 @@ function PaquetesList() {
           </div>
         </div>
       </div>
+      
     </div>
   );
 }

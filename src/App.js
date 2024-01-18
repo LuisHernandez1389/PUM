@@ -4,7 +4,7 @@ import { auth } from "./firebase";
 import Navbar from './componentes/navbar';
 import LoadingPlaceholder from './componentes/LoadingPlaceholder'; // Componente de indicador de carga
 import "./App.css";
-import { BusquedaProvider } from './componentes/BusquedaContext';
+
 
 
 // Componentes que deseas cargar de forma diferida
@@ -45,7 +45,7 @@ const App = (selectedProduct) => {
     <div>
 
       <BrowserRouter>
-      <BusquedaProvider>
+
       <Navbar selectedProduct={selectedProduct} user={user} photoURL={photoURL} />
         <Suspense fallback={<LoadingPlaceholder />}>
           <Routes>
@@ -55,7 +55,7 @@ const App = (selectedProduct) => {
             <Route path="/admin" element={user ? <Admin /> : <Navigate to="/login" />} />
             <Route path="/eventos" element={<Eventos />} />
             <Route path="/paquetes" element={<Paquetes />} />
-            <Route path="/cohetes" element={<Productos />} />
+            <Route path="/productos" element={<Productos />} />
             <Route path="/contacto" element={<Conctato />} />
             <Route path="/micuenta" element={user ? <FormUser onPhotoChange={handlePhotoChange} /> : <Navigate to="/login" />} />
             <Route path="/micarrito" element={user ? <Micarrito /> : <Navigate to="/login" />} />
@@ -66,7 +66,7 @@ const App = (selectedProduct) => {
             <Route path="/busqueda" component={BusquedaPage} />
           </Routes>
         </Suspense>
-        </BusquedaProvider>
+
       </BrowserRouter>
     </div>
   );
