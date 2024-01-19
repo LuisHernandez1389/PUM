@@ -16,7 +16,6 @@ const Productos = lazy(() => import('./componentes/Productos'));
 const Micarrito = lazy(() => import('./componentes/Micarrito'));
 const Mispedidos = lazy(() => import('./componentes/Mispedidos'));
 const Recomendaciones = lazy(() => import('./componentes/Recomendaciones'));
-const Admin = lazy(() => import('./componentes/Admin'));
 const FormUser = lazy(() => import('./componentes/UserView'));
 const Login = lazy(() => import('./componentes/Login'));
 const Register = lazy(() => import('./componentes/Register'));
@@ -52,7 +51,7 @@ const App = (selectedProduct) => {
             <Route path="/" element={<Home />} />
             <Route path='/detalles-paquetes' element={<PaqueteDetails/>} />
             <Route path="/navbar" element={<Navbar/>}/>
-            <Route path="/admin" element={user ? <Admin /> : <Navigate to="/login" />} />
+
             <Route path="/eventos" element={<Eventos />} />
             <Route path="/paquetes" element={<Paquetes />} />
             <Route path="/productos" element={<Productos />} />

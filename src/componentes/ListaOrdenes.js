@@ -32,7 +32,6 @@ const ListaOrdenes = () => {
   
       setOrdenes(ordenesConDetalles);
       setordenesAtendidas(ordenesAtendidasConDetalles);
-      console.log(ordenes[0].productos)
     });
   
     // Devolver una función de limpieza para desuscribirse cuando el componente se desmonte

@@ -158,7 +158,7 @@ function Cohetes() {
 
       
       <div className="modal " tabIndex="-1" id="cohetesModal" ref={modalRef}>
-        <div className="modal-dialog  ">
+        <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
               <h5 style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center' }}>Productos</h5>
