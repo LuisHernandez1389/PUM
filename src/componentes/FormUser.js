@@ -1,199 +1,128 @@
-import React, { useState, useEffect } from "react";
-import { auth, database, storage } from "../firebase";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-  signInWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
-import { ref, push, set, get } from "firebase/database";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { onValue, ref, getDatabase, push, update, query, orderByChild, equalTo, get } from 'firebase/database';
+import { database } from '../firebase';
+import "../estilos/ProductDetails.css";
 
-function FormUser() {
-  const [nombre, setNombre] = useState("");
-  const [apellido, setApellido] = useState("");
-  const [numeroTelefono, setNumeroTelefono] = useState("");
-  const [direccion, setDireccion] = useState("");
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoURL, setPhotoURL] = useState(""); // Para almacenar la URL de la foto
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [userProfile, setUserProfile] = useState(null);
-  const [photoChanged, setPhotoChanged] = useState(false); // Nuevo estado para rastrear cambios en la foto
+const ProductDetails = ({ producto, onClose, currentUser }) => {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [userRating, setUserRating] = useState(0);
+  const [userHasRated, setUserHasRated] = useState(false);
+  const userId = currentUser ? currentUser.uid : null; // Obtener el UID del usuario actual
 
   useEffect(() => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      setEmail(currentUser.email);
-      setNombre("");
-      setApellido("");
-      setNumeroTelefono("");
-      setDireccion("");
-      setUserProfile(currentUser);
-      loadUserData(currentUser);
-    }
-  }, []);
+    const productRef = ref(database, `productos/${id}`);
 
-  const loadUserData = async (user) => {
-    const userUid = user.uid;
-    const userRef = ref(database, "users/" + userUid);
-
-    try {
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
-        setNombre(userData.nombre || "");
-        setApellido(userData.apellido || "");
-        setNumeroTelefono(userData.numeroTelefono || "");
-        setDireccion(userData.direccion || "");
-        // ...otros campos...
-        setPhotoURL(userData.photoURL || ""); // Cargar la URL de la foto si está disponible
-      }
-    } catch (error) {
-      console.error("Error al cargar datos del usuario:", error.message);
-    }
-  };
-
-  const handleRegistration = async () => {
-    try {
-      if (userProfile === null) {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        const user = userCredential.user;
-        await updateProfile(user, {
-          displayName: nombre,
-        });
-
-        const userUid = user.uid;
-        const userRef = ref(database, "users/" + userUid);
-
-        // Guardar datos del usuario
-        await set(userRef, {
-          nombre,
-          apellido,
-          numeroTelefono,
-          direccion,
-          photoURL: photoChanged ? photoURL : "", // Guardar la URL de la foto en la base de datos solo si ha cambiado
-        });
-
-        // Subir la foto al Storage si ha cambiado
-        if (photoChanged && photoFile) {
-          const photoRef = storageRef(storage, `user-profiles/${userUid}/photo.jpg`);
-          await uploadBytes(photoRef, photoFile);
+    const getProductDetails = (snapshot) => {
+      try {
+        if (snapshot.exists()) {
+          const productData = snapshot.val();
+          setProduct(productData);
+        } else {
+          console.error('Datos del producto no encontrados');
         }
-      } else {
-        await updateProfile(auth.currentUser, {
-          displayName: nombre,
-        });
+      } catch (error) {
+        console.error('Error al obtener detalles del producto:', error);
+      }
+    };
 
-        const userUid = auth.currentUser.uid;
-        const userRef = ref(database, "users/" + userUid);
+    const databaseInstance = getDatabase();
+    const productDatabaseRef = ref(databaseInstance, `productos/${id}`);
+    const productListener = onValue(productDatabaseRef, getProductDetails);
 
-        // Actualizar datos del usuario
-        await set(userRef, {
-          nombre,
-          apellido,
-          numeroTelefono,
-          direccion,
-          photoURL: photoChanged ? photoURL : "", // Guardar la URL de la foto en la base de datos solo si ha cambiado
-        });
-
-        // Subir la foto al Storage si ha cambiado
-        if (photoChanged && photoFile) {
-          const photoRef = storageRef(storage, `user-profiles/${userUid}/photo.jpg`);
-          await uploadBytes(photoRef, photoFile);
+    const checkUserRating = async () => {
+      if (userId) { // Verificar si hay un usuario autenticado
+        const ratingsRef = ref(database, `productos/${id}/calificaciones`);
+        const userRatingQuery = query(ratingsRef, orderByChild('userId'), equalTo(userId));
+        const snapshot = await get(userRatingQuery);
+        if (snapshot.exists()) {
+          const userRatingData = snapshot.val();
+          setUserRating(userRatingData.rating);
+          setUserHasRated(true);
         }
       }
-    } catch (error) {
-      console.error("Error al registrar usuario:", error.message);
+    };
+
+    checkUserRating();
+
+    return () => {
+      productListener();
+    };
+  }, [id, userId]);
+
+  const handleRatingChange = (stars) => {
+    if (!userHasRated && userId) {
+      setUserRating(stars);
+
+      const ratingsRef = ref(database, `productos/${id}/calificaciones`);
+      const newRatingRef = push(ratingsRef);
+      update(newRatingRef, { rating: stars, userId: userId });
+      setUserHasRated(true);
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error.message);
-    }
-  };
-
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    setPhotoFile(file);
-    setPhotoChanged(true); // Marcar que la foto ha cambiado
-  };
-
+  if (!product) {
+    return <p>Cargando...</p>;
+  }
   return (
-    <div className="container d-flex justify-content-center align-items-center vh-100">
-      <div className="form-control">
-        {userProfile && (
-          <div>
-            <button onClick={handleSignOut}>Cerrar Sesión</button>
+    <>
+      <div className="container card product-general">
+        <div className="row">
+          <div className="col-md-8">
+            <div className="photo-product-details col-md-6">
+              <img src={product?.imagenUrl} alt={product?.nombre} />
+            </div>
           </div>
-        )}
-        <div>
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
-          />
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            className="form-control"
-          />
-          <input
-            type="text"
-            placeholder="Apellido"
-            value={apellido}
-            onChange={(e) => setApellido(e.target.value)}
-            className="form-control"
-          />
-          <input
-            type="text"
-            placeholder="Número de Teléfono"
-            value={numeroTelefono}
-            onChange={(e) => setNumeroTelefono(e.target.value)}
-            className="form-control"
-          />
-          <input
-            type="text"
-            placeholder="Dirección"
-            value={direccion}
-            onChange={(e) => setDireccion(e.target.value)}
-            className="form-control"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            className="form-control"
-          />
-          {photoURL && (
-            <img src={photoURL} alt="Foto de perfil" />
-          )}
-          <button onClick={handleRegistration} className="btn btn-primary btn-block">
-            {userProfile ? "Actualizar perfil" : "Registrarse"}
-          </button>
+          <div className="col-md-4 container-details">
+            <div className="product-details-display form-control">
+              <h2>{product?.nombre}</h2>
+
+              <div className="star d-flex justify-content-center small text-warning mb-2">
+                <div>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      onClick={() => handleRatingChange(star)}
+                      style={{
+                        cursor: 'pointer',
+                        color: star <= userRating ? 'gold' : 'gray',
+                        fontSize: '24px',
+                      }}
+                    >
+                      &#9733;
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <hr />
+                <h4>$ {product?.precio}</h4>
+                <hr />
+                {product?.descripcion}
+                <hr />
+              </div>
+              <div className='button-add'>
+                <button className='btn btn-primary'>Agregar al carrito</button>
+              </div>
+
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+      <br />
+      <div className='container card video'>
+        {product?.video && (
+          <div>
+            <iframe className='video-product' title="video" src={product?.video} frameBorder="0" allowFullScreen></iframe>
+          </div>
+        )}
+      </div>
 
-export default FormUser;
+    </>
+  );
+
+};
+
+export default ProductDetails;

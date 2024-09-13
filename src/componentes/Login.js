@@ -23,49 +23,67 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-md-6 mx-auto">
-          <div className="card">
-            <div className="card-body">
-              <h2 className="card-title">Iniciar sesión</h2>
-              <form onSubmit={handleLogin}>
-                <div className="mb-3">
-                  <label htmlFor="exampleInputEmail1" className="form-label">
-                    Correo electrónico
-                  </label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="exampleInputEmail1"
-                    placeholder="Correo electrónico"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="exampleInputPassword1" className="form-label">
-                    Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="exampleInputPassword1"
-                    placeholder="Contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                {error && <p className="text-danger">{error}</p>}
-                <button type="submit" className="btn btn-primary btn-block">
-                  Iniciar sesión
-                </button>
-              </form>
+    <section className="vh-100" >
+      <div className="container py-5 h-100">
+        <div className="row d-flex justify-content-center align-items-center h-100">
+          <div className="col-md-6 col-lg-5 d-none d-lg-flex">
+            <img
+              src="https://mdbootstrap.com/img/new/ecommerce/vertical/004.jpg"
+              alt="Trendy Pants and Shoes"
+              className="w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5"
+              height='600px'
+            />
+          </div>
+          <div className="col-md-6 col-lg-7">
+            <div className="card" style={{ borderRadius: "1rem" }}>
+              <div className="card-body py-5 px-md-5">
+                <form onSubmit={handleLogin}>
+
+                  <div className="form-outline mb-4">
+                    <input
+                      type="email"
+                      id="form2Example1"
+                      className="form-control"
+                      placeholder="Correo electrónico"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <label className="form-label" htmlFor="form2Example1">Correo electrónico</label>
+                  </div>
+
+                  <div className="form-outline mb-4">
+                    <input
+                      type="password"
+                      id="form2Example2"
+                      className="form-control"
+                      placeholder="Contraseña"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <label className="form-label" htmlFor="form2Example2">Contraseña</label>
+                  </div>
+
+                  <div className="row mb-4">
+                    <div className="col d-flex justify-content-center">
+                      <div className="form-check">
+                        <input className="form-check-input" type="checkbox" value="" id="form2Example31" checked />
+                        <label className="form-check-label" htmlFor="form2Example31">Recordarme</label>
+                      </div>
+                    </div>
+                    <div className="col">
+                      <a href="#!" className="text-decoration-none">¿Olvidaste tu contraseña?</a>
+                    </div>
+                  </div>
+
+                  {error && <p className="text-danger">{error}</p>}
+                  <button type="submit" className="btn btn-primary btn-block mb-4">Iniciar sesión</button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

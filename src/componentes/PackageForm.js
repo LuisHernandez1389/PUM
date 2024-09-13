@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { database, storage } from '../firebase';
-import { ref,  push,  onValue} from 'firebase/database';
+import { ref, push, onValue } from 'firebase/database';
 import { uploadBytes, ref as storageReference, getDownloadURL } from 'firebase/storage';
 
 function CrearPaquete() {
@@ -9,7 +9,7 @@ function CrearPaquete() {
   const [productosDisponibles, setProductosDisponibles] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
-  const [descripcion, setDescripcion] = useState(''); 
+  const [descripcion, setDescripcion] = useState('');
 
   useEffect(() => {
     const productosRef = ref(database, 'productos');

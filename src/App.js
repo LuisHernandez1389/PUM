@@ -4,7 +4,10 @@ import { auth } from "./firebase";
 import Navbar from './componentes/navbar';
 import LoadingPlaceholder from './componentes/LoadingPlaceholder'; // Componente de indicador de carga
 import "./App.css";
-
+import { database } from './firebase';
+import SearchProductDetails from './componentes/SearchProductDetails';
+import ProductDetails from './componentes/ProductDetails';
+import SearchPage from './componentes/SearchPage';
 
 
 // Componentes que deseas cargar de forma diferida
@@ -19,18 +22,16 @@ const Recomendaciones = lazy(() => import('./componentes/Recomendaciones'));
 const FormUser = lazy(() => import('./componentes/UserView'));
 const Login = lazy(() => import('./componentes/Login'));
 const Register = lazy(() => import('./componentes/Register'));
-const PaqueteDetails = lazy(()=> import('./componentes/PaqueteDetails'))
-const BusquedaPage = lazy(() => import('./vistas/BusquedaPage'))
-const App = (selectedProduct) => {
-  const [user, setUser] = useState(null); // Supongamos que también tienes información del usuario
-  const [photoURL, setPhotoURL] = useState('');
+const PaqueteDetails = lazy(() => import('./componentes/PaqueteDetails'))
 
-  const handlePhotoChange = (newPhotoURL) => {
-    setPhotoURL(newPhotoURL); // Función para actualizar la foto de perfil
-  };
+const App = (selectedProduct) => {
+  const [user, setUser] = useState(null); 
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
+      setLoading(false); 
       if (user) {
         setUser(user);
       } else {
@@ -39,33 +40,36 @@ const App = (selectedProduct) => {
     });
     return () => unsubscribe();
   }, []);
-
+  if (loading) {
+    return <LoadingPlaceholder />;
+  }
   return (
     <div>
-
       <BrowserRouter>
-
-      <Navbar selectedProduct={selectedProduct} user={user} photoURL={photoURL} />
+        <Navbar
+          user={user}
+        />
         <Suspense fallback={<LoadingPlaceholder />}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path='/detalles-paquetes' element={<PaqueteDetails/>} />
-            <Route path="/navbar" element={<Navbar/>}/>
+            <Route path='/detalles-paquetes' element={<PaqueteDetails />} />
+            <Route path="/producto/:id" element={<ProductDetails selectedProduct={selectedProduct} />} />
 
+            <Route path="/navbar" element={<Navbar />} />
             <Route path="/eventos" element={<Eventos />} />
             <Route path="/paquetes" element={<Paquetes />} />
             <Route path="/productos" element={<Productos />} />
             <Route path="/contacto" element={<Conctato />} />
-            <Route path="/micuenta" element={user ? <FormUser onPhotoChange={handlePhotoChange} /> : <Navigate to="/login" />} />
+            <Route path="/micuenta" element={user ? <FormUser  /> : <Navigate to="/login" />} />
             <Route path="/micarrito" element={user ? <Micarrito /> : <Navigate to="/login" />} />
             <Route path="/mispedidos" element={user ? <Mispedidos /> : <Navigate to="/login" />} />
             <Route path="/recomendaciones" element={user ? <Recomendaciones /> : <Navigate to="/login" />} />
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-            <Route path="/busqueda" component={BusquedaPage} />
+
+            <Route path="/search-page" element={<SearchPage/>} />
           </Routes>
         </Suspense>
-
       </BrowserRouter>
     </div>
   );

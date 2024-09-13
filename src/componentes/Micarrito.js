@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback  } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { database } from '../firebase';
-import { ref, onValue,push } from 'firebase/database';
+import { ref, onValue, push } from 'firebase/database';
 import ReactDOM from "react-dom";
 import "../estilos/carrito.css"
 import { auth } from '../firebase';
@@ -20,7 +20,7 @@ function Micarrito() {
   const popoverRef = useRef(null);
   const [user, setUser] = useState(null);
 
-  
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -30,7 +30,7 @@ function Micarrito() {
       }
     });
     return () => unsubscribe();
-    
+
   }, []);
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -81,9 +81,6 @@ function Micarrito() {
     console.log(carritoPeso);
   }, [carrito, productosDatabase, calcularTotal, carritoPeso]);
 
-
-
-
   const createOrder = (data, actions) => {
     return actions.order.create({
       purchase_units: [
@@ -100,10 +97,10 @@ function Micarrito() {
     return actions.order.capture().then(async function (details) {
       setIsPayPalButtonRendered(true);
       const detailsArray = Object.entries(details).map(([key, value]) => ({ key, value }));
-  
+
       const auth = getAuth();
       const user = auth.currentUser;
-  
+
       if (user) {
         const userUid = user.uid;
         const userRef = ref(database, 'users/' + userUid);
@@ -112,7 +109,7 @@ function Micarrito() {
           const snapshot = await get(userRef);
           if (snapshot.exists()) {
             const userData = snapshot.val();
-  
+
             // Crear un objeto para representar la orden
             const orden = {
               usuario: {
@@ -129,10 +126,10 @@ function Micarrito() {
               detallesPago: detailsArray, // Detalles del pago
               // Otros detalles de la orden que desees guardar
             };
-  
+
             // Obtener una referencia al nodo 'ordenes' en Firebase
             const ordenesRef = ref(database, 'ordenes');
-  
+
             // Guardar la orden en Firebase usando push()
             push(ordenesRef, orden)
               .then(() => {
@@ -154,7 +151,7 @@ function Micarrito() {
       }
     });
   };
-  
+
 
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
@@ -187,7 +184,7 @@ function Micarrito() {
     }
     return totalPeso;
   }, 0);
-  
+
   const anyadirProductoAlCarrito = useCallback((productoId, pesoProducto) => {
     const pesoEnGramos = pesoProducto;
 
@@ -208,7 +205,7 @@ function Micarrito() {
   const renderizarProductos = React.useCallback(() => {
     // Filtrar los productos que están en el carrito
     const productosEnCarrito = productosDatabase.filter((producto) => carrito.includes(producto.id));
-  
+
     return productosEnCarrito.map((info) => (
       <div key={info.id} className="card col-sm-4">
         <div className="card-body">
@@ -226,12 +223,19 @@ function Micarrito() {
           </div>
         </div>
       </div>
-  ));
-}, [carrito, productosDatabase, anyadirProductoAlCarrito]);
+    ));
+  }, [carrito, productosDatabase, anyadirProductoAlCarrito]);
+  const calcularTotalUnidades = useCallback(() => {
+    return carrito.reduce((total, item) => {
+      return total + 1; // Suma 1 por cada item en el carrito
+    }, 0);
+  }, [carrito]);
   
-
-
+  const [totalUnidades, setTotalUnidades] = useState(calcularTotalUnidades());
   
+  useEffect(() => {
+    setTotalUnidades(calcularTotalUnidades());
+  }, [carrito, calcularTotalUnidades]);
   const renderizarCarrito = () => {
     const carritoSinDuplicados = [...new Set(carrito)];
 
@@ -243,13 +247,28 @@ function Micarrito() {
 
         return (
           <li key={item} className="list-group-item text-right mx-2">
-            {numeroUnidadesItem} x {miItem.nombre} - {miItem.precio}{divisa}
-            <button
-              className="btn btn-danger mx-5"
-              onClick={() => borrarItemCarrito(item)}
-            >
-              X
-            </button>
+            <div className='d-flex align-items-center'>
+              <div className='col-sm-6'>
+                <img className='img-product' src={miItem.imagenUrl} />
+              </div>
+              <div className='col-sm-6 d-flex align-items-center'>
+                <div className='me-auto'>
+                  <div>Unidades: {numeroUnidadesItem}</div>
+                  <div>{miItem.nombre}</div>
+                  <div>{miItem.precio}{divisa}</div>
+                </div>
+                <button
+                  className="btn btn-danger mx-5"
+                  onClick={() => borrarItemCarrito(item)}>x
+                </button>
+              </div>
+            </div>
+
+
+
+
+
+
           </li>
         );
       } else {
@@ -268,40 +287,43 @@ function Micarrito() {
       const pesoProducto = itemCarrito.peso;
       const nuevoCarrito = carrito.filter((itemId) => itemId !== productoId);
       setCarrito(nuevoCarrito);
-  
+
       guardarCarritoEnLocalStorage(nuevoCarrito);
-  
+
       const pesoCarritoActualizado = pesoActualCarrito - pesoProducto;
       setCarritoPeso(pesoCarritoActualizado);
       localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
     }
   };
-  
 
-const vaciarCarrito = () => {
-  setCarrito([]);
-  setCarritoPeso(0); // Reiniciar el peso del carrito
-  guardarCarritoEnLocalStorage([]);
-};
 
-  
+  const vaciarCarrito = () => {
+    setCarrito([]);
+    setCarritoPeso(0); // Reiniciar el peso del carrito
+    guardarCarritoEnLocalStorage([]);
+  };
+
+
   return (
     <div className="container">
       <br />
       <div className="row">
-        <main id="items" className="col-sm-8 row">
-          {renderizarProductos()}
-        </main>
-        <aside className="col-sm-4">
-          <h2>Carrito</h2>
-          <ul id="carrito" className="list-group">
-            {renderizarCarrito()}
-          </ul>
-          <hr />
-          <p className="text-right">Total: <span id="total">{total}</span>{divisa}</p>
+        <aside className="col-sm-12">
 
-          <button id="boton-vaciar" className="btn btn-danger" onClick={vaciarCarrito}>Vaciar</button>
-          <button className='btn btn-primary' onClick={handleOpenPopover}>Comprar</button>
+          <div className='row flex-sm-row'>
+            <div className='col-sm-9'>
+              <ul id="carrito" className="list-group">
+                {renderizarCarrito()}
+              </ul>
+            </div>
+            <div className='col-sm-3'>
+              <h2>Resumen</h2>
+              <p>Cantidad de articulos: {totalUnidades}</p>
+              <p className="text-right"><span id="total"> <h2>Total:{total}{divisa}</h2></span></p>
+              <button id="boton-vaciar" className="btn btn-danger" onClick={vaciarCarrito}>Vaciar</button>
+              <button className='btn btn-primary' onClick={handleOpenPopover}>Comprar</button>
+            </div>
+          </div>
 
         </aside>
 

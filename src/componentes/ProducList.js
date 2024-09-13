@@ -15,15 +15,15 @@ function ProductList({
 }) {
   const [products, setProducts] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
-const [selectedProduct, setSelectedProduct] = useState({
-  id: '',
-  nombre: '',
-  descripcion: '',
-  peso: 0,
-  precio: 0,
-  cantidad: 0,
-  // ... other properties you might have
-});
+  const [selectedProduct, setSelectedProduct] = useState({
+    id: '',
+    nombre: '',
+    descripcion: '',
+    peso: 0,
+    precio: 0,
+    cantidad: 0,
+    // ... other properties you might have
+  });
   const [excelFile, setExcelFile] = useState(null);
 
   const handleUpdateProduct = async () => {
@@ -53,7 +53,7 @@ const [selectedProduct, setSelectedProduct] = useState({
     setSelectedProduct(null);
   };
 
-  
+
   useEffect(() => {
     const productListRef = ref(database, `productos`);
 
@@ -122,17 +122,17 @@ const [selectedProduct, setSelectedProduct] = useState({
       reader.readAsDataURL(file);
     }
   };
-  
+
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Productos');
 
     // Encabezados de la tabla
-    worksheet.addRow(['id', 'nombre', 'descripcion', 'peso', 'precio', 'cantidad' ]);
+    worksheet.addRow(['id', 'nombre', 'descripcion', 'peso', 'precio', 'cantidad', 'photoURL']);
 
     // Agregar datos de productos a la hoja de cálculo
     products.forEach((product) => {
-      worksheet.addRow([product.id, product.nombre, product.descripcion, product.peso, product.precio, product.cantidad]);
+      worksheet.addRow([product.id, product.nombre, product.descripcion, product.peso, product.precio, product.cantidad, product.photoURL]);
     });
 
     // Crear un Blob con el contenido del archivo Excel
@@ -151,23 +151,23 @@ const [selectedProduct, setSelectedProduct] = useState({
 
   const handleImportExcel = async (event) => {
     const file = event.target.files[0];
-  
+
     try {
       const rows = await readXlsxFile(file);
       // El primer elemento de rows es el encabezado, así que omitimos ese elemento
       const [, ...data] = rows;
       const importedProductIds = [];
-  
+
       // Actualizar la base de datos con los datos importados
       data.forEach(async (row) => {
         const [id, nombre, descripcion, peso, precio, cantidad, photoURL, ...restoDePropiedades] = row;
         importedProductIds.push(id);
-  
+
         // Obtener el producto actual en Firebase para verificar si existe
         const existingProduct = products.find(product => product.id === id);
-  
+
         const productRef = ref(database, `productos/${id}`);
-  
+
         // Crear un objeto con las propiedades que deseas actualizar
         const productDataToUpdate = {
           id,
@@ -176,33 +176,34 @@ const [selectedProduct, setSelectedProduct] = useState({
           peso,
           precio,
           cantidad,
-           // Conserva la photoURL existente o actualiza con la nueva del archivo Excel
+
+          // Conserva la photoURL existente o actualiza con la nueva del archivo Excel
           // ...restoDePropiedades, // Descomenta esta línea si deseas incluir otras propiedades en el producto
         };
-  
+
         // Actualizar solo las propiedades especificadas en la base de datos
         await update(productRef, productDataToUpdate);
       });
-  
+
       // Obtener IDs actuales de los productos en Firebase
       const currentProductIds = products.map(product => product.id);
-  
+
       // Identificar IDs que han sido eliminados
       const deletedProductIds = currentProductIds.filter(id => !importedProductIds.includes(id));
-  
+
       // Eliminar productos en Firebase que han sido eliminados del archivo Excel
       deletedProductIds.forEach(async (productId) => {
         const productRef = ref(database, `productos/${productId}`);
         await remove(productRef);
       });
-  
+
       alert('Datos importados exitosamente');
     } catch (error) {
       console.error('Error al importar datos desde el archivo Excel:', error);
       alert('Hubo un error al importar los datos. Por favor, inténtalo de nuevo.');
     }
   };
-  
+
   return (
     <div className="container">
       <h2 className="mt-4 mb-3">Lista de Productos</h2>
@@ -246,43 +247,43 @@ const [selectedProduct, setSelectedProduct] = useState({
         ))}
       </div>
       <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div className="modal-dialog">
-    <div className="modal-content">
-      <div className="modal-header">
-        <h1 className="modal-title fs-5" id="exampleModalLabel">Editar Producto</h1>
-        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">Editar Producto</h1>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <form>
+                <div className="mb-3">
+                  <label htmlFor="nombre" className="form-label">Nombre del Producto</label>
+                  <input className="form-control" id="nombre" value={selectedProduct.nombre} onChange={(e) => setSelectedProduct({ ...selectedProduct, nombre: e.target.value })} />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="descripcion" className="form-label">Descripción</label>
+                  <textarea className="form-control" id="descripcion" value={selectedProduct.descripcion} onChange={(e) => setSelectedProduct({ ...selectedProduct, descripcion: e.target.value })}></textarea>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="peso" className="form-label">Peso (gramos)</label>
+                  <input type="number" className="form-control" id="peso" value={selectedProduct.peso} onChange={(e) => setSelectedProduct({ ...selectedProduct, peso: parseInt(e.target.value) })} />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="precio" className="form-label">Precio ($)</label>
+                  <input type="number" className="form-control" id="precio" value={selectedProduct.precio} onChange={(e) => setSelectedProduct({ ...selectedProduct, precio: parseFloat(e.target.value) })} />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="imagen" className="form-label">Cambiar Foto</label>
+                  <input type="file" className="form-control" id="imagen" onChange={handleImageChange} accept="image/*" />
+                </div>
+                <button type="button" className="btn btn-primary" onClick={handleUpdateProduct}>Guardar Cambios</button>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="modal-body">
-        <form>
-          <div className="mb-3">
-            <label htmlFor="nombre" className="form-label">Nombre del Producto</label>
-            <input  className="form-control" id="nombre" value={selectedProduct.nombre} onChange={(e) => setSelectedProduct({ ...selectedProduct, nombre: e.target.value })} />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="descripcion" className="form-label">Descripción</label>
-            <textarea className="form-control" id="descripcion" value={selectedProduct.descripcion} onChange={(e) => setSelectedProduct({ ...selectedProduct, descripcion: e.target.value })}></textarea>
-          </div>
-          <div className="mb-3">
-            <label htmlFor="peso" className="form-label">Peso (gramos)</label>
-            <input type="number" className="form-control" id="peso" value={selectedProduct.peso} onChange={(e) => setSelectedProduct({ ...selectedProduct, peso: parseInt(e.target.value) })} />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="precio" className="form-label">Precio ($)</label>
-            <input type="number" className="form-control" id="precio" value={selectedProduct.precio} onChange={(e) => setSelectedProduct({ ...selectedProduct, precio: parseFloat(e.target.value) })} />
-          </div>
-          <div className="mb-3">
-      <label htmlFor="imagen" className="form-label">Cambiar Foto</label>
-      <input type="file" className="form-control" id="imagen" onChange={handleImageChange} accept="image/*" />
-    </div>
-          <button type="button" className="btn btn-primary" onClick={handleUpdateProduct}>Guardar Cambios</button>
-        </form>
-      </div>
-      <div className="modal-footer">
-        <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
       <table className="table">
         <thead>
           <tr>

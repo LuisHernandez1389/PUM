@@ -119,15 +119,15 @@ const FormOrdenes = () => {
         {busqueda.trim() === ''
           ? null
           : productosFiltrados.length === 0
-          ? <p className="text-muted">No se encontraron productos.</p>
-          : productosFiltrados.map((producto) => (
-            <li key={producto.id} className="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <strong>{producto.nombre}</strong> - Cantidad disponible: {producto.cantidad}
-              </div>
-              <button onClick={() => agregarProducto(producto)} className="btn btn-primary">Agregar</button>
-            </li>
-          ))}
+            ? <p className="text-muted">No se encontraron productos.</p>
+            : productosFiltrados.map((producto) => (
+              <li key={producto.id} className="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{producto.nombre}</strong> - Cantidad disponible: {producto.cantidad}
+                </div>
+                <button onClick={() => agregarProducto(producto)} className="btn btn-primary">Agregar</button>
+              </li>
+            ))}
       </ul>
 
       <h2 className="mt-4">Productos Agregados al Pedido</h2>

@@ -44,12 +44,19 @@ const PaqueteDetails = ({ paquete, onClose }) => {
       <img style={{ width: "150px", height: "150px" }} src={imageUrl} alt={paquete?.nombre} />
       <h2>{paquete?.nombre}</h2>
       <ul className="list-group">
-        {productosDetalles.map((producto, index) => (
-          <li key={index} className="list-group-item">
-            <img className='PPimagen' alt={producto.nombre}   src={producto.imagenUrl}/> {producto.nombre} $ {producto.precio}
-          </li>
-        ))}
-      </ul>
+  {productosDetalles.map((producto, index) => (
+    <li key={index} className="list-group-item">
+      <div className="producto-item">
+        <img className='PPimagen' alt={producto.nombre} src={producto.imagenUrl} />
+        <div className="producto-info">
+          <span className="producto-nombre">{producto.nombre}</span>
+          <span className="producto-precio">${producto.precio}</span>
+        </div>
+      </div>
+    </li>
+  ))}
+</ul>
+
     </div>
   );
 };

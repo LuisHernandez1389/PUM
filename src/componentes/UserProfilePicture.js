@@ -9,7 +9,7 @@ export function UserProfilePicture() {
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
 
   useEffect(() => {
-    const unsubscribe = () => {};
+    const unsubscribe = () => { };
 
     if (currentUser) {
       const userRef = ref(database, `users/${currentUser.uid}`);

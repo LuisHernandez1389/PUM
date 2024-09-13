@@ -1,0 +1,14 @@
+.pagination{
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    text-align: center;
+    width: 100%;
+}
+
+@media only screen and (max-width: 767px) {
+    .product-details iframe {
+      width: 100%; 
+      height: auto; 
+    }
+}

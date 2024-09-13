@@ -1,7 +1,7 @@
 const Conctato = () => {
-    return (
-      <div>AJUA</div>
-    )
+  return (
+    <div>AJUA</div>
+  )
 }
 
 export default Conctato

@@ -33,10 +33,6 @@ const BusquedaPage = () => {
 
   return (
     <div>
-      <h1>Página de Búsqueda</h1>
-      <form>
-        <input type="text" value={searchTerm} onChange={handleChange} placeholder="Buscar producto..." />
-      </form>
       
       <div>
         {/* Mostrar los resultados de la búsqueda */}
