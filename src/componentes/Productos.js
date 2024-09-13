@@ -29,6 +29,10 @@ const Productos = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(12);
 
+   // Estados para gestionar productos marcados como favoritos
+  const [likes, setLikes] = useState({});
+  const [userFavorites, setUserFavorites] = useState({});
+
   const showToast = () => {
     // Obtén el elemento toast del DOM
     const toastElement = document.getElementById('myToast');
@@ -38,6 +42,45 @@ const Productos = () => {
 
     // Muestra el toast
     bootstrapToast.show();
+  };
+
+   // Manejador para hacer clic en el icono de "Me gusta"
+  const handleLikeClick = async (productoId) => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      // Si el usuario no está autenticado, maneja el caso según tus necesidades.
+      return;
+    }
+
+    const userId = user.uid;
+
+    // Actualiza la referencia de la base de datos para el usuario actual
+    const userRef = ref(database, `usuarios/${userId}/favoritos`);
+
+    // Convierte productoId en una cadena o realiza algún procesamiento adicional
+    const sanitizedProductId = String(productoId);
+
+    // Obtiene el estado actual de los favoritos del usuario
+    const favoritosUsuario = (await get(child(userRef, sanitizedProductId))).val() || false;
+
+    // Si el producto ya está en favoritos, eliminarlo; de lo contrario, agrégalo
+    if (favoritosUsuario) {
+      set(userRef, {
+        ...userFavorites,
+        [sanitizedProductId]: null,
+      });
+    } else {
+      set(userRef, {
+        ...userFavorites,
+        [sanitizedProductId]: true,
+      });
+    }
+
+    // Guardar la actualización en localStorage
+    const favoritosLocalStorage = { ...likes, [productoId]: !likes[productoId] };
+    setLikes(favoritosLocalStorage);
+    localStorage.setItem('favoritos', JSON.stringify(favoritosLocalStorage));
   };
 
   // Función para abrir los detalles de un producto
@@ -78,6 +121,18 @@ const Productos = () => {
       setProductosDatabase(productos);
     });
 
+     // Obtener favoritos del usuario autenticado desde la base de datos
+    const user = auth.currentUser;
+    if (user) {
+      const userId = user.uid;
+      const userFavoritesRef = ref(database, `usuarios/${userId}/favoritos`);
+      onValue(userFavoritesRef, (snapshot) => {
+        const userFavoritesData = snapshot.val() || {};
+        setUserFavorites(userFavoritesData);
+        setLikes(userFavoritesData); // Inicializar los likes con los datos de favoritos del usuario
+      });
+    }
+    
     return () => {
       setSelectedCohete(null);
     };
@@ -114,9 +169,13 @@ const Productos = () => {
     });
 
     return productosFiltrados.map((info) => (
-      <div key={info.id} className="card col-lg-3 col-md-4 col-sm-6 col-xs-12">
-        <div className="card-body d-flex flex-column h-100">
-          <div className="text-center">
+      <div key={info.id} className="col-lg-3 col-md-4 col-sm-6 col-12 mb-3">
+        <div className="card d-flex flex-column" style={{ height: '100%' }}>
+          <FontAwesomeIcon
+            icon={faHeart}
+            className={`heart-icon ${likes[info.id] || false ? 'liked' : ''}`}
+            onClick={() => handleLikeClick(info.id)}
+          />
             <img
               className="card-img-top"
               src={info.imagenUrl}
