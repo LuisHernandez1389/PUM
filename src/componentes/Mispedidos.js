@@ -17,39 +17,45 @@ const Mispedidos = () => {
           id: childSnapshot.key,
           ...childSnapshot.val(),
         };
+  
         if (orden.usuario && orden.usuario.uid === userUID) {
-          ordenes.push(orden);
+          ordenes.push({
+            ...orden,
+            fechaCompra: orden.fechaCompra || new Date().toISOString(), // Establece la fecha actual si no está presente
+          });
         }
       });
       setOrdenes(ordenes);
-      console.log(ordenes)
     });
   }, [userUID]);
+  
+  
+  
 
   return (
     <div className="card text-center">
-      <div className="card-header">
-        PEDIDOS
-      </div>
+          <div className="card-header">
+      PEDIDOS
+    </div>
       {ordenes.map((orden, index) => (
-        <div key={index} className="card text-center">
+  <div key={index} className="card text-center">
 
-          <div className="card-body">
-            <ul key={index}>
-              <li>{orden.id}</li>
-              <li>{orden.usuario.nombre} {orden.usuario.apellido}</li>
-              <li>{orden.usuario.email}</li>
-              <li>{orden.usuario.direccion}</li>
-              <li>{orden.total}</li>
-            </ul>
+    <div className="card-body">
+    <ul key={index}>
+      <li>{orden.id}</li>
+      <li>{orden.usuario.nombre} {orden.usuario.apellido}</li>
+      <li>{orden.usuario.email}</li>
+      <li>{orden.usuario.direccion}</li>
+      <li>{orden.total}</li>
+    </ul>
 
-            <button className="btn btn-primary">VOLVER A COMPRAR</button>
-          </div>
-          <div className="card-footer text-body-secondary">
-            <p>Fecha de Compra: {orden.fechaCompra ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(orden.fechaCompra)) : new Date().toLocaleString()}</p>
-          </div>
-        </div>
-      ))}
+      <a href="#" className="btn btn-primary">VOLVER A COMPRAR</a>
+    </div>
+    <div className="card-footer text-body-secondary">
+    <p>Fecha de Compra: {orden.fechaCompra ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(orden.fechaCompra)) : new Date().toLocaleString()}</p>
+    </div>
+  </div>
+))}
     </div>
   )
 }
