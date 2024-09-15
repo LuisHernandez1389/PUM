@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { auth, database } from "../firebase";
 import { ref, onValue } from "firebase/database";
-import "../estilos/UserProfilePicture.css";
-
 export function UserProfilePicture() {
   const [photoURL, setPhotoURL] = useState("");
   const [loading, setLoading] = useState(true);

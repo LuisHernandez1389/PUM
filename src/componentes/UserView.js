@@ -6,7 +6,6 @@ import {
 } from "firebase/auth";
 import { ref, set, get } from "firebase/database";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
-import "../estilos/UserView.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import FormOrdenes from '../componentes/FormOrdenes'
@@ -223,13 +222,19 @@ function FormUser() {
         <div className="col-md-6">
           {photoURL && (
             <div className="mb-3 text-center">
-              <img
-                src={photoURL}
-                alt="Foto de perfil"
-                className="img-fluid rounded-circle"
-                style={{ maxWidth: "150px" }}
-              />
-            </div>
+            <img
+              src={photoURL}
+              alt="Foto de perfil"
+              className="rounded-circle"
+              style={{
+                borderRadius: '1000%',
+                width: '100px',
+                height: '100px',
+                maxWidth: '150px'
+              }}
+            />
+          </div>
+          
           )}
           <div className="mb-3">
             <input
