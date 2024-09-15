@@ -5,7 +5,6 @@ import { auth } from '../firebase';
 import { useState, useEffect, } from 'react';
 import { database } from '../firebase';
 import { ref, onValue } from 'firebase/database';
-import "../estilos/navbar.css";
 import { Dropdown, Collapse, initMDB } from "mdb-ui-kit";
 
 initMDB({ Dropdown, Collapse });
