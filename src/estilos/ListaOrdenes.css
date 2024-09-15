@@ -1,0 +1,7 @@
+/* En tu archivo ListaOrdenes.css */
+.scroll-container {
+    max-height: 500px; /* Ajusta este valor según tu preferencia */
+    overflow-y: auto;
+}
+
+/* Agrega más estilos si es necesario */
