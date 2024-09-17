@@ -97,10 +97,10 @@ function Micarrito() {
     return actions.order.capture().then(async function (details) {
       setIsPayPalButtonRendered(true);
       const detailsArray = Object.entries(details).map(([key, value]) => ({ key, value }));
-
+  
       const auth = getAuth();
       const user = auth.currentUser;
-
+  
       if (user) {
         const userUid = user.uid;
         const userRef = ref(database, 'users/' + userUid);
@@ -109,7 +109,7 @@ function Micarrito() {
           const snapshot = await get(userRef);
           if (snapshot.exists()) {
             const userData = snapshot.val();
-
+  
             // Crear un objeto para representar la orden
             const orden = {
               usuario: {
@@ -124,12 +124,13 @@ function Micarrito() {
               productos: carrito, // Lista de productos en la orden
               total: calcularTotal(), // Total de la orden
               detallesPago: detailsArray, // Detalles del pago
+              fechaCompra: new Date().toISOString(), // Fecha y hora de la compra
               // Otros detalles de la orden que desees guardar
             };
-
+  
             // Obtener una referencia al nodo 'ordenes' en Firebase
             const ordenesRef = ref(database, 'ordenes');
-
+  
             // Guardar la orden en Firebase usando push()
             push(ordenesRef, orden)
               .then(() => {
@@ -151,6 +152,7 @@ function Micarrito() {
       }
     });
   };
+  
 
 
   useEffect(() => {
