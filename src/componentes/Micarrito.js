@@ -95,22 +95,23 @@ function Micarrito() {
 
   const onApprove = (data, actions) => {
     return actions.order.capture().then(async function (details) {
-      setIsPayPalButtonRendered(true);
-      const detailsArray = Object.entries(details).map(([key, value]) => ({ key, value }));
-  
       const auth = getAuth();
       const user = auth.currentUser;
   
       if (user) {
         const userUid = user.uid;
         const userRef = ref(database, 'users/' + userUid);
+  
         try {
-          // Obtener datos del usuario desde Firebase Realtime Database
           const snapshot = await get(userRef);
+  
           if (snapshot.exists()) {
             const userData = snapshot.val();
   
-            // Crear un objeto para representar la orden
+            // Crear el array de detalles del pago
+            const detailsArray = Object.entries(details).map(([key, value]) => ({ key, value }));
+  
+            // Crear la orden con la fecha actual
             const orden = {
               usuario: {
                 uid: user.uid,
@@ -118,40 +119,37 @@ function Micarrito() {
                 apellido: userData.apellido,
                 direccion: userData.direccion,
                 numeroTelefono: userData.numeroTelefono,
-                email: user.email
-                // Otros datos del usuario que desees guardar en la orden
+                email: user.email,
               },
-              productos: carrito, // Lista de productos en la orden
-              total: calcularTotal(), // Total de la orden
-              detallesPago: detailsArray, // Detalles del pago
-              fechaCompra: new Date().toISOString(), // Fecha y hora de la compra
-              // Otros detalles de la orden que desees guardar
+              productos: carrito,  // Asegúrate de que carrito esté definido en el ámbito
+              total: calcularTotal(),  // Asegúrate de que calcularTotal esté definido en el ámbito
+              detallesPago: detailsArray,  // Detalles del pago
+              fechaCompra: new Date().toISOString(),  // Fecha de compra actual
             };
   
-            // Obtener una referencia al nodo 'ordenes' en Firebase
+            // Referencia a la base de datos para guardar la orden
             const ordenesRef = ref(database, 'ordenes');
   
-            // Guardar la orden en Firebase usando push()
-            push(ordenesRef, orden)
-              .then(() => {
-                console.log('Orden guardada en Firebase:', orden);
-                // Restablecer el carrito local después de guardar la orden si es necesario
-                setCarrito([]);
-                guardarCarritoEnLocalStorage([]);
-              })
-              .catch((error) => {
-                console.error('Error al guardar la orden en Firebase:', error);
-              });
+            // Guardar la orden en Firebase
+            await push(ordenesRef, orden);
+            console.log('Orden guardada en Firebase:', orden);
+  
+            // Resetear el carrito local después de guardar la orden
+            setCarrito([]);  // Asegúrate de que setCarrito esté definido en el ámbito
+            guardarCarritoEnLocalStorage([]);  // Asegúrate de que esta función esté definida
+  
+          } else {
+            console.log('No se encontraron datos del usuario.');
           }
         } catch (error) {
           console.error('Error al cargar datos del usuario:', error.message);
         }
       } else {
-        // El usuario no está autenticado, maneja el caso según tus necesidades
         console.log('Usuario no autenticado.');
       }
     });
   };
+  
   
 
 
