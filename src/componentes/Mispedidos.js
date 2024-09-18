@@ -91,7 +91,6 @@ const Mispedidos = () => {
         ))
       ) : (
         <p>No hay pedidos disponibles</p>
-        
       )}
     </div>
   );
