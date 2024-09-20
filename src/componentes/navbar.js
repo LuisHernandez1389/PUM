@@ -155,7 +155,10 @@ const Navbar = ({ user }) => {
             <Link class="dropdown-item" to='/micuenta'>Mi Perfil</Link>
           </li>
           <li>
-            <Link class="dropdown-item" to='/mispedidos' >Mis Pedidos</Link>
+            <Link class="dropdown-item" to='/misfavoritos' >Mis favoritos</Link>
+          </li>
+          <li>
+            <Link class="dropdown-item" to='/miscompras' >Mis compras</Link>
           </li>
           <li>
             <Link class="dropdown-item"  onClick={handleLogout} >Cerrar cesion</Link>
