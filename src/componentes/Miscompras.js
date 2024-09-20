@@ -2,9 +2,9 @@ import { database } from '../firebase';
 import { useState, useEffect } from "react";
 import { ref, onValue } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
-import './Mispedidos.css'; // Asegúrate de crear este archivo para los estilos personalizados
+import './Miscompras.css'; // Asegúrate de crear este archivo para los estilos personalizados
 
-const Mispedidos = () => {
+const Miscompras = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [productos, setProductos] = useState([]);
   const auth = getAuth();
@@ -63,7 +63,7 @@ const Mispedidos = () => {
   return (
     <div className="mispedidos-container">
       <div className="card-header text-center">
-        <h3>PEDIDOS</h3>
+        <h3>MIS COMPRAS</h3>
       </div>
       {ordenes.length > 0 ? (
         ordenes.map((orden) => (
@@ -96,4 +96,4 @@ const Mispedidos = () => {
   );
 };
 
-export default Mispedidos;
+export default Miscompras;

@@ -18,7 +18,7 @@ const Paquetes = lazy(() => import('./componentes/Paquetes'));
 const Conctato = lazy(() => import('./componentes/Conctato'));
 const Productos = lazy(() => import('./componentes/Productos'));
 const Micarrito = lazy(() => import('./componentes/Micarrito'));
-const Mispedidos = lazy(() => import('./componentes/Mispedidos'));
+const Miscompras = lazy(() => import('./componentes/Miscompras'));
 const Recomendaciones = lazy(() => import('./componentes/Recomendaciones'));
 const FormUser = lazy(() => import('./componentes/UserView'));
 const Login = lazy(() => import('./componentes/Login'));
@@ -55,7 +55,6 @@ const App = (selectedProduct) => {
             <Route path="/" element={<Home />} />
             <Route path='/detalles-paquetes' element={<PaqueteDetails />} />
             <Route path="/producto/:id" element={<ProductDetails selectedProduct={selectedProduct} />} />
-
             <Route path="/navbar" element={<Navbar />} />
             <Route path="/eventos" element={<Eventos />} />
             <Route path="/paquetes" element={<Paquetes />} />
@@ -63,13 +62,11 @@ const App = (selectedProduct) => {
             <Route path="/contacto" element={<Conctato />} />
             <Route path="/micuenta" element={user ? <FormUser  /> : <Navigate to="/login" />} />
             <Route path="/micarrito" element={user ? <Micarrito /> : <Navigate to="/login" />} />
-            <Route path="/mispedidos" element={user ? <Mispedidos /> : <Navigate to="/login" />} />
+            <Route path="/miscompras" element={user ? <Miscompras /> : <Navigate to="/login" />} />
             <Route path="/recomendaciones" element={user ? <Recomendaciones /> : <Navigate to="/login" />} />
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
             <Route path="/misfavoritos" element={user ? <MisFavoritos /> : <Navigate to="/login" />} />
-            <Route path="/mispedidos" element={user ? <Mispedidos /> : <Navigate to="/login" />} />
-
             <Route path="/search-page" element={<SearchPage/>} />
           </Routes>
         </Suspense>

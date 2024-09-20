@@ -116,7 +116,7 @@ const Navbar = ({ user }) => {
         <Link class="nav-link" to='/misfavoritos'>Mis favoritos</Link>
         </li>
         <li class="nav-item">
-        <Link class="nav-link" to='/mispedidos'>Mis pedidos</Link>
+        <Link class="nav-link" to='/miscompras'>Mis compras</Link>
         </li>
         <li class="nav-item">
         <Link class="nav-link" to='/micuenta'>Mi cuenta</Link>
