@@ -4,8 +4,7 @@ import { auth } from "./firebase";
 import Navbar from './componentes/navbar';
 import LoadingPlaceholder from './componentes/LoadingPlaceholder'; // Componente de indicador de carga
 import "./App.css";
-import { database } from './firebase';
-import SearchProductDetails from './componentes/SearchProductDetails';
+
 import ProductDetails from './componentes/ProductDetails';
 import SearchPage from './componentes/SearchPage';
 import MisFavoritos from './componentes/Misfavoritos';
