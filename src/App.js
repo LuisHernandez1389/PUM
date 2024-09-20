@@ -19,7 +19,6 @@ const Conctato = lazy(() => import('./componentes/Conctato'));
 const Productos = lazy(() => import('./componentes/Productos'));
 const Micarrito = lazy(() => import('./componentes/Micarrito'));
 const Miscompras = lazy(() => import('./componentes/Miscompras'));
-const Recomendaciones = lazy(() => import('./componentes/Recomendaciones'));
 const FormUser = lazy(() => import('./componentes/UserView'));
 const Login = lazy(() => import('./componentes/Login'));
 const Register = lazy(() => import('./componentes/Register'));
@@ -63,7 +62,6 @@ const App = (selectedProduct) => {
             <Route path="/micuenta" element={user ? <FormUser  /> : <Navigate to="/login" />} />
             <Route path="/micarrito" element={user ? <Micarrito /> : <Navigate to="/login" />} />
             <Route path="/miscompras" element={user ? <Miscompras /> : <Navigate to="/login" />} />
-            <Route path="/recomendaciones" element={user ? <Recomendaciones /> : <Navigate to="/login" />} />
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
             <Route path="/misfavoritos" element={user ? <MisFavoritos /> : <Navigate to="/login" />} />

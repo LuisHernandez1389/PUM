@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { onValue, ref, getDatabase, update } from 'firebase/database';
 import { database, auth } from '../firebase';
 import "../estilos/ProductDetails.css";
-import { Link } from 'react-router-dom';
 
 const ProductDetails = ({ producto, onClose }) => {
   const { id } = useParams();

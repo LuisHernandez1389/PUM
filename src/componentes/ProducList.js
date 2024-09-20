@@ -4,7 +4,6 @@ import { ref, onValue, remove, set } from 'firebase/database';
 import ExcelJS from 'exceljs';
 import readXlsxFile from 'read-excel-file';
 import { update } from 'firebase/database';
-import ProductDetails from './ProductDetails';
 
 function ProductList({
   showDeleteButton,

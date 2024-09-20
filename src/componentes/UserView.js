@@ -8,7 +8,6 @@ import { ref, set, get } from "firebase/database";
 import { ref as storageRef, uploadBytes } from "firebase/storage";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import FormOrdenes from '../componentes/FormOrdenes'
 import L from 'leaflet'
 import uicon from '../imagenes/ubicacion.png'
 
