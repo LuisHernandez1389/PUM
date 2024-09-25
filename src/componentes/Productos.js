@@ -89,7 +89,7 @@ const Productos = () => {
      const user = auth.currentUser;
      if (user) {
        const userId = user.uid;
-       const userFavoritesRef = ref(database, `usuarios/${userId}/favoritos`);
+       const userFavoritesRef = ref(database, `users/${userId}/favoritos`);
        onValue(userFavoritesRef, (snapshot) => {
          const userFavoritesData = snapshot.val() || {};
          setUserFavorites(userFavoritesData);
@@ -119,7 +119,7 @@ const Productos = () => {
     const userId = user.uid;
 
     // Actualiza la referencia de la base de datos para el usuario actual
-    const userRef = ref(database, `usuarios/${userId}/favoritos`);
+    const userRef = ref(database, `users/${userId}/favoritos`);
 
     // Convierte productoId en una cadena o realiza algún procesamiento adicional
     const sanitizedProductId = String(productoId);

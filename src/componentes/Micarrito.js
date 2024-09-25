@@ -33,7 +33,7 @@ function Micarrito() {
 
   }, []);
   useEffect(() => {
-    const handleOutsideClick = (event) => {
+    const handleOutsideClick = (event) => {  
       // Si el clic se origina fuera del popover, ciérralo
       if (isPopoverVisible && popoverRef.current && !popoverRef.current.contains(event.target)) {
         setIsPopoverVisible(false);

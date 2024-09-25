@@ -17,7 +17,7 @@ const MisFavoritos = () => {
     }
 
     const userId = user.uid;
-    const userFavoritesRef = ref(database, `usuarios/${userId}/favoritos`);
+    const userFavoritesRef = ref(database, `users/${userId}/favoritos`);
 
     onValue(userFavoritesRef, async (snapshot) => {
       const favoritosUsuario = snapshot.val() || {};
@@ -53,7 +53,7 @@ const MisFavoritos = () => {
     }
 
     const userId = user.uid;
-    const userFavoritesRef = ref(database, `usuarios/${userId}/favoritos/${productoId}`);
+    const userFavoritesRef = ref(database, `users/${userId}/favoritos/${productoId}`);
 
     // Obtiene el estado actual de los favoritos del usuario
     const favoritoActual = (await get(userFavoritesRef)).val() || false;
