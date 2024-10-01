@@ -90,7 +90,7 @@ const MisFavoritos = () => {
             <p>{info.peso} gramos</p>
             <p className="card-text">{info.precio}$</p>
             <p className="card-text">
-              <small className="text-muted">Last updated 3 mins ago</small>
+              <small className="text-muted">Pirotecnia Leyker</small>
             </p>
           </div>
     

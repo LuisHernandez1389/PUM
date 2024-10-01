@@ -8,6 +8,7 @@ import "./App.css";
 import ProductDetails from './componentes/ProductDetails';
 import SearchPage from './componentes/SearchPage';
 import MisFavoritos from './componentes/Misfavoritos';
+import Footer from './componentes/Footer';
 
 
 // Componentes que deseas cargar de forma diferida
@@ -67,6 +68,7 @@ const App = (selectedProduct) => {
             <Route path="/search-page" element={<SearchPage/>} />
           </Routes>
         </Suspense>
+        <Footer></Footer>
       </BrowserRouter>
     </div>
   );

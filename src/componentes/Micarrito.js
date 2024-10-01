@@ -149,9 +149,6 @@ function Micarrito() {
       }
     });
   };
-  
-  
-
 
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
@@ -172,7 +169,6 @@ function Micarrito() {
       setProductosDatabase(productos);
     });
   }, []);
-
 
   const guardarCarritoEnLocalStorage = (carrito) => {
     localStorage.setItem('carrito', JSON.stringify(carrito));
@@ -281,9 +277,6 @@ function Micarrito() {
             </div>
           </li>
         );
-        
-        
-        
       } else {
         return (
           <li key={item} className="list-group-item text-right mx-2">
