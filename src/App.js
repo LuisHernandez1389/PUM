@@ -51,7 +51,7 @@ const App = (selectedProduct) => {
         />
         <Suspense fallback={<LoadingPlaceholder />}>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="pum" element={<Home />} />
             <Route path='/detalles-paquetes' element={<PaqueteDetails />} />
             <Route path="/producto/:id" element={<ProductDetails selectedProduct={selectedProduct} />} />
             <Route path="/navbar" element={<Navbar />} />

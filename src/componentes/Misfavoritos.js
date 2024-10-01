@@ -126,6 +126,6 @@ const MisFavoritos = () => {
       </div>
     </div>
   );
-};
+}; 
 
 export default MisFavoritos;

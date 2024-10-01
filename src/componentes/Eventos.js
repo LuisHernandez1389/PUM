@@ -49,7 +49,7 @@ function Eventos() {
 
   // Renderización del formulario
   return (
-    <div className="container">
+    <div className="container mt-4" >
       <div className="row">
         <div className="col-md-6 mx-auto">
           <div className="card">
