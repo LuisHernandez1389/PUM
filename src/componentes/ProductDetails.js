@@ -99,6 +99,21 @@ const ProductDetails = ({ producto, onClose }) => {
     };
   }, [id]);
 
+  ///////////////////////////////////////////////
+  //Manejo de VideoUrl por medio de iframe
+  const getEmbedUrl = (url) => {
+    if (url.includes('youtube.com/watch')) {
+      return url.replace('watch?v=', 'embed/');
+    } else if (url.includes('facebook.com/watch')) {
+      const videoId = url.split('v=')[1];
+      return `https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/facebook/videos/${videoId}/`;
+    } else if (url.includes('drive.google.com')) {
+      return url.replace('/view', '/preview');
+    }
+    return url; // Retorna la URL sin cambios si no es de esos servicios
+  };
+  
+
   return (
     <>
       <div className="container card product-general">
@@ -146,12 +161,19 @@ const ProductDetails = ({ producto, onClose }) => {
       </div>
       <br />
       <div className='container card video'>
-        {product?.video && (
-          <div>
-            <iframe className='video-product' title="video" src={product?.video} frameBorder="0" allowFullScreen></iframe>
-          </div>
-        )}
-      </div>
+  {product?.video && (
+    <div>
+      <iframe 
+        className='video-product' 
+        title="video" 
+        src={getEmbedUrl(product?.video)} 
+        frameBorder="0" 
+        allowFullScreen>
+      </iframe>
+    </div>
+  )}
+</div>
+
       <br />
       <div className='container'>
         <div className="card text-center ">

@@ -69,6 +69,7 @@ const Navbar = ({ user }) => {
     };
   }, []);
 
+
   // Obtener las iniciales del nombre de usuario
   const getInitials = (name) => {
     const nameArray = name.trim().split(" ");
@@ -76,14 +77,34 @@ const Navbar = ({ user }) => {
     return initials.toUpperCase();
   };
 
+
+  /////////////////////////////////////////////////////////////////////////
+    //Dropdown link
+  const handleMouseEnter = () => {
+    const dropdown = document.getElementById('navbarDropdownMenuLink');
+    const menu = dropdown.nextElementSibling;
+  
+    dropdown.classList.add('show');
+    menu.classList.add('show');
+  };
+  
+  const handleMouseLeave = () => {
+    const dropdown = document.getElementById('navbarDropdownMenuLink');
+    const menu = dropdown.nextElementSibling;
+  
+    dropdown.classList.remove('show');
+    menu.classList.remove('show');
+  };
+  
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-body-tertiary" style={{ height: '60px' }}>
   <div className="container-fluid">
     <button
-      data-mdb-collapse-init
       className="navbar-toggler"
       type="button"
-      data-mdb-target="#navbarSupportedContent"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent"
       aria-expanded="false"
       aria-label="Toggle navigation"
@@ -92,32 +113,55 @@ const Navbar = ({ user }) => {
     </button>
 
     <div className="collapse navbar-collapse" id="navbarSupportedContent">
-      <a className="navbar-brand mt-2 mt-lg-0" href="#">
+      <a className="navbar-brand mt-2 mt-lg-0" href="/">
         <img
-          src="https://firebasestorage.googleapis.com/v0/b/pirotecniacq.appspot.com/o/productos%2Fsadasd_1705947808901.jpg?alt=media&token=f3e0bdef-282d-4dfc-9cff-622e69f66bef"
+          src="https://firebasestorage.googleapis.com/v0/b/pirotecniacq.appspot.com/o/Noche_de_amor_1706133687956-removebg-preview.png?alt=media&token=2b8c1968-44ee-486b-869d-2b2ad289bf40"
           alt="Logo"
           loading="lazy"
-          style={{ maxHeight: '70px', objectFit: 'contain' }} 
+          style={{ maxHeight: '70px', objectFit: 'contain' }}
         />
+      </a>
+      <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+        <li className="nav-item">
+          <Link className="nav-link" to="/">Inicio</Link>
+        </li>
+        <li className="nav-item dropdown" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+          <a
+            className="nav-link dropdown-toggle"
+            href="#"
+            id="navbarDropdownMenuLink"
+            role="button"
+            aria-expanded="false"
+          >
+            Productos
           </a>
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <Link className="nav-link" to='/'>Inicio</Link>
+          <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li>
+              <a className="dropdown-item" href="/productos">Pirotecnia</a>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to='/productos'>Productos</Link>
+            <li>
+              <a className="dropdown-item" href="/luz">Luz</a>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to='/paquetes'>Paquetes</Link>
+            <li>
+              <a className="dropdown-item" href="/trueno">Trueno</a>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to='/eventos'>Eventos</Link>
+            <li>
+              <a className="dropdown-item" href="/baterias">Baterías</a>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to='/contacto'>Contacto</Link>
+            <li>
+              <a className="dropdown-item" href="/paquetes">Paquetes</a>
             </li>
           </ul>
-        </div>
+        </li>
+        <li className="nav-item">
+          <Link className="nav-link" to="/eventos">Eventos</Link>
+        </li>
+        <li className="nav-item">
+          <Link className="nav-link" to="/contacto">Contactanos</Link>
+        </li>
+      </ul>
+    </div>
+
         <Link to='/search-page' className="input-group-text border-0" id="search-addon">
           <i className="fas fa-search"></i>
         </Link>

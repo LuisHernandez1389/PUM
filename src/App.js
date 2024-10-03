@@ -10,6 +10,10 @@ import SearchPage from './componentes/SearchPage';
 import MisFavoritos from './componentes/Misfavoritos';
 import Footer from './componentes/Footer';
 
+import PBaterias from './componentes/Productos/PBaterias';
+import PTrueno from './componentes/Productos/PTrueno';
+import PLuz from './componentes/Productos/PLuz';
+
 
 // Componentes que deseas cargar de forma diferida
 const Home = lazy(() => import('./componentes/Home'));
@@ -65,6 +69,9 @@ const App = (selectedProduct) => {
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
             <Route path="/misfavoritos" element={user ? <MisFavoritos /> : <Navigate to="/login" />} />
+            <Route path="/baterias" element={<PBaterias/>} />
+            <Route path="/trueno" element={<PTrueno />} />
+            <Route path="/luz" element={<PLuz />} />
             <Route path="/search-page" element={<SearchPage/>} />
           </Routes>
         </Suspense>

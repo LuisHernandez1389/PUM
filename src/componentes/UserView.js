@@ -100,64 +100,64 @@ function FormUser() {
 
   const handleRegistration = async () => {
     try {
+      const userUid = userProfile ? userProfile.uid : auth.currentUser.uid;
+      const userRef = ref(database, "users/" + userUid);
+  
       if (userProfile === null) {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        // Registro de nuevo usuario
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+  
+        // Actualizar perfil de usuario con nombre
         await updateProfile(user, {
           displayName: nombre,
         });
   
-        const userUid = user.uid;
-        const userRef = ref(database, "users/" + userUid);
+        // Subir foto de perfil solo si se ha seleccionado una nueva foto
+        let uploadedPhotoURL = photoURL;
+        if (photoChanged && photoFile) {
+          const photoStorageRef = storageRef(storage, `user-profiles/${userUid}/photo.jpg`);
+          await uploadBytes(photoStorageRef, photoFile);
+          uploadedPhotoURL = await photoStorageRef.getDownloadURL(); // Obtener la URL de la foto subida
+        }
   
+        // Guardar datos en la base de datos
         await set(userRef, {
           uid: userUid,
           nombre,
           apellido,
           numeroTelefono,
           direccion,
-          photoURL: photoChanged && photoFile ? photoURL : "", // Verificar si photoFile está vacío antes de establecer photoURL
+          photoURL: uploadedPhotoURL, // Establecer la URL de la foto
         });
-  
-        if (photoChanged && photoFile) {
-          const photoRef = storageRef(
-            storage,
-            `user-profiles/${userUid}/photo.jpg`
-          );
-          await uploadBytes(photoRef, photoFile);
-        }
       } else {
+        // Actualización de usuario existente
         await updateProfile(auth.currentUser, {
           displayName: nombre,
         });
   
-        const userUid = auth.currentUser.uid;
-        const userRef = ref(database, "users/" + userUid);
+        // Subir foto de perfil solo si se ha seleccionado una nueva foto
+        let updatedPhotoURL = photoURL;
+        if (photoChanged && photoFile) {
+          const photoStorageRef = storageRef(storage, `user-profiles/${userUid}/photo.jpg`);
+          await uploadBytes(photoStorageRef, photoFile);
+          updatedPhotoURL = await photoStorageRef.getDownloadURL(); // Obtener la URL de la foto subida
+        }
   
+        // Actualizar datos en la base de datos
         await set(userRef, {
           nombre,
           apellido,
           numeroTelefono,
           direccion,
-          photoURL: photoChanged && photoFile ? photoURL : "", // Verificar si photoFile está vacío antes de establecer photoURL
+          photoURL: updatedPhotoURL || photoURL, // Mantener la URL existente si no se cambia la foto
         });
-  
-        if (photoChanged && photoFile) {
-          const photoRef = storageRef(
-            storage,
-            `user-profiles/${userUid}/photo.jpg`
-          );
-          await uploadBytes(photoRef, photoFile);
-        }
       }
     } catch (error) {
-      console.error("Error al registrar usuario:", error.message);
+      console.error("Error al registrar o actualizar usuario:", error.message);
     }
   };
+  
   
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];

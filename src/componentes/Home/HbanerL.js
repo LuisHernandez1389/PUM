@@ -8,7 +8,7 @@ const HbannerL = () => {
         <MDBCol size="auto">
           {/* Logo en el centro */}
           <img 
-            src="https://firebasestorage.googleapis.com/v0/b/pirotecniacq.appspot.com/o/productos%2Fsadasd_1705947808901.jpg?alt=media&token=f3e0bdef-282d-4dfc-9cff-622e69f66bef" // Reemplaza con la URL de tu logo
+            src="https://firebasestorage.googleapis.com/v0/b/pirotecniacq.appspot.com/o/Noche_de_amor_1706133687956-removebg-preview.png?alt=media&token=2b8c1968-44ee-486b-869d-2b2ad289bf40" // Reemplaza con la URL de tu logo
             alt="Logo"
             style={styles.logo}
           />

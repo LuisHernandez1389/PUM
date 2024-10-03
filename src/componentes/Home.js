@@ -9,19 +9,19 @@ import HbannerL from "./Home/HbanerL";
 const Home = () => {
   return (
     <div style={styles.pageWrapper}>
-      {/* Hero Section */}
-      <Carrusel></Carrusel>
-       {/* Cards Section */}
-       <CardsSection></CardsSection>
-       {/* Banner de Ventas Especiales */}
-       <Banner></Banner>
-   {/* Extra Card Section */}
-   <CardVideo></CardVideo>
-   {/* Mas Vendido */}
-   <MasVendido></MasVendido>
-      {/* HPaquetes */}
-      <HPaquetes></HPaquetes>
-            {/* Banner con logo */}
+    {/* Hero Section */}
+    <Carrusel></Carrusel>
+    {/* Cards Section */}
+    <CardsSection></CardsSection>
+    {/* Banner de Ventas Especiales */}
+    <Banner></Banner>
+    {/* Extra Card Section */}
+    <CardVideo></CardVideo>
+    {/* Mas Vendido */}
+    <MasVendido></MasVendido>
+    {/* HPaquetes */}
+    <HPaquetes></HPaquetes>
+    {/* Banner con logo */}
     <HbannerL></HbannerL>
     </div>
   );
