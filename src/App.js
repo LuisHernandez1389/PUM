@@ -10,9 +10,9 @@ import SearchPage from './componentes/SearchPage';
 import MisFavoritos from './componentes/Misfavoritos';
 import Footer from './componentes/Footer';
 
-import PBaterias from './componentes/Productos/PBaterias';
-import PTrueno from './componentes/Productos/PTrueno';
-import PLuz from './componentes/Productos/PLuz';
+import PBaterias from './Productos/PBaterias';
+import PTrueno from './Productos/PTrueno';
+import PLuz from './Productos/PLuz';
 
 
 // Componentes que deseas cargar de forma diferida

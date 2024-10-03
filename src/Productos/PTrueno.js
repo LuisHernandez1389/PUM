@@ -1,19 +1,19 @@
 // Importaciones de React y otras bibliotecas
 import React, { useState, useEffect, useRef } from 'react';
-import { database, auth } from '../firebase'; 
+import { database, auth } from '../firebase'; // Correcto si está en config
 import { ref, onValue, set, get, child } from 'firebase/database'; 
-import ProductDetails from './ProductDetails'; 
+import ProductDetails from '../componentes/ProductDetails'; // Asegúrate de que ProductDetails.js esté en la misma carpeta
 import { logEvent } from 'firebase/analytics'; 
-import { analytics } from '../firebase'; 
+import { analytics } from '../firebase'; // Reutiliza la misma importación si analytics está en firebase.js
 import ReactGA from 'react-ga'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
 import { faHeart } from '@fortawesome/free-solid-svg-icons'; 
 import '@fortawesome/fontawesome-free/css/all.css'; 
 import { Link } from 'react-router-dom';
-import "../estilos/Productos.css";
+import '../estilos/Productos.css'; // Asegúrate de que Productos.css esté en la carpeta estilos
 import { MDBPagination, MDBPaginationItem, MDBPaginationLink } from 'mdb-react-ui-kit'; // Asegúrate de que MDB esté instalado y importado correctamente
 
-const Productos = () => {
+const PTrueno = () => {
   // Estado para almacenar los productos de la base de datos
   const [productosDatabase, setProductosDatabase] = useState([]);
   // Estado para almacenar el carrito de compras
@@ -81,7 +81,10 @@ const Productos = () => {
           id: childSnapshot.key,
           ...childSnapshot.val(),
         };
-        productos.push(producto);
+        // Filtrar solo productos de la categoría "Luz"
+        if (producto.categoria === "Trueno") {
+          productos.push(producto);
+        }
       });
       setProductosDatabase(productos);
     });
@@ -169,7 +172,11 @@ const Productos = () => {
   // Función para renderizar la lista de productos
 const renderizarProductos = () => {
   const productosFiltrados = currentProducts.filter((producto) => {
-    return producto.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    // Filtra por búsqueda y categoría
+    return (
+      producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
+      producto.categoria === "Trueno" // Asegúrate de que esta propiedad exista
+    );
   });
 
   return productosFiltrados.map((info) => (
@@ -307,7 +314,7 @@ const renderizarProductos = () => {
         </div>
       </div>
 
-       {/* Paginación */}
+     {/* Paginación */}
      <div className="d-flex justify-content-center">
       <MDBPagination className='mb-0'>
         <MDBPaginationItem disabled={currentPage === 1}>
@@ -333,4 +340,4 @@ const renderizarProductos = () => {
   );
 };
 
-export default Productos;
+export default PTrueno;

@@ -11,7 +11,6 @@
 .container-details{
     padding: 1%;
 }
-.start span{}
 .button-add{
     text-align: center;
     
@@ -41,10 +40,4 @@
         height: 190px;
         padding: 2%;
     }
-}
-@media (min-width: 765px) and (max-width: 991px){
-   .product-general{
-    
-   }
-
 }

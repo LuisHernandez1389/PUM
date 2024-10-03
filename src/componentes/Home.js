@@ -1,10 +1,10 @@
-import Carrusel from "./Home/Carrrusel";
-import CardsSection from "./Home/CardsSection";
-import Banner from "./Home/Banner";
-import CardVideo from "./Home/CardVideo";
-import HPaquetes from "./Home/HPaquetes";
-import MasVendido from "./Home/MasVendido";
-import HbannerL from "./Home/HbanerL";
+import Carrusel from "../Home/Carrrusel";
+import CardsSection from "../Home/CardsSection";
+import Banner from "../Home/Banner";
+import CardVideo from "../Home/CardVideo";
+import HPaquetes from "../Home/HPaquetes";
+import MasVendido from "../Home/MasVendido";
+import HbannerL from "../Home/HbanerL";
 
 const Home = () => {
   return (

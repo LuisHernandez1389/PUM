@@ -128,7 +128,7 @@ const Navbar = ({ user }) => {
         <li className="nav-item dropdown" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           <a
             className="nav-link dropdown-toggle"
-            href="#"
+            href="productos"
             id="navbarDropdownMenuLink"
             role="button"
             aria-expanded="false"
