@@ -174,7 +174,7 @@ const Navbar = ({ user }) => {
             <a
               data-mdb-dropdown-init
               className="dropdown-toggle d-flex align-items-center hidden-arrow"
-              href="#"
+              href="/micuenta"
               id="navbarDropdownMenuAvatar"
               role="button"
               aria-expanded="false"

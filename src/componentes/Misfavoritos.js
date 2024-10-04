@@ -69,17 +69,22 @@ const MisFavoritos = () => {
   };
 
   // Función para renderizar la lista de productos favoritos
-  const renderizarFavoritos = () => {
-    return favoritos.map((info) => (
-      <div key={info.id} className="card mb-3" style={{ maxWidth: '700px', position: 'relative' }}>
+const renderizarFavoritos = () => {
+  return favoritos.map((info) => (
+    <div key={info.id} className="card mb-3" style={{ maxWidth: '700px', position: 'relative' }}>
       <div style={{ display: 'flex', gap: '0' }}>
         
-        {/* Imagen a la izquierda, ahora aún más grande */}
-        <div style={{ flex: '0 0 300px' }}>  {/* Ajusta el tamaño de la imagen a 300px */}
+        {/* Imagen a la izquierda con tamaño fijo */}
+        <div style={{ flex: '0 0 300px', height: '200px', overflow: 'hidden' }}> {/* Ajusta la altura como desees */}
           <img
             src={info.imagenUrl}
             alt={info.nombre}
-            style={{ width: '100%', height: 'auto', borderRadius: '8px 0 0 8px' }}
+            style={{
+              width: '100%',
+              height: '100%', // Ajusta la altura al 100% del contenedor
+              objectFit: 'cover', // Asegura que la imagen cubra el contenedor
+              borderRadius: '8px 0 0 8px'
+            }}
           />
         </div>
         
@@ -111,21 +116,21 @@ const MisFavoritos = () => {
     
       </div>
     </div>
-    
-    ));
-  };
+  ));
+};
 
-  return (
-    <div className="container mt-4">
-      <div>
-        <main id="items" className="col-sm-12">
-          <h2>Mis Favoritos</h2>
-          {/* Renderiza la lista de productos favoritos */}
-          {renderizarFavoritos()}
-        </main>
-      </div>
+return (
+  <div className="container mt-4">
+    <div>
+      <main id="items" className="col-sm-12">
+        <h2>Mis Favoritos</h2>
+        {/* Renderiza la lista de productos favoritos */}
+        {renderizarFavoritos()}
+      </main>
     </div>
-  );
+  </div>
+);
+
 }; 
 
 export default MisFavoritos;

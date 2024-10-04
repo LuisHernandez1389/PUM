@@ -242,16 +242,16 @@ function Micarrito() {
         const numeroUnidadesItem = carrito.filter((itemId) => itemId === item).length;
 
         return (
-          <li key={item} className="list-group-item text-right mx-2 p-0">
+          <li key={item} className="list-group-item text-right mx-2 p-0 mt-4">
             <div className="d-flex align-items-center">
               
-              {/* Contenedor de la imagen */}
-              <div className="col-sm-6 p-0">
+              {/* Contenedor de la imagen con tamaño fijo */}
+              <div className="col-sm-6 p-0" style={{ width: '300px', height: '200px', overflow: 'hidden' }}>
                 <img 
                   className="img-product" 
                   src={miItem.imagenUrl} 
                   style={{ 
-                    width: '300px', 
+                    width: '100%', 
                     height: '100%', 
                     objectFit: 'cover', 
                     borderRadius: '3px', 
@@ -262,7 +262,7 @@ function Micarrito() {
               
               {/* Contenido del lado derecho */}
               <div className="col-sm-6 d-flex align-items-center">
-                <div className="me-auto">
+                <div className="me-auto" style={{ marginLeft: '20px' }}> {/* Ajusta el margen según sea necesario */}
                   <div>Unidades: {numeroUnidadesItem}</div>
                   <div>{miItem.nombre}</div>
                   <div>{miItem.precio}{divisa}</div>
