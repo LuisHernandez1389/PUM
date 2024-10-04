@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { auth, database, storage } from "../firebase";
 import {
   createUserWithEmailAndPassword,
@@ -30,55 +30,13 @@ function FormUser() {
   const [userProfile, setUserProfile] = useState(null);
   const [photoChanged, setPhotoChanged] = useState(false);
   const [position, setPosition] = useState([27.4440472, -109.93778859]);
-  const [hasLocation, setHasLocation] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [, setHasLocation] = useState(false);
+  const [, setSelectedLocation] = useState(null);
+
   const mapRef = useRef(null);
   const modalRef = useRef(null);
 
-  const watchLocation = () => {
-    return navigator.geolocation.watchPosition(
-      (location) => {
-        setPosition([location.coords.latitude, location.coords.longitude]);
-        setHasLocation(true);
-        console.log(hasLocation);
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-      },
-      { timeout: 9000, maximumAge: 0, enableHighAccuracy: true }
-    );
-  };
-
-  useEffect(() => {
-    let watchId;
-
-    if ("geolocation" in navigator) {
-      watchId = watchLocation();
-    } else {
-      console.error("Geolocation is not supported.");
-    }
-
-    return () => {
-      if (watchId) {
-        navigator.geolocation.clearWatch(watchId);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      setEmail(currentUser.email);
-      setNombre("");
-      setApellido("");
-      setNumeroTelefono("");
-      setDireccion("");
-      setUserProfile(currentUser);
-      loadUserData(currentUser);
-    }
-  }, []);
-
-  const loadUserData = async (user) => {
+  const loadUserData = useCallback(async (user) => {
     const userUid = userProfile ? userProfile.uid : auth.currentUser.uid;
     const userRef = ref(database, "users/" + userUid);
 
@@ -95,24 +53,66 @@ function FormUser() {
     } catch (error) {
       console.error("Error al cargar datos del usuario:", error.message);
     }
+  }, [userProfile]);
 
-  };
+  const watchLocation = useCallback(() => {
+    return navigator.geolocation.watchPosition(
+      (location) => {
+        setPosition([location.coords.latitude, location.coords.longitude]);
+        setHasLocation(true);
+        console.log(true);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+      },
+      { timeout: 9000, maximumAge: 0, enableHighAccuracy: true }
+    );
+  }, []);
+
+  useEffect(() => {
+    let watchId;
+
+    if ("geolocation" in navigator) {
+      watchId = watchLocation();
+    } else {
+      console.error("Geolocation is not supported.");
+    }
+
+    return () => {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [watchLocation]);
+
+  useEffect(() => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setEmail(currentUser.email);
+      setNombre("");
+      setApellido("");
+      setNumeroTelefono("");
+      setDireccion("");
+      setUserProfile(currentUser);
+      loadUserData(currentUser); // Se ha incluido `loadUserData` en el efecto
+    }
+  }, [loadUserData]); // Dependencia añadida
 
   const handleRegistration = async () => {
     try {
       const userUid = userProfile ? userProfile.uid : auth.currentUser.uid;
       const userRef = ref(database, "users/" + userUid);
-  
+
       if (userProfile === null) {
         // Registro de nuevo usuario
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-  
+
         // Actualizar perfil de usuario con nombre
         await updateProfile(user, {
           displayName: nombre,
         });
-  
+
         // Subir foto de perfil solo si se ha seleccionado una nueva foto
         let uploadedPhotoURL = photoURL;
         if (photoChanged && photoFile) {
@@ -120,7 +120,7 @@ function FormUser() {
           await uploadBytes(photoStorageRef, photoFile);
           uploadedPhotoURL = await photoStorageRef.getDownloadURL(); // Obtener la URL de la foto subida
         }
-  
+
         // Guardar datos en la base de datos
         await set(userRef, {
           uid: userUid,
@@ -135,7 +135,7 @@ function FormUser() {
         await updateProfile(auth.currentUser, {
           displayName: nombre,
         });
-  
+
         // Subir foto de perfil solo si se ha seleccionado una nueva foto
         let updatedPhotoURL = photoURL;
         if (photoChanged && photoFile) {
@@ -143,7 +143,7 @@ function FormUser() {
           await uploadBytes(photoStorageRef, photoFile);
           updatedPhotoURL = await photoStorageRef.getDownloadURL(); // Obtener la URL de la foto subida
         }
-  
+
         // Actualizar datos en la base de datos
         await set(userRef, {
           nombre,
@@ -157,8 +157,7 @@ function FormUser() {
       console.error("Error al registrar o actualizar usuario:", error.message);
     }
   };
-  
-  
+
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     setPhotoFile(file);
@@ -171,14 +170,14 @@ function FormUser() {
     reader.readAsDataURL(file);
   };
 
-  const handleMapClick = (e) => {
+  const handleMapClick = useCallback((e) => {
     const lat = e.latlng ? e.latlng.lat : null;
     const lng = e.latlng ? e.latlng.lng : null;
 
     console.log("Coordenadas seleccionadas:", lat, lng);
     setSelectedLocation({ lat, lng });
     setDireccion(`${lat}, ${lng}`);
-  };
+  }, []);
 
   useEffect(() => {
     const map = mapRef.current;

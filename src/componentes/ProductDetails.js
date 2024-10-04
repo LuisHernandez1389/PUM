@@ -8,7 +8,7 @@ const ProductDetails = ({ producto, onClose }) => {
   const [product, setProduct] = useState(null);
   const [userRating, setUserRating] = useState(0);
   const [userId, setUserId] = useState(null);
-  const [userTotalRating, setUserTotalRating] = useState(0);
+  const [, setUserTotalRating] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
 
   useEffect(() => {
@@ -74,7 +74,6 @@ const ProductDetails = ({ producto, onClose }) => {
   };
 
   useEffect(() => {
-    const productRef = ref(database, `productos/${id}`);
 
     const getProductDetails = (snapshot) => {
       try {
