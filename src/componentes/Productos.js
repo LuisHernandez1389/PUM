@@ -19,7 +19,7 @@ const Productos = () => {
   // Estado para almacenar el carrito de compras
   const [carrito, setCarrito] = useState([]);
   // Estado para almacenar el peso total del carrito
-  const [carritoPeso, setCarritoPeso] = useState(0);
+  const [, setCarritoPeso] = useState(0);
   // Configuraciones para la moneda y el peso máximo del carrito
   const divisa = '$';
   const pesoMaximo = 9000;
@@ -48,18 +48,7 @@ const Productos = () => {
     bootstrapToast.show();
   };
 
-  // Función para abrir los detalles de un producto
-  const openProductDetails = (producto) => {
-    setSelectedCohete(producto);
-    logEvent(analytics, 'ver_detalles_producto', {
-      productoId: producto.id,
-    });
-    ReactGA.event({
-      category: 'Interacción',
-      action: 'Ver Detalles del Producto',
-      label: 'Producto: ' + producto.id,
-    });
-  };
+  
 
   // Función para cerrar los detalles de un producto
   const closeProductDetails = () => {

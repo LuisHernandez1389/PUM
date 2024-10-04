@@ -1,5 +1,5 @@
 import React from 'react';
-import { MDBContainer, MDBTypography, MDBBtn } from 'mdb-react-ui-kit';
+import {MDBBtn } from 'mdb-react-ui-kit';
 
 const Banner = () => {
   return (

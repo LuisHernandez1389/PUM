@@ -35,8 +35,8 @@ const HPaquetes = () =>{
           <MDBListGroupItem>Vestibulum at eros</MDBListGroupItem>
         </MDBListGroup>
         <MDBCardBody>
-          <MDBCardLink href='#'>Card link</MDBCardLink>
-          <MDBCardLink href='#'>Card link</MDBCardLink>
+          <MDBCardLink href='/'>Card link</MDBCardLink>
+          <MDBCardLink href='/'>Card link</MDBCardLink>
         </MDBCardBody>
       </MDBCard>
     </MDBCol>
@@ -56,8 +56,8 @@ const HPaquetes = () =>{
           <MDBListGroupItem>Vestibulum at eros</MDBListGroupItem>
         </MDBListGroup>
         <MDBCardBody>
-          <MDBCardLink href='#'>Card link</MDBCardLink>
-          <MDBCardLink href='#'>Card link</MDBCardLink>
+          <MDBCardLink href='/'>Card link</MDBCardLink>
+          <MDBCardLink href='/'>Card link</MDBCardLink>
         </MDBCardBody>
       </MDBCard>
     </MDBCol>
@@ -77,8 +77,8 @@ const HPaquetes = () =>{
           <MDBListGroupItem>Vestibulum at eros</MDBListGroupItem>
         </MDBListGroup>
         <MDBCardBody>
-          <MDBCardLink href='#'>Card link</MDBCardLink>
-          <MDBCardLink href='#'>Card link</MDBCardLink>
+          <MDBCardLink href='/'>Card link</MDBCardLink>
+          <MDBCardLink href='/'>Card link</MDBCardLink>
         </MDBCardBody>
       </MDBCard>
     </MDBCol>

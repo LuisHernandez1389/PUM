@@ -5,7 +5,6 @@ import { ref, onValue } from 'firebase/database';
 
 const SearchPage = () => {
   const [busqueda, setBusqueda] = useState('');
-  const [productos, setProductos] = useState([]);
   const [productosFiltrados, setProductosFiltrados] = useState([]);
 
   // Lógica para obtener productos filtrados
