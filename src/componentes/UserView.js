@@ -5,7 +5,7 @@ import {
   updateProfile
 } from "firebase/auth";
 import { ref, set, get } from "firebase/database";
-import { ref as storageRef, uploadBytes } from "firebase/storage";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet'
@@ -24,10 +24,10 @@ function FormUser() {
   const [numeroTelefono, setNumeroTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
-  const [photoURL, setPhotoURL] = useState("");
+  const [photoURL, setPhotoURL] = useState(""); // Asegúrate de tener este estado
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userProfile, setUserProfile] = useState(null);
+  const userProfile = auth.currentUser; // Supongo que estás obteniendo el perfil de usuario de esta manera
   const [photoChanged, setPhotoChanged] = useState(false);
   const [position, setPosition] = useState([27.4440472, -109.93778859]);
   const [, setHasLocation] = useState(false);
@@ -93,7 +93,6 @@ function FormUser() {
       setApellido("");
       setNumeroTelefono("");
       setDireccion("");
-      setUserProfile(currentUser);
       loadUserData(currentUser); // Se ha incluido `loadUserData` en el efecto
     }
   }, [loadUserData]); // Dependencia añadida
@@ -102,61 +101,84 @@ function FormUser() {
     try {
       const userUid = userProfile ? userProfile.uid : auth.currentUser.uid;
       const userRef = ref(database, "users/" + userUid);
-
+  
+      // Obtener los datos actuales del usuario antes de la actualización
+      const snapshot = await get(userRef);
+      const existingUserData = snapshot.exists() ? snapshot.val() : {};
+  
       if (userProfile === null) {
         // Registro de nuevo usuario
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
+  
         // Actualizar perfil de usuario con nombre
         await updateProfile(user, {
           displayName: nombre,
         });
-
+  
         // Subir foto de perfil solo si se ha seleccionado una nueva foto
-        let uploadedPhotoURL = photoURL;
+        let uploadedPhotoURL = existingUserData.photoURL || photoURL; // Mantener la URL existente
         if (photoChanged && photoFile) {
           const photoStorageRef = storageRef(storage, `user-profiles/${userUid}/photo.jpg`);
           await uploadBytes(photoStorageRef, photoFile);
-          uploadedPhotoURL = await photoStorageRef.getDownloadURL(); // Obtener la URL de la foto subida
+          uploadedPhotoURL = await getDownloadURL(photoStorageRef); // Obtener la URL de la foto subida
         }
-
+  
         // Guardar datos en la base de datos
         await set(userRef, {
           uid: userUid,
-          nombre,
-          apellido,
-          numeroTelefono,
-          direccion,
+          nombre: nombre || existingUserData.nombre, // Mantener valor existente si no se cambia
+          apellido: apellido || existingUserData.apellido,
+          numeroTelefono: numeroTelefono || existingUserData.numeroTelefono,
+          direccion: direccion || existingUserData.direccion,
           photoURL: uploadedPhotoURL, // Establecer la URL de la foto
         });
+  
+        // Limpiar el formulario después de guardar
+        setNombre("");
+        setApellido("");
+        setNumeroTelefono("");
+        setDireccion("");
+        setPhotoURL("");
+        setPhotoFile(null);
+        setPhotoChanged(false);
       } else {
         // Actualización de usuario existente
         await updateProfile(auth.currentUser, {
           displayName: nombre,
         });
-
+  
         // Subir foto de perfil solo si se ha seleccionado una nueva foto
-        let updatedPhotoURL = photoURL;
+        let updatedPhotoURL = existingUserData.photoURL || photoURL; // Mantener valor existente
         if (photoChanged && photoFile) {
           const photoStorageRef = storageRef(storage, `user-profiles/${userUid}/photo.jpg`);
           await uploadBytes(photoStorageRef, photoFile);
-          updatedPhotoURL = await photoStorageRef.getDownloadURL(); // Obtener la URL de la foto subida
+          updatedPhotoURL = await getDownloadURL(photoStorageRef); // Obtener la URL de la foto subida
         }
-
+  
         // Actualizar datos en la base de datos
         await set(userRef, {
-          nombre,
-          apellido,
-          numeroTelefono,
-          direccion,
-          photoURL: updatedPhotoURL || photoURL, // Mantener la URL existente si no se cambia la foto
+          nombre: nombre || existingUserData.nombre,
+          apellido: apellido || existingUserData.apellido,
+          numeroTelefono: numeroTelefono || existingUserData.numeroTelefono,
+          direccion: direccion || existingUserData.direccion,
+          photoURL: updatedPhotoURL || existingUserData.photoURL, // Mantener la URL existente si no se cambia la foto
         });
+  
+        // Limpiar el formulario después de guardar
+        setNombre("");
+        setApellido("");
+        setNumeroTelefono("");
+        setDireccion("");
+        setPhotoURL("");
+        setPhotoFile(null);
+        setPhotoChanged(false);
       }
     } catch (error) {
       console.error("Error al registrar o actualizar usuario:", error.message);
     }
   };
+  
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -165,11 +187,10 @@ function FormUser() {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      setPhotoURL(e.target.result);
+      setPhotoURL(e.target.result); // Establecer la URL de la nueva foto
     };
     reader.readAsDataURL(file);
   };
-
   const handleMapClick = useCallback((e) => {
     const lat = e.latlng ? e.latlng.lat : null;
     const lng = e.latlng ? e.latlng.lng : null;

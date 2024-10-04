@@ -167,47 +167,54 @@ const Navbar = ({ user }) => {
             </Link>
 
             <div className="dropdown">
-              <a
-                data-mdb-dropdown-init
-                className="dropdown-toggle d-flex align-items-center hidden-arrow"
-                href="/micuenta"
-                id="navbarDropdownMenuAvatar"
-                role="button"
-                aria-expanded="false"
-              >
-                {photoURL ? (
-                  <img
-                    src={photoURL}
-                    className="rounded-circle"
-                    height="25"
-                    alt="User Avatar"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
-                    style={{ width: "25px", height: "25px", fontSize: "12px" }}>
-                    {username ? getInitials(username) : <i className="fas fa-user"></i>}
-                  </div>
-                )}
-              </a>
-              <ul
-                className="dropdown-menu dropdown-menu-end"
-                aria-labelledby="navbarDropdownMenuAvatar"
-              >
-                <li>
-                  <Link className="dropdown-item" to='/micuenta'>Mi Perfil</Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" to='/misfavoritos'>Mis favoritos</Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" to='/miscompras'>Mis compras</Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" onClick={handleLogout}>Cerrar sesión</Link>
-                </li>
-              </ul>
-            </div>
+  <a
+    data-mdb-dropdown-init
+    className="dropdown-toggle d-flex align-items-center hidden-arrow"
+    href="/micuenta"
+    id="navbarDropdownMenuAvatar"
+    role="button"
+    aria-expanded="false"
+  >
+    {photoURL ? (
+      <img
+        src={photoURL}
+        className="rounded-circle"
+        alt="User Avatar"
+        loading="lazy"
+        style={{ 
+          width: "25px", // Fijo ancho
+          height: "25px", // Fijo alto
+          objectFit: "cover" // Para que la imagen se ajuste al contenedor
+        }}
+      />
+    ) : (
+      <div
+        className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+        style={{ width: "25px", height: "25px", fontSize: "12px" }}
+      >
+        {username ? getInitials(username) : <i className="fas fa-user"></i>}
+      </div>
+    )}
+  </a>
+  <ul
+    className="dropdown-menu dropdown-menu-end"
+    aria-labelledby="navbarDropdownMenuAvatar"
+  >
+    <li>
+      <Link className="dropdown-item" to='/micuenta'>Mi Perfil</Link>
+    </li>
+    <li>
+      <Link className="dropdown-item" to='/misfavoritos'>Mis favoritos</Link>
+    </li>
+    <li>
+      <Link className="dropdown-item" to='/miscompras'>Mis compras</Link>
+    </li>
+    <li>
+      <Link className="dropdown-item" onClick={handleLogout}>Cerrar sesión</Link>
+    </li>
+  </ul>
+</div>
+
           </div>
         </div>
       </nav>
