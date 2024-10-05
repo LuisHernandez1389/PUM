@@ -18,6 +18,8 @@ const Navbar = ({ user }) => {
   const [isMobile, setIsMobile] = useState(false); // Estado para detectar dispositivo móvil
 
   useEffect(() => {
+    initMDB({ Dropdown, Collapse });
+
     // Detectar si el dispositivo es móvil
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -34,28 +36,12 @@ const Navbar = ({ user }) => {
     };
   }, []);
 
-  
-
-  const handleDropdownAvatarClick = (e) => {
+  const handleDropdownClick = (e) => {
     // Evitar la navegación si está en móvil
     if (isMobile) {
       e.preventDefault();
     }
   };
-
-
-  const handleDropdownClick = (e) => {
-    e.preventDefault(); // Evita el comportamiento por defecto del enlace
-    const dropdownMenu = e.currentTarget.nextElementSibling;
-  
-    // Alterna la visibilidad del menú desplegable
-    if (dropdownMenu.classList.contains("show")) {
-      dropdownMenu.classList.remove("show");
-    } else {
-      dropdownMenu.classList.add("show");
-    }
-  };
-  
 
   const handleLogout = async () => {
     try {
@@ -205,55 +191,53 @@ const Navbar = ({ user }) => {
             </Link>
 
             <div className="dropdown">
-  <a
-    data-mdb-dropdown-init
-    className="dropdown-toggle d-flex align-items-center hidden-arrow"
-    href="/micuenta"
-    id="navbarDropdownMenuAvatar"
-    role="button"
-    aria-expanded="false"
-    onClick={handleDropdownAvatarClick} // Usar el nombre correcto de la función
-  >
-    {photoURL ? (
-      <img
-        src={photoURL}
-        className="rounded-circle"
-        alt="User Avatar"
-        loading="lazy"
-        style={{ 
-          width: "25px", // Fijo ancho
-          height: "25px", // Fijo alto
-          objectFit: "cover" // Para que la imagen se ajuste al contenedor
-        }}
-      />
-    ) : (
-      <div
-        className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
-        style={{ width: "25px", height: "25px", fontSize: "12px" }}
-      >
-        {username ? getInitials(username) : <i className="fas fa-user"></i>}
-      </div>
-    )}
-  </a>
-  <ul
-    className="dropdown-menu dropdown-menu-end"
-    aria-labelledby="navbarDropdownMenuAvatar"
-  >
-    <li>
-      <Link className="dropdown-item" to='/micuenta'>Mi Perfil</Link>
-    </li>
-    <li>
-      <Link className="dropdown-item" to='/misfavoritos'>Mis favoritos</Link>
-    </li>
-    <li>
-      <Link className="dropdown-item" to='/miscompras'>Mis compras</Link>
-    </li>
-    <li>
-      <Link className="dropdown-item" onClick={handleLogout}>Cerrar sesión</Link>
-    </li>
-  </ul>
-</div>
-
+              <a
+                data-mdb-dropdown-init
+                className="dropdown-toggle d-flex align-items-center hidden-arrow"
+                href="/micuenta"
+                id="navbarDropdownMenuAvatar"
+                role="button"
+                aria-expanded="false"
+              >
+                {photoURL ? (
+                  <img
+                    src={photoURL}
+                    className="rounded-circle"
+                    alt="User Avatar"
+                    loading="lazy"
+                    style={{ 
+                      width: "25px", // Fijo ancho
+                      height: "25px", // Fijo alto
+                      objectFit: "cover" // Para que la imagen se ajuste al contenedor
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+                    style={{ width: "25px", height: "25px", fontSize: "12px" }}
+                  >
+                    {username ? getInitials(username) : <i className="fas fa-user"></i>}
+                  </div>
+                )}
+              </a>
+              <ul
+                className="dropdown-menu dropdown-menu-end"
+                aria-labelledby="navbarDropdownMenuAvatar"
+              >
+                <li>
+                  <Link className="dropdown-item" to='/micuenta'>Mi Perfil</Link>
+                </li>
+                <li>
+                  <Link className="dropdown-item" to='/misfavoritos'>Mis favoritos</Link>
+                </li>
+                <li>
+                  <Link className="dropdown-item" to='/miscompras'>Mis compras</Link>
+                </li>
+                <li>
+                  <Link className="dropdown-item" onClick={handleLogout}>Cerrar sesión</Link>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </nav>
