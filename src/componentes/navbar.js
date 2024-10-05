@@ -15,10 +15,47 @@ const Navbar = ({ user }) => {
   const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar el colapso
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
+  const [isMobile, setIsMobile] = useState(false); // Estado para detectar dispositivo móvil
 
   useEffect(() => {
-    initMDB({ Dropdown, Collapse });
+    // Detectar si el dispositivo es móvil
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    // Escuchar el cambio de tamaño de pantalla
+    window.addEventListener('resize', handleResize);
+    
+    // Ejecutar la función una vez para establecer el valor inicial
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
+
+  
+
+  const handleDropdownAvatarClick = (e) => {
+    // Evitar la navegación si está en móvil
+    if (isMobile) {
+      e.preventDefault();
+    }
+  };
+
+
+  const handleDropdownClick = (e) => {
+    e.preventDefault(); // Evita el comportamiento por defecto del enlace
+    const dropdownMenu = e.currentTarget.nextElementSibling;
+  
+    // Alterna la visibilidad del menú desplegable
+    if (dropdownMenu.classList.contains("show")) {
+      dropdownMenu.classList.remove("show");
+    } else {
+      dropdownMenu.classList.add("show");
+    }
+  };
+  
 
   const handleLogout = async () => {
     try {
@@ -93,7 +130,7 @@ const Navbar = ({ user }) => {
   return (
     <div>
       {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-body-tertiary" style={{ height: '60px' }}>
+       <nav className="navbar navbar-expand-lg navbar-light bg-body-tertiary" style={{ height: '60px' }}>
         <div className="container-fluid">
           <button
             className="navbar-toggler"
@@ -103,7 +140,7 @@ const Navbar = ({ user }) => {
             aria-controls="navbarSupportedContent"
             aria-expanded="false"
             aria-label="Toggle navigation"
-            onClick={() => setIsExpanded(!isExpanded)} // Controlar el estado de expansión
+            onClick={() => setIsExpanded(!isExpanded)}
           >
             <i className="fas fa-bars"></i>
           </button>
@@ -128,6 +165,7 @@ const Navbar = ({ user }) => {
                   id="navbarDropdownMenuLink"
                   role="button"
                   aria-expanded="false"
+                  onClick={handleDropdownClick} // Desactiva el enlace en móvil
                 >
                   Productos
                 </a>
@@ -174,6 +212,7 @@ const Navbar = ({ user }) => {
     id="navbarDropdownMenuAvatar"
     role="button"
     aria-expanded="false"
+    onClick={handleDropdownAvatarClick} // Usar el nombre correcto de la función
   >
     {photoURL ? (
       <img
@@ -218,7 +257,6 @@ const Navbar = ({ user }) => {
           </div>
         </div>
       </nav>
-
       {/* Contenedor ajustable con padding dinámico */}
       <div style={{ paddingTop: isExpanded ? '300px' : '0px', transition: 'padding-top 0.5s ease' }}>
         {/* Resto del contenido de la página */}
