@@ -6,7 +6,15 @@ import "../estilos/carrito.css"
 import { auth } from '../firebase';
 import { getAuth } from 'firebase/auth';
 import { get } from 'firebase/database';
-
+import {
+  MDBCard,
+  MDBCardBody,
+  MDBCardImage,
+  MDBCardText,
+  MDBRow,
+  MDBCol,
+  MDBBtn
+} from 'mdb-react-ui-kit';
 const PayPalButton = window.paypal.Buttons.driver("react", { React, ReactDOM });
 
 function Micarrito() {
@@ -14,12 +22,10 @@ function Micarrito() {
   const [carrito, setCarrito] = useState([]);
   const [carritoPeso, setCarritoPeso] = useState(0);
   const divisa = '$';
-  const pesoMaximo = 9000;
   const [isPayPalButtonRendered, setIsPayPalButtonRendered] = useState(false);
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const popoverRef = useRef(null);
   const [user, setUser] = useState(null);
-
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -32,6 +38,8 @@ function Micarrito() {
     return () => unsubscribe();
 
   }, []);
+
+
   useEffect(() => {
     const handleOutsideClick = (event) => {  
       // Si el clic se origina fuera del popover, ciérralo
@@ -80,6 +88,7 @@ function Micarrito() {
     setTotal(calcularTotal());
     console.log(carritoPeso);
   }, [carrito, productosDatabase, calcularTotal, carritoPeso]);
+
 
   const createOrder = (data, actions) => {
     return actions.order.create({
@@ -170,6 +179,7 @@ function Micarrito() {
     });
   }, []);
 
+  /////Guarda en localStorage
   const guardarCarritoEnLocalStorage = (carrito) => {
     localStorage.setItem('carrito', JSON.stringify(carrito));
   };
@@ -181,51 +191,34 @@ function Micarrito() {
     return totalPeso;
   }, 0);
 
-  const anyadirProductoAlCarrito = useCallback((productoId, pesoProducto) => {
-    const pesoEnGramos = pesoProducto;
-
-    if (pesoActualCarrito + pesoEnGramos <= pesoMaximo) {
-      const nuevoCarrito = [...carrito, productoId];
+/////////////////////// Borra productos del carrito
+  const borrarItemCarrito = (productoId) => {
+    const itemCarrito = productosDatabase.find((item) => item.id === productoId);
+    if (itemCarrito && itemCarrito.peso) {
+      const pesoProducto = itemCarrito.peso;
+      const nuevoCarrito = carrito.filter((itemId) => itemId !== productoId);
       setCarrito(nuevoCarrito);
 
       guardarCarritoEnLocalStorage(nuevoCarrito);
 
-      const pesoCarritoActualizado = pesoActualCarrito + pesoEnGramos;
+      const pesoCarritoActualizado = pesoActualCarrito - pesoProducto;
       setCarritoPeso(pesoCarritoActualizado);
       localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
-    } else {
-      alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
     }
-  }, [carrito, pesoActualCarrito, pesoMaximo]);
+  };
+//////// Vaicia le carrito
+  const vaciarCarrito = () => {
+    setCarrito([]);
+    setCarritoPeso(0); // Reiniciar el peso del carrito
+    guardarCarritoEnLocalStorage([]);
+  };
 
-  const renderizarProductos = React.useCallback(() => {
-    // Filtrar los productos que están en el carrito
-    const productosEnCarrito = productosDatabase.filter((producto) => carrito.includes(producto.id));
 
-    return productosEnCarrito.map((info) => (
-      <div key={info.id} className="card col-sm-4">
-        <div className="card-body">
-          <h5 className="card-title text-center">{info.nombre}</h5>
-          <div className="text-center">
-            <img src={info.imagenUrl} alt={info.nombre} className="img-fluid" />
-            <p>{info.peso} gramos</p>
-            <p className="card-text">{info.precio}{divisa}</p>
-            <button
-              className="btn btn-primary"
-              onClick={() => anyadirProductoAlCarrito(info.id, info.peso)}
-            >
-              +
-            </button>
-          </div>
-        </div>
-      </div>
-    ));
-  }, [carrito, productosDatabase, anyadirProductoAlCarrito]);
-  const calcularTotalUnidades = useCallback(() => {
+    const calcularTotalUnidades = useCallback(() => {
     return carrito.reduce((total, item) => {
       return total + 1; // Suma 1 por cada item en el carrito
     }, 0);
-  }, [carrito]);
+   }, [carrito]);
   
   const [totalUnidades, setTotalUnidades] = useState(calcularTotalUnidades());
   
@@ -242,40 +235,34 @@ function Micarrito() {
         const numeroUnidadesItem = carrito.filter((itemId) => itemId === item).length;
 
         return (
-          <li key={item} className="list-group-item text-right mx-2 p-0 mt-4">
-            <div className="d-flex align-items-center">
-              
-              {/* Contenedor de la imagen con tamaño fijo */}
-              <div className="col-sm-6 p-0" style={{ width: '300px', height: '200px', overflow: 'hidden' }}>
-                <img 
-                  className="img-product" 
-                  src={miItem.imagenUrl} 
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover', 
-                    borderRadius: '3px', 
-                    display: 'block', // Asegura que no haya espacio debajo de la imagen
-                  }} 
-                />
-              </div>
-              
-              {/* Contenido del lado derecho */}
-              <div className="col-sm-6 d-flex align-items-center">
-                <div className="me-auto" style={{ marginLeft: '20px' }}> {/* Ajusta el margen según sea necesario */}
-                  <div>Unidades: {numeroUnidadesItem}</div>
-                  <div>{miItem.nombre}</div>
-                  <div>{miItem.precio}{divisa}</div>
+          <MDBCard className="mb-4">
+          <MDBRow className="g-0 align-items-center">
+            
+            {/* Contenedor de la imagen con tamaño fijo */}
+            <MDBCol md="4">
+              <MDBCardImage 
+                src={miItem.imagenUrl} 
+                alt={miItem.nombre} 
+                position="top" 
+                style={{ width: '100%', height: '200px', objectFit: 'cover' }} 
+              />
+            </MDBCol>
+    
+            {/* Contenido del lado derecho */}
+            <MDBCol md="8">
+              <MDBCardBody className="d-flex justify-content-between align-items-center">
+                <div>
+                  <MDBCardText>{miItem.nombre}</MDBCardText>
+                  <MDBCardText>Unidades: {numeroUnidadesItem}</MDBCardText>
+                  <MDBCardText>Gramos: {miItem.peso}</MDBCardText>
+
+                  <MDBCardText>{divisa} {miItem.precio}</MDBCardText>
                 </div>
-                <button
-                  className="btn btn-danger mx-5"
-                  onClick={() => borrarItemCarrito(item)}
-                >
-                  x
-                </button>
-              </div>
-            </div>
-          </li>
+                <MDBBtn color="danger" onClick={() => borrarItemCarrito(miItem)}>x</MDBBtn>
+              </MDBCardBody>
+            </MDBCol>
+          </MDBRow>
+        </MDBCard>
         );
       } else {
         return (
@@ -287,53 +274,32 @@ function Micarrito() {
     });
   };
 
-  const borrarItemCarrito = (productoId) => {
-    const itemCarrito = productosDatabase.find((item) => item.id === productoId);
-    if (itemCarrito && itemCarrito.peso) {
-      const pesoProducto = itemCarrito.peso;
-      const nuevoCarrito = carrito.filter((itemId) => itemId !== productoId);
-      setCarrito(nuevoCarrito);
-
-      guardarCarritoEnLocalStorage(nuevoCarrito);
-
-      const pesoCarritoActualizado = pesoActualCarrito - pesoProducto;
-      setCarritoPeso(pesoCarritoActualizado);
-      localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
-    }
-  };
-
-
-  const vaciarCarrito = () => {
-    setCarrito([]);
-    setCarritoPeso(0); // Reiniciar el peso del carrito
-    guardarCarritoEnLocalStorage([]);
-  };
-
 
   return (
     <div className="container">
-      <br />
-      <div className="row">
-        <aside className="col-sm-12">
-
-          <div className='row flex-sm-row'>
-            <div className='col-sm-9'>
-              <ul id="carrito" className="list-group">
-                {renderizarCarrito()}
-              </ul>
-            </div>
-            <div className='col-sm-3'>
-              <h2>Resumen</h2>
-              <p>Cantidad de articulos: {totalUnidades}</p>
-              <p className="text-right"><span id="total"> <h2>Total:{total}{divisa}</h2></span></p>
-              <button id="boton-vaciar" className="btn btn-danger" onClick={vaciarCarrito}>Vaciar</button>
-              <button className='btn btn-primary' onClick={handleOpenPopover}>Comprar</button>
-            </div>
+    <div className="row mt-4">
+      <aside className="col-sm-12">
+        <div className="row">
+          <div className="col-sm-9">
+            <ul id="carrito" className="list-group">
+              {renderizarCarrito()}
+            </ul>
           </div>
-
-        </aside>
-
+          <div className="col-sm-3">
+            <h2>Resumen</h2>
+            <p>Cantidad de artículos: {totalUnidades}</p>
+            <p className="text-right">
+              <span id="total">
+                <h2>Total: {divisa} {total} </h2>
+              </span>
+            </p>
+            <MDBBtn color="danger" onClick={vaciarCarrito}>Vaciar</MDBBtn>
+            <MDBBtn color="primary" onClick={handleOpenPopover}>Comprar</MDBBtn>
+          </div>
+        </div>
+      </aside>
       </div>
+
       {isPopoverVisible && (
         <div className="popover-container">
           <div className="popover-content">
