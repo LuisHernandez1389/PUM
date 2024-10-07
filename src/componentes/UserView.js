@@ -10,6 +10,8 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet'
 import uicon from '../imagenes/ubicacion.png'
+import { ToastContainer, toast } from 'react-toastify'; // Importar ToastContainer y toast
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de toast
 
 const customIcon = L.icon({
   iconUrl: uicon,
@@ -24,10 +26,10 @@ function FormUser() {
   const [numeroTelefono, setNumeroTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
-  const [photoURL, setPhotoURL] = useState(""); // Asegúrate de tener este estado
+  const [photoURL, setPhotoURL] = useState(""); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const userProfile = auth.currentUser; // Supongo que estás obteniendo el perfil de usuario de esta manera
+  const userProfile = auth.currentUser; 
   const [photoChanged, setPhotoChanged] = useState(false);
   const [position, setPosition] = useState([27.4440472, -109.93778859]);
   const [, setHasLocation] = useState(false);
@@ -133,6 +135,9 @@ function FormUser() {
           direccion: direccion || existingUserData.direccion,
           photoURL: uploadedPhotoURL, // Establecer la URL de la foto
         });
+
+        // Mostrar un mensaje de éxito
+        toast.success("Formulario guardado correctamente"); // Mensaje de éxito
   
         // Limpiar el formulario después de guardar
         setNombre("");
@@ -149,7 +154,7 @@ function FormUser() {
         });
   
         // Subir foto de perfil solo si se ha seleccionado una nueva foto
-        let updatedPhotoURL = existingUserData.photoURL || photoURL; // Mantener valor existente
+        let updatedPhotoURL = existingUserData.photoURL || photoURL; // Mantener la URL existente
         if (photoChanged && photoFile) {
           const photoStorageRef = storageRef(storage, `user-profiles/${userUid}/photo.jpg`);
           await uploadBytes(photoStorageRef, photoFile);
@@ -164,21 +169,15 @@ function FormUser() {
           direccion: direccion || existingUserData.direccion,
           photoURL: updatedPhotoURL || existingUserData.photoURL, // Mantener la URL existente si no se cambia la foto
         });
-  
-        // Limpiar el formulario después de guardar
-        setNombre("");
-        setApellido("");
-        setNumeroTelefono("");
-        setDireccion("");
-        setPhotoURL("");
-        setPhotoFile(null);
-        setPhotoChanged(false);
+
+        // Mostrar un mensaje de éxito
+        toast.success("Perfil actualizado correctamente"); // Mensaje de éxito
       }
     } catch (error) {
       console.error("Error al registrar o actualizar usuario:", error.message);
+      toast.error("Error al guardar el formulario"); // Mensaje de error
     }
   };
-  
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -236,6 +235,7 @@ function FormUser() {
 
   return (
     <div className="container mt-5">
+      <ToastContainer /> {/* Agregar el ToastContainer de confirmacion */}
       <br />
       <div className="row justify-content-center">
         <div className="col-md-6">
@@ -324,6 +324,7 @@ function FormUser() {
           </div>
         </div>
       </div>
+
       <div className="container mt-5">
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" ref={modalRef}>
           <div class="modal-dialog">

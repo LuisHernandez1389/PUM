@@ -40,6 +40,7 @@
     "react-router-dom": "^6.8.2",
     "react-scripts": "^5.0.1",
     "react-slick": "^0.29.0",
+    "react-toastify": "^10.0.5",
     "read-excel-file": "^5.7.1",
     "sass": "^1.69.5",
     "slick-carousel": "^1.8.1",
