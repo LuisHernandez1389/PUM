@@ -1,12 +1,13 @@
 import { database } from '../firebase';
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
-import './Miscompras.css'; // Asegúrate de crear este archivo para los estilos personalizados
+import { MDBContainer, MDBCard, MDBCardBody, MDBCardHeader, MDBCardFooter, MDBTypography, MDBBtn, MDBListGroup, MDBListGroupItem, MDBSpinner, MDBBadge, MDBIcon } from 'mdb-react-ui-kit';
 
 const Miscompras = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
   const auth = getAuth();
   const userUID = auth.currentUser?.uid;
 
@@ -38,11 +39,7 @@ const Miscompras = () => {
 
       const ordenesOrdenadas = ordenes
         .filter(orden => orden.fechaCompra && !isNaN(new Date(orden.fechaCompra).getTime()))
-        .sort((a, b) => {
-          const fechaA = new Date(a.fechaCompra).getTime();
-          const fechaB = new Date(b.fechaCompra).getTime();
-          return fechaB - fechaA;
-        });
+        .sort((a, b) => new Date(b.fechaCompra) - new Date(a.fechaCompra));
 
       const ordenesConNombres = ordenesOrdenadas.map((orden) => {
         const productosEnOrden = orden.productos.map((productoId) => {
@@ -57,42 +54,62 @@ const Miscompras = () => {
       });
 
       setOrdenes(ordenesConNombres);
+      setLoading(false);
     });
   }, [userUID, productos]);
 
+  if (loading) {
+    return (
+      <MDBContainer className="d-flex justify-content-center align-items-center my-5">
+        <MDBSpinner grow role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </MDBSpinner>
+      </MDBContainer>
+    );
+  }
+
   return (
-    <div className="mispedidos-container">
-      <div className="card-header text-center">
-        <h3>MIS COMPRAS</h3>
-      </div>
+    <MDBContainer className="my-5">
+      <MDBTypography tag="h3" className="text-center mb-4">
+        <MDBIcon fas icon="shopping-cart" className="me-2" /> MIS COMPRAS
+      </MDBTypography>
       {ordenes.length > 0 ? (
-        ordenes.map((orden) => (
-          <div key={orden.id} className="card mb-4">
-            <div className="card-body">
-              <h5 className="card-title">{orden.usuario.nombre} {orden.usuario.apellido}</h5>
-              <p className="card-text"><strong>Email:</strong> {orden.usuario.email}</p>
-              <p className="card-text"><strong>Productos:</strong></p>
-              <ul className="list-unstyled">
+        ordenes.map((orden, index) => (
+          <MDBCard key={orden.id} className={`mb-4 shadow-3 animate__animated animate__fadeIn animate__delay-${index}s`}>
+            <MDBCardHeader className="text-center bg-light">
+              <MDBTypography tag="h5" className="text-primary">
+                <MDBIcon fas icon="user" className="me-2" />
+                {orden.usuario.nombre} {orden.usuario.apellido}
+              </MDBTypography>
+            </MDBCardHeader>
+            <MDBCardBody>
+              <p><MDBIcon fas icon="envelope" className="me-2" /><strong>Email:</strong> {orden.usuario.email}</p>
+              <p><strong>Productos:</strong></p>
+              <MDBListGroup className="mb-3">
                 {orden.productos.map((producto, index) => (
-                  <li key={index} className="product-item">{producto}</li>
+                  <MDBListGroupItem key={index} className="d-flex justify-content-between align-items-center animate__animated animate__fadeInRight">
+                    <span>{producto}</span>
+                    <MDBBadge color="info" pill>Comprado</MDBBadge>
+                  </MDBListGroupItem>
                 ))}
-              </ul>
-              <p className="card-text"><strong>Total:</strong> ${orden.total}</p>
-              <button className="btn btn-primary">VOLVER A COMPRAR</button>
-            </div>
-            <div className="card-footer text-muted">
-              <p className="mb-0">
-                Fecha de Compra: {orden.fechaCompra 
-                  ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(orden.fechaCompra)) 
-                  : 'Sin fecha de compra'}
-              </p>
-            </div>
-          </div>
+              </MDBListGroup>
+              <p className="mt-3"><MDBIcon fas icon="money-bill" className="me-2" /><strong>Total:</strong> ${orden.total}</p>
+              <MDBBtn color="primary" className="mt-2 animate__animated animate__pulse animate__infinite">
+                <MDBIcon fas icon="shopping-bag" className="me-2" /> VOLVER A COMPRAR
+              </MDBBtn>
+            </MDBCardBody>
+            <MDBCardFooter className="text-muted text-center">
+              <MDBIcon fas icon="calendar-alt" className="me-2" />
+              Fecha de Compra: {orden.fechaCompra 
+                ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(orden.fechaCompra)) 
+                : 'Sin fecha de compra'}
+            </MDBCardFooter>
+          </MDBCard>
         ))
       ) : (
-        <p>No hay pedidos disponibles</p>
+        <MDBTypography tag="p" className="text-center">No hay pedidos disponibles</MDBTypography>
       )}
-    </div>
+    </MDBContainer>
   );
 };
 
