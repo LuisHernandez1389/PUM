@@ -41,7 +41,7 @@ function Micarrito() {
 
 
   useEffect(() => {
-    const handleOutsideClick = (event) => {  
+    const handleOutsideClick = (event) => {
       // Si el clic se origina fuera del popover, ciérralo
       if (isPopoverVisible && popoverRef.current && !popoverRef.current.contains(event.target)) {
         setIsPopoverVisible(false);
@@ -106,20 +106,20 @@ function Micarrito() {
     return actions.order.capture().then(async function (details) {
       const auth = getAuth();
       const user = auth.currentUser;
-  
+
       if (user) {
         const userUid = user.uid;
         const userRef = ref(database, 'users/' + userUid);
-  
+
         try {
           const snapshot = await get(userRef);
-  
+
           if (snapshot.exists()) {
             const userData = snapshot.val();
-  
+
             // Crear el array de detalles del pago
             const detailsArray = Object.entries(details).map(([key, value]) => ({ key, value }));
-  
+
             // Crear la orden con la fecha actual
             const orden = {
               usuario: {
@@ -135,18 +135,18 @@ function Micarrito() {
               detallesPago: detailsArray,  // Detalles del pago
               fechaCompra: new Date().toISOString(),  // Fecha de compra actual
             };
-  
+
             // Referencia a la base de datos para guardar la orden
             const ordenesRef = ref(database, 'ordenes');
-  
+
             // Guardar la orden en Firebase
             await push(ordenesRef, orden);
             console.log('Orden guardada en Firebase:', orden);
-  
+
             // Resetear el carrito local después de guardar la orden
             setCarrito([]);  // Asegúrate de que setCarrito esté definido en el ámbito
             guardarCarritoEnLocalStorage([]);  // Asegúrate de que esta función esté definida
-  
+
           } else {
             console.log('No se encontraron datos del usuario.');
           }
@@ -183,30 +183,65 @@ function Micarrito() {
   const guardarCarritoEnLocalStorage = (carrito) => {
     localStorage.setItem('carrito', JSON.stringify(carrito));
   };
-  const pesoActualCarrito = carrito.reduce((totalPeso, itemId) => {
-    const itemCarrito = productosDatabase.find((item) => item.id === itemId);
-    if (itemCarrito && itemCarrito.peso) {
-      return totalPeso + itemCarrito.peso;
-    }
-    return totalPeso;
-  }, 0);
 
-/////////////////////// Borra productos del carrito
+
+  /////////////////////// Borra productos del carrito
   const borrarItemCarrito = (productoId) => {
-    const itemCarrito = productosDatabase.find((item) => item.id === productoId);
-    if (itemCarrito && itemCarrito.peso) {
-      const pesoProducto = itemCarrito.peso;
-      const nuevoCarrito = carrito.filter((itemId) => itemId !== productoId);
-      setCarrito(nuevoCarrito);
+    const nuevoCarrito = carrito.filter((item) => item !== productoId);
+    setCarrito(nuevoCarrito);
+    guardarCarritoEnLocalStorage(nuevoCarrito);
 
+    // Actualizar el peso del carrito
+    const itemCarrito = productosDatabase.find((item) => item.id === productoId);
+    const pesoProducto = itemCarrito?.peso || 0;
+    const pesoCarritoActualizado = carritoPeso - (pesoProducto * carrito.filter((id) => id === productoId).length);
+    setCarritoPeso(pesoCarritoActualizado);
+    localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
+  };
+
+  ///////Agrega producto del carrito
+  const agregarItemCarrito = (productoId) => {
+    const itemCarrito = productosDatabase.find((item) => item.id === productoId);
+    const pesoProducto = itemCarrito?.peso || 0;
+
+    if (carritoPeso + pesoProducto > 9000) {
+      // Mostrar un mensaje de advertencia
+      alert('No puedes agregar más productos. El peso total del carrito supera los 9000 gramos.');
+      return; // No agregar más productos
+    }
+
+    // Agregar el producto al carrito
+    const nuevoCarrito = [...carrito, productoId];
+    setCarrito(nuevoCarrito);
+    guardarCarritoEnLocalStorage(nuevoCarrito);
+
+    // Actualizar el peso del carrito
+    const pesoCarritoActualizado = carritoPeso + pesoProducto;
+    setCarritoPeso(pesoCarritoActualizado);
+    localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
+  };
+
+  ///////Reducir producto
+  const reducirItemCarrito = (productoId) => {
+    const indiceProducto = carrito.indexOf(productoId);
+
+    if (indiceProducto !== -1) {
+      const nuevoCarrito = [...carrito];
+      nuevoCarrito.splice(indiceProducto, 1); // Elimina una unidad del producto
+      setCarrito(nuevoCarrito);
       guardarCarritoEnLocalStorage(nuevoCarrito);
 
-      const pesoCarritoActualizado = pesoActualCarrito - pesoProducto;
+      // Actualizar el peso del carrito
+      const itemCarrito = productosDatabase.find((item) => item.id === productoId);
+      const pesoProducto = itemCarrito?.peso || 0;
+      const pesoCarritoActualizado = carritoPeso - pesoProducto;
       setCarritoPeso(pesoCarritoActualizado);
       localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
     }
   };
-//////// Vaicia le carrito
+
+
+  //////// Vaicia le carrito
   const vaciarCarrito = () => {
     setCarrito([]);
     setCarritoPeso(0); // Reiniciar el peso del carrito
@@ -214,14 +249,15 @@ function Micarrito() {
   };
 
 
-    const calcularTotalUnidades = useCallback(() => {
+  const calcularTotalUnidades = useCallback(() => {
     return carrito.reduce((total, item) => {
       return total + 1; // Suma 1 por cada item en el carrito
     }, 0);
-   }, [carrito]);
-  
+  }, [carrito]);
+
+
   const [totalUnidades, setTotalUnidades] = useState(calcularTotalUnidades());
-  
+
   useEffect(() => {
     setTotalUnidades(calcularTotalUnidades());
   }, [carrito, calcularTotalUnidades]);
@@ -236,33 +272,34 @@ function Micarrito() {
 
         return (
           <MDBCard className="mb-4">
-          <MDBRow className="g-0 align-items-center">
-            
-            {/* Contenedor de la imagen con tamaño fijo */}
-            <MDBCol md="4">
-              <MDBCardImage 
-                src={miItem.imagenUrl} 
-                alt={miItem.nombre} 
-                position="top" 
-                style={{ width: '100%', height: '200px', objectFit: 'cover' }} 
-              />
-            </MDBCol>
-    
-            {/* Contenido del lado derecho */}
-            <MDBCol md="8">
-              <MDBCardBody className="d-flex justify-content-between align-items-center">
-                <div>
-                  <MDBCardText>{miItem.nombre}</MDBCardText>
-                  <MDBCardText>Unidades: {numeroUnidadesItem}</MDBCardText>
-                  <MDBCardText>Gramos: {miItem.peso}</MDBCardText>
+            <MDBRow className="g-0 align-items-center">
 
-                  <MDBCardText>{divisa} {miItem.precio}</MDBCardText>
-                </div>
-                <MDBBtn color="danger" onClick={() => borrarItemCarrito(miItem)}>x</MDBBtn>
-              </MDBCardBody>
-            </MDBCol>
-          </MDBRow>
-        </MDBCard>
+              {/* Contenedor de la imagen con tamaño fijo */}
+              <MDBCol md="4">
+                <MDBCardImage
+                  src={miItem.imagenUrl}
+                  alt={miItem.nombre}
+                  position="top"
+                  style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                />
+              </MDBCol>
+
+              {/* Contenido del lado derecho */}
+              <MDBCol md="8">
+                <MDBCardBody className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <MDBCardText>{miItem.nombre}</MDBCardText>
+                    <MDBCardText>Unidades: {numeroUnidadesItem}</MDBCardText>
+                    <MDBCardText>Gramos: {miItem.peso}</MDBCardText>
+                    <MDBCardText>{divisa} {miItem.precio}</MDBCardText>
+                  </div>
+                  <MDBBtn color="success" onClick={() => agregarItemCarrito(miItem.id)}>+</MDBBtn>
+                  <MDBBtn color="warning" onClick={() => reducirItemCarrito(miItem.id)}>-</MDBBtn>
+                  <MDBBtn color="danger" onClick={() => borrarItemCarrito(miItem.id)}>x</MDBBtn>
+                </MDBCardBody>
+              </MDBCol>
+            </MDBRow>
+          </MDBCard>
         );
       } else {
         return (
@@ -277,27 +314,27 @@ function Micarrito() {
 
   return (
     <div className="container">
-    <div className="row mt-4">
-      <aside className="col-sm-12">
-        <div className="row">
-          <div className="col-sm-9">
-            <ul id="carrito" className="list-group">
-              {renderizarCarrito()}
-            </ul>
+      <div className="row mt-4">
+        <aside className="col-sm-12">
+          <div className="row">
+            <div className="col-sm-9">
+              <ul id="carrito" className="list-group">
+                {renderizarCarrito()}
+              </ul>
+            </div>
+            <div className="col-sm-3">
+              <h2>Resumen</h2>
+              <p>Cantidad de artículos: {totalUnidades}</p>
+              <p className="text-right">
+                <span id="total">
+                  <h2>Total: {divisa} {total} </h2>
+                </span>
+              </p>
+              <MDBBtn color="danger" onClick={vaciarCarrito}>Vaciar</MDBBtn>
+              <MDBBtn color="primary" onClick={handleOpenPopover}>Comprar</MDBBtn>
+            </div>
           </div>
-          <div className="col-sm-3">
-            <h2>Resumen</h2>
-            <p>Cantidad de artículos: {totalUnidades}</p>
-            <p className="text-right">
-              <span id="total">
-                <h2>Total: {divisa} {total} </h2>
-              </span>
-            </p>
-            <MDBBtn color="danger" onClick={vaciarCarrito}>Vaciar</MDBBtn>
-            <MDBBtn color="primary" onClick={handleOpenPopover}>Comprar</MDBBtn>
-          </div>
-        </div>
-      </aside>
+        </aside>
       </div>
 
       {isPopoverVisible && (
