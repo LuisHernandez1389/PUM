@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { get, ref } from 'firebase/database';
 import { database } from '../firebase';
-import "../estilos/Paquete.css"
 
 const PaqueteDetails = ({ paquete, onClose }) => {
   const imageUrl = paquete?.imagenURL;
@@ -40,25 +39,35 @@ const PaqueteDetails = ({ paquete, onClose }) => {
   }, [productosDetalles]);
 
   return (
-    <div className="product-details text-center d-flex flex-column align-items-center">
-      <img style={{ width: "150px", height: "150px" }} src={imageUrl} alt={paquete?.nombre} />
-      <h2>{paquete?.nombre}</h2>
-      <ul className="list-group">
-  {productosDetalles.map((producto, index) => (
-    <li key={index} className="list-group-item">
-      <div className="producto-item">
-        <img className='PPimagen' alt={producto.nombre} src={producto.imagenUrl} />
-        <div className="producto-info">
-          <span className="producto-nombre">{producto.nombre}</span>
-          <span className="producto-precio">${producto.precio}</span>
-        </div>
-      </div>
-    </li>
-  ))}
-</ul>
-
+    <div className="product-details text-center d-flex flex-column align-items-center p-4 shadow-lg rounded">
+      <img
+        style={{ width: "150px", height: "150px", borderRadius: "50%" }}
+        src={imageUrl}
+        alt={paquete?.nombre}
+        className="mb-3"
+      />
+      <h2 className="mb-4">{paquete?.nombre}</h2>
+      <ul className="list-group w-100">
+        {productosDetalles.map((producto, index) => (
+          <li key={index} className="list-group-item d-flex align-items-center justify-content-between">
+            <div className="producto-item d-flex align-items-center">
+              <img
+                className="PPimagen mr-3 rounded"
+                alt={producto.nombre}
+                src={producto.imagenUrl}
+                style={{ width: "50px", height: "50px", objectFit: "cover" }}
+              />
+              <div className="producto-info">
+                <span className="producto-nombre font-weight-bold">{producto.nombre}</span>
+              </div>
+            </div>
+            <span className="producto-precio font-weight-bold text-success">${producto.precio}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
+  
 };
 
 export default PaqueteDetails;
