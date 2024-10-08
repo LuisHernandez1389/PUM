@@ -13,7 +13,7 @@ import {
   MDBCardText,
   MDBRow,
   MDBCol,
-  MDBBtn
+  MDBBtn,MDBIcon
 } from 'mdb-react-ui-kit';
 const PayPalButton = window.paypal.Buttons.driver("react", { React, ReactDOM });
 
@@ -286,17 +286,71 @@ function Micarrito() {
 
               {/* Contenido del lado derecho */}
               <MDBCol md="8">
-                <MDBCardBody className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <MDBCardText>{miItem.nombre}</MDBCardText>
-                    <MDBCardText>Unidades: {numeroUnidadesItem}</MDBCardText>
-                    <MDBCardText>Gramos: {miItem.peso}</MDBCardText>
-                    <MDBCardText>{divisa} {miItem.precio}</MDBCardText>
-                  </div>
-                  <MDBBtn color="success" onClick={() => agregarItemCarrito(miItem.id)}>+</MDBBtn>
-                  <MDBBtn color="warning" onClick={() => reducirItemCarrito(miItem.id)}>-</MDBBtn>
-                  <MDBBtn color="danger" onClick={() => borrarItemCarrito(miItem.id)}>x</MDBBtn>
-                </MDBCardBody>
+              <MDBCardBody className="d-flex justify-content-between align-items-center">
+  <div>
+    <MDBCardText>{miItem.nombre}</MDBCardText>
+    <MDBCardText>Unidades: {numeroUnidadesItem}</MDBCardText>
+    <MDBCardText>Gramos: {miItem.peso}</MDBCardText>
+    <MDBCardText>{divisa} {miItem.precio}</MDBCardText>
+  </div>
+
+  <div className="d-flex gap-3"> {/* Contenedor con más separación */}
+    <MDBBtn className="custom-btn add-btn" onClick={() => agregarItemCarrito(miItem.id)}>
+      <MDBIcon fas icon="plus" />
+    </MDBBtn>
+    
+    <MDBBtn className="custom-btn subtract-btn" onClick={() => reducirItemCarrito(miItem.id)}>
+      <MDBIcon fas icon="minus" />
+    </MDBBtn>
+    
+    <MDBBtn className="custom-btn delete-btn" onClick={() => borrarItemCarrito(miItem.id)}>
+      <MDBIcon fas icon="trash-alt" />
+    </MDBBtn>
+  </div>
+  {/* Estilos personalizados */}
+  <style jsx>{`
+    .custom-btn {
+      padding: 10px 15px;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    }
+
+    .custom-btn:hover {
+      transform: scale(1.1); /* Animación de agrandar */
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Más sombra al pasar el ratón */
+    }
+
+    .add-btn {
+      background-color: #28a745; /* Verde personalizado */
+      color: white;
+    }
+
+    .add-btn:hover {
+      background-color: #218838; /* Más oscuro al hacer hover */
+    }
+
+    .subtract-btn {
+      background-color: #ffc107; /* Amarillo personalizado */
+      color: black;
+    }
+
+    .subtract-btn:hover {
+      background-color: #e0a800; /* Más oscuro al hacer hover */
+    }
+
+    .delete-btn {
+      background-color: #dc3545; /* Rojo personalizado */
+      color: white;
+    }
+
+    .delete-btn:hover {
+      background-color: #c82333; /* Más oscuro al hacer hover */
+    }
+  `}</style>
+</MDBCardBody>
+
               </MDBCol>
             </MDBRow>
           </MDBCard>
