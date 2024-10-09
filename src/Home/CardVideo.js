@@ -48,7 +48,7 @@ const CardVideo = () =>{
             <MDBCard style={{ maxWidth: '540px', margin: '20px 0' }}> {/* Tarjeta de video */}
               <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
                 <iframe 
-                  src="https://www.youtube.com/embed/HSa_mJmPOXw" 
+                  src="https://firebasestorage.googleapis.com/v0/b/pirotecniacq.appspot.com/o/2618032-uhd_3840_2160_24fps.mp4?alt=media&token=2cccffed-56a7-4c3f-b364-e2335748ee8a" 
                   title="YouTube Video" 
                   style={{
                     position: 'absolute',
