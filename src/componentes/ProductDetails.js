@@ -74,7 +74,6 @@ const ProductDetails = ({ producto, onClose }) => {
   };
 
   useEffect(() => {
-
     const getProductDetails = (snapshot) => {
       try {
         if (snapshot.exists()) {
@@ -97,8 +96,7 @@ const ProductDetails = ({ producto, onClose }) => {
     };
   }, [id]);
 
-  ///////////////////////////////////////////////
-  //Manejo de VideoUrl por medio de iframe
+  // Manejo de VideoUrl por medio de iframe
   const getEmbedUrl = (url) => {
     if (url.includes('youtube.com/watch')) {
       return url.replace('watch?v=', 'embed/');
@@ -110,126 +108,170 @@ const ProductDetails = ({ producto, onClose }) => {
     }
     return url; // Retorna la URL sin cambios si no es de esos servicios
   };
+  const anyadirProductoAlCarrito = (product) => {
+    if (!product) {
+      console.error('Producto no encontrado');
+      return;
+    }
+    
+    // Lógica para agregar el producto al carrito
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    carrito.push(product);
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    console.log('Producto agregado al carrito:', product);
+  };
   
 
   return (
     <>
       <div className="container card product-general mt-5">
         <div className="row">
-          <div className="col-md-8">
-            <div 
-              className="photo-product-details col-md-6" 
-              style={{ width: '100%', height: '400px', overflow: 'hidden', borderRadius: '1%' }} // Aumenta la altura aquí
+          <div className="col-12 col-md-8">
+            <div
+              className="photo-product-details"
+              style={{
+                width: '100%',
+                height: '400px', // Mantener altura para computadoras
+                overflow: 'hidden',
+                borderRadius: '1%',
+              }}
             >
-              <img 
-                src={product?.imagenUrl} 
-                alt={product?.nombre} 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              <img
+                src={product?.imagenUrl}
+                alt={product?.nombre}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
               />
             </div>
           </div>
-          <div className="col-md-4 container-details" style={{ padding: '1%' }}>
-  <div className="product-details-display form-control" style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-    <h2 className="mb-3">{product?.nombre}</h2>
-
-    <div className="star d-flex justify-content-center small text-warning mb-2">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <span
-          key={star}
-          onClick={() => handleRatingChange(star)}
-          style={{
-            cursor: 'pointer',
-            color: (star <= userRating) ? 'gold' : 'gray',
-            fontSize: '24px',
-          }}
-        >
-          &#9733;
-        </span>
-      ))}
-    </div>
-
-    <hr className="w-100" />
-    <h4>$ {product?.precio}</h4>
-    <hr className="w-100" />
-    <p>{product?.descripcion}</p>
-    <hr className="w-100" />
-
-    <div className='button-add' style={{ width: '100%' }}>
-      <button className='btn btn-primary w-100 mb-2'>
-        Agregar al carrito
-      </button>
-    </div>
-  </div>
-</div>
-        </div>
-      </div>
-      <br />
-      <div className='container card video' style={{ alignItems: 'center' }}>
-        {product?.video && (
-          <div>
-            <iframe 
-              className='video-product' 
-              title="video" 
-              src={getEmbedUrl(product?.video)} 
-              frameBorder="0" 
-              allowFullScreen
-              style={{ width: '600px', height: '290px', padding: '2%' }} 
+          <div className="col-12 col-md-4 container-details" style={{ padding: '1%' }}>
+            <div
+              className="product-details-display form-control"
+              style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+              }}
             >
-            </iframe>
-          </div>
-        )}
-      </div>
-  
-      <br />
-      <div className='container'>
-        <div className="card text-center ">
-          <div className="card-header">
-            <ul className="nav nav-pills card-header-pills">
-              <li className="nav-item">
-                <button className="nav-link bg-primary" href="#">Active</button>
-              </li>
-              <li className="nav-item">
-                <button className="nav-link bg-primary" href="#">Link</button>
-              </li>
-              <li className="nav-item">
-                <button className="nav-link bg-primary" aria-disabled="true">Disabled</button>
-              </li>
-            </ul>
-          </div>
-          <div className="card-body text-dark">
-            <h5 className="card-title">Special title treatment</h5>
-            <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-  
-            <div className="row">
-              <div className="col-sm"> 
-                <h1>{averageRating}</h1>          
-                <div>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      style={{
-                        color: (star <= averageRating) ? 'gold' : 'gray',
-                        fontSize: '24px',
-                      }}
-                    >
-                      &#9733;
-                    </span>
-                  ))}
-                </div>
+              <h2 className="mb-3">{product?.nombre}</h2>
+
+              <div className="star d-flex justify-content-center small text-warning mb-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    onClick={() => handleRatingChange(star)}
+                    style={{
+                      cursor: 'pointer',
+                      color: star <= userRating ? 'gold' : 'gray',
+                      fontSize: '24px',
+                    }}
+                  >
+                    &#9733;
+                  </span>
+                ))}
               </div>
-              <div className="col-sm">
-                <div className="progress" role="progressbar" aria-label="Basic example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-                  <div className="progress-bar w-75"></div>
-                </div>
+
+              <hr className="w-100" />
+              <h4>$ {product?.precio}</h4>
+              <hr className="w-100" />
+              <p>{product?.descripcion}</p>
+              <hr className="w-100" />
+
+              <div className='button-add' style={{ width: '100%' }}>
+                <button
+                  className='btn btn-primary w-100 mb-2'
+                  onClick={() => {
+                    if (product) {
+                      anyadirProductoAlCarrito(product);
+                      alert(`${product.nombre} ha sido agregado al carrito!`);
+                    }
+                  }}
+                >
+                  Agregar al carrito
+                </button>
               </div>
-              <div className="col-sm">col-sm</div>
+            </div>
+          </div>
+        </div>
+
+        <br />
+        <div className='container card video' style={{ alignItems: 'center', padding: '0' }}>
+          {product?.video && (
+            <div style={{ position: 'relative', width: '70%', paddingBottom: '56.25%', margin: '0 auto' /* Centra el contenedor */ }}>
+              <iframe
+                className='video-product'
+                title="video"
+                src={getEmbedUrl(product?.video)}
+                frameBorder="0"
+                allowFullScreen
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '70%',
+                  borderRadius: '5px', // Bordes redondeados
+                }}
+              ></iframe>
+            </div>
+          )}
+        </div>
+        <br />
+        <div className='container'>
+          <div className="card text-center">
+            <div className="card-header">
+              <ul className="nav nav-pills card-header-pills">
+                <li className="nav-item">
+                  <button className="nav-link bg-primary" href="#">Active</button>
+                </li>
+                <li className="nav-item">
+                  <button className="nav-link bg-primary" href="#">Link</button>
+                </li>
+                <li className="nav-item">
+                  <button className="nav-link bg-primary" aria-disabled="true">Disabled</button>
+                </li>
+              </ul>
+            </div>
+            <div className="card-body text-dark">
+              <h5 className="card-title">Special title treatment</h5>
+              <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
+
+              <div className="row">
+                <div className="col-sm">
+                  <h1>{averageRating}</h1>
+                  <div>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        style={{
+                          color: star <= averageRating ? 'gold' : 'gray',
+                          fontSize: '24px',
+                        }}
+                      >
+                        &#9733;
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="col-sm">
+                  <div className="progress" role="progressbar" aria-label="Basic example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                    <div className="progress-bar w-75"></div>
+                  </div>
+                </div>
+                <div className="col-sm">col-sm</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </>
   );
-  };
-  
-  export default ProductDetails;
-  
+
+};
+
+export default ProductDetails;
