@@ -3,17 +3,18 @@ import { database, auth } from '../firebase';
 import { ref, onValue, get, set, remove } from 'firebase/database';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 import '@fortawesome/fontawesome-free/css/all.css';
 
 const MisFavoritos = () => {
   const [favoritos, setFavoritos] = useState([]);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // Estado para controlar si es móvil
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const navigate = useNavigate(); // Crea una instancia de navigate
 
   useEffect(() => {
     const user = auth.currentUser;
 
     if (!user) {
-      // Si el usuario no está autenticado, maneja el caso según tus necesidades.
       return;
     }
 
@@ -25,14 +26,12 @@ const MisFavoritos = () => {
       const productos = [];
       for (const productoId in favoritosUsuario) {
         if (favoritosUsuario[productoId]) {
-          // Obtiene la información del producto desde la base de datos
           const productoSnapshot = await get(ref(database, `productos/${productoId}`));
-
           if (productoSnapshot.exists()) {
             const producto = {
               id: productoSnapshot.key,
               ...productoSnapshot.val(),
-              favorito: true, // Agrega el indicador de favorito
+              favorito: true,
             };
             productos.push(producto);
           }
@@ -42,42 +41,46 @@ const MisFavoritos = () => {
     });
   }, []);
 
-  // Función para manejar el clic en el ícono de favoritos
   const handleToggleFavorite = async (productoId) => {
     const user = auth.currentUser;
 
     if (!user) {
-      // Si el usuario no está autenticado, maneja el caso según tus necesidades.
       return;
     }
 
     const userId = user.uid;
     const userFavoritesRef = ref(database, `users/${userId}/favoritos/${productoId}`);
 
-    // Obtiene el estado actual de los favoritos del usuario
     const favoritoActual = (await get(userFavoritesRef)).val() || false;
 
-    // Actualiza el estado del favorito en la base de datos
     if (favoritoActual) {
-      // Si el producto es un favorito, lo elimina de la base de datos
       remove(userFavoritesRef);
     } else {
-      // Si el producto no es un favorito, lo agrega a la base de datos
       set(userFavoritesRef, true);
     }
   };
 
-  // Función para renderizar la lista de productos favoritos
+  // Maneja el clic en el contenedor para redirigir al detalle del producto
+  const handleContainerClick = (productoId) => {
+    navigate(`/producto/${productoId}`); // Cambia a la ruta correspondiente
+  };
+
   const renderizarFavoritos = () => {
     return favoritos.map((info) => (
-      <div key={info.id} className="card mb-3" style={{ maxWidth: '700px', position: 'relative' }}>
+      <div
+        key={info.id}
+        className="card mb-3"
+        style={{ maxWidth: '700px', position: 'relative', cursor: 'pointer', transition: 'transform 0.2s' }} // Agregado cursor de puntero
+        onClick={() => handleContainerClick(info.id)} // Agrega el manejador de clics
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} // Aumenta ligeramente el tamaño al pasar el mouse
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'} // Restaura el tamaño al salir el mouse
+      >
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '0' }}>
-          {/* Contenedor de la imagen */}
           <div style={{
             flex: '0 0 300px',
             height: '200px',
             overflow: 'hidden',
-            display: 'flex', // Para centrar la imagen verticalmente
+            display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}>
@@ -87,14 +90,12 @@ const MisFavoritos = () => {
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'contain', // Cambia a 'contain' para ajustar la imagen al contenedor
+                objectFit: 'contain',
                 borderRadius: '8px 0 0 8px',
-                margin: '0', // Establece el margen de la imagen como 0
+                margin: '0',
               }}
             />
           </div>
-
-          {/* Contenido a la derecha */}
           <div style={{ flex: 1, padding: '10px', position: 'relative' }}>
             <div className="card-body" style={{ padding: '0' }}>
               <h5 className="card-title">{info.nombre}</h5>
@@ -104,12 +105,13 @@ const MisFavoritos = () => {
                 <small className="text-muted">Pirotecnia Leyker</small>
               </p>
             </div>
-
-            {/* Ícono de corazón en la esquina superior derecha */}
             <FontAwesomeIcon
               icon={faHeart}
               className={`heart-icon ${info.favorito ? 'liked' : ''}`}
-              onClick={() => handleToggleFavorite(info.id)}
+              onClick={(e) => {
+                e.stopPropagation(); // Evita que el clic en el corazón cierre el contenedor
+                handleToggleFavorite(info.id);
+              }}
               style={{
                 color: 'red',
                 position: 'absolute',
@@ -124,15 +126,12 @@ const MisFavoritos = () => {
     ));
   };
 
-  // Use effect para manejar cambios en el tamaño de la ventana
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
 
     window.addEventListener('resize', handleResize);
-
-    // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener('resize', handleResize);
     };
@@ -143,7 +142,6 @@ const MisFavoritos = () => {
       <div>
         <main id="items" className="col-sm-12">
           <h2>Mis Favoritos</h2>
-          {/* Renderiza la lista de productos favoritos */}
           {renderizarFavoritos()}
         </main>
       </div>
