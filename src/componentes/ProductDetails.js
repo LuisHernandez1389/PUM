@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { onValue, ref, getDatabase, update } from 'firebase/database';
 import { database, auth } from '../firebase';
+import { logEvent } from 'firebase/analytics'; 
+import { analytics } from '../firebase'; 
+import ReactGA from 'react-ga'; 
+
 
 const ProductDetails = ({ producto, onClose }) => {
   const { id } = useParams();
@@ -10,6 +14,10 @@ const ProductDetails = ({ producto, onClose }) => {
   const [userId, setUserId] = useState(null);
   const [, setUserTotalRating] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
+  const [carrito, setCarrito] = useState([]);
+  const pesoMaximo = 9000;
+  const [, setCarritoPeso] = useState(0);
+  const [productosDatabase, setProductosDatabase] = useState([]);
 
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -108,19 +116,78 @@ const ProductDetails = ({ producto, onClose }) => {
     }
     return url; // Retorna la URL sin cambios si no es de esos servicios
   };
-  const anyadirProductoAlCarrito = (product) => {
-    if (!product) {
-      console.error('Producto no encontrado');
-      return;
+ 
+  // Efecto para cargar productos y carrito desde localStorage y la base de datos
+  useEffect(() => {
+    const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
+    const pesoGuardado = JSON.parse(localStorage.getItem('carritoPeso')) || 0;
+    setCarrito(carritoGuardado);
+    setCarritoPeso(pesoGuardado);
+
+    const databaseRef = ref(database, 'productos');
+    onValue(databaseRef, (snapshot) => {
+      const productos = [];
+      snapshot.forEach((childSnapshot) => {
+        const producto = {
+          id: childSnapshot.key,
+          ...childSnapshot.val(),
+        };
+        productos.push(producto);
+      });
+      setProductosDatabase(productos);
+    });
+
+  }, []);
+// Función para guardar el carrito en localStorage
+const guardarCarritoEnLocalStorage = (carrito) => {
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+};
+
+// Función para calcular el peso actual del carrito
+const pesoActualCarrito = carrito.reduce((totalPeso, itemId) => {
+  const itemCarrito = productosDatabase.find((item) => item.id === itemId);
+
+  if (itemCarrito) {
+    return totalPeso + itemCarrito.peso;
+  } else {
+    return totalPeso;
+  }
+}, 0);
+ // Función para agregar un producto al carrito
+ const anyadirProductoAlCarrito = (productoId, pesoProducto) => {
+  const pesoEnGramos = pesoProducto;
+
+  if (pesoActualCarrito + pesoEnGramos <= pesoMaximo) {
+    const nuevoCarrito = [...carrito, productoId];
+    setCarrito(nuevoCarrito);
+    guardarCarritoEnLocalStorage(nuevoCarrito);
+
+    const pesoCarritoActualizado = pesoActualCarrito + pesoEnGramos;
+    setCarritoPeso(pesoCarritoActualizado);
+    localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
+    logEvent(analytics, 'agregar_al_carrito', {
+      productoId,
+    });
+    ReactGA.event({
+      category: 'Interacción',
+      action: 'Agregar al Carrito',
+      label: 'Producto: ' + productoId,
+    });
+    showToast(); // Mostrar toast después de añadir al carrito
+  } else {
+    alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
+  }
+};
+  // Función para mostrar el toast
+  const showToast = () => {
+    const toastElement = document.getElementById('myToast');
+    if (toastElement) {
+      const bootstrapToast = new window.bootstrap.Toast(toastElement);
+      bootstrapToast.show();
+    } else {
+      console.error("El elemento 'myToast' no existe en el DOM");
     }
-    
-    // Lógica para agregar el producto al carrito
-    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    carrito.push(product);
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    console.log('Producto agregado al carrito:', product);
   };
-  
 
   return (
     <>
@@ -183,17 +250,17 @@ const ProductDetails = ({ producto, onClose }) => {
               <hr className="w-100" />
 
               <div className='button-add' style={{ width: '100%' }}>
-                <button
-                  className='btn btn-primary w-100 mb-2'
-                  onClick={() => {
-                    if (product) {
-                      anyadirProductoAlCarrito(product);
-                      alert(`${product.nombre} ha sido agregado al carrito!`);
-                    }
-                  }}
-                >
-                  Agregar al carrito
-                </button>
+              <button
+    className="btn btn-primary d-flex align-items-center justify-content-center m-2"
+    onClick={() => {
+      anyadirProductoAlCarrito(product?.id, product?.peso); // Aquí debes usar "product" en lugar de "info"
+      showToast();
+    }}
+    style={{ borderRadius: '0', width: '100%' }}
+  >
+    Agregar al carrito
+  </button>
+
               </div>
             </div>
           </div>
@@ -268,6 +335,18 @@ const ProductDetails = ({ producto, onClose }) => {
             </div>
           </div>
         </div>
+         {/* Toast Notification */}
+      <div className="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="myToast" className="toast fade" role="alert" aria-live="assertive" aria-atomic="true">
+          <div className="toast-header">
+            <strong className="me-auto">Producto añadido</strong>
+            <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div className="toast-body">
+            El producto se ha añadido al carrito correctamente.
+          </div>
+          </div>
+          </div>
       </div>
     </>
   );
