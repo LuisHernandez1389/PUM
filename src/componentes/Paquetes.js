@@ -121,14 +121,6 @@ function PaquetesList() {
                 </div>
               )}
             </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-primary">
-                Agregar al carrito
-              </button>
-              <button type="button" className="btn btn-danger" onClick={closePaqueteDetails} data-bs-dismiss="modal">
-                Cerrar
-              </button>
-            </div>
           </div>
         </div>
       </div>

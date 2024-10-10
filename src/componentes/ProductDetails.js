@@ -116,7 +116,7 @@ const ProductDetails = ({ producto, onClose }) => {
     }
     return url; // Retorna la URL sin cambios si no es de esos servicios
   };
- 
+ ////////////////////////////////////////////////
   // Efecto para cargar productos y carrito desde localStorage y la base de datos
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
