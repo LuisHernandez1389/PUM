@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { database } from '../firebase';
-import PaqueteDetails from './PaqueteDetails';
+import { Link } from 'react-router-dom';
 import {
   MDBCard,
   MDBCardBody,
@@ -15,9 +15,8 @@ import {
   MDBRow
 } from 'mdb-react-ui-kit';
 
-function PaquetesList() {
+function Paquetes() {
   const [paquetes, setPaquetes] = useState([]);
-  const [selectedPaquete, setSelectedPaquete] = useState(null);
   const [productos, setProductos] = useState({});
 
   useEffect(() => {
@@ -54,13 +53,6 @@ function PaquetesList() {
     };
   }, []);
 
-  const openPaqueteDetails = (paquete) => {
-    setSelectedPaquete(paquete);
-  };
-
-  const closePaqueteDetails = () => {
-    setSelectedPaquete(null);
-  };
 
   return (
     <div className="container">
@@ -92,40 +84,17 @@ function PaquetesList() {
                 </MDBListGroupItem>
               ))}
             </MDBListGroup>
+            <MDBListGroup className='mt-2'>
+            <MDBListGroupItem>Precio:{paquete.precio}</MDBListGroupItem>
+            </MDBListGroup>
             <MDBCardBody>
-              <MDBCardLink
-                href="#"
-                onClick={() => openPaqueteDetails(paquete)}
-                data-bs-toggle="modal"
-                data-bs-target="#paquetesModal"
-              >
-                Ver detalles
-              </MDBCardLink>
+            <MDBCardLink as={Link} href={`/paquete/${paquete.id}`}>Ver detalles</MDBCardLink>
             </MDBCardBody>
           </MDBCard>
         </MDBCol>
       ))}
     </MDBRow>
-
-      <div className="modal" tabIndex="-1" id="paquetesModal">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5>Paquetes</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              {selectedPaquete && (
-                <div className="product-details-modal">
-                  <PaqueteDetails paquete={selectedPaquete} onClose={closePaqueteDetails} />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
-
-export default PaquetesList;
+export default Paquetes;

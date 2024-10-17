@@ -27,7 +27,7 @@ const Login = lazy(() => import('./componentes/Login'));
 const Register = lazy(() => import('./componentes/Register'));
 const PaqueteDetails = lazy(() => import('./componentes/PaqueteDetails'))
 
-const App = (selectedProduct) => {
+const App = (selectedProduct, selectedPaquete ) => {
   const [user, setUser] = useState(null); 
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +55,7 @@ const App = (selectedProduct) => {
         <Suspense fallback={<LoadingPlaceholder />}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path='/detalles-paquetes' element={<PaqueteDetails />} />
+            <Route path="/paquete/:id" element={<PaqueteDetails></PaqueteDetails>} />
             <Route path="/producto/:id" element={<ProductDetails selectedProduct={selectedProduct} />} />
             <Route path="/navbar" element={<Navbar />} />
             <Route path="/eventos" element={<Eventos />} />
