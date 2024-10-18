@@ -137,8 +137,6 @@ function PaqueteDetails() {
     alt={paquete.nombre}
     onClick={() => setActiveItem(0)} // La imagen del paquete es el primer item
     style={{
-      width: '60px',
-      height: '60px',
       objectFit: 'cover',
       borderRadius: '4px',
       cursor: 'pointer',

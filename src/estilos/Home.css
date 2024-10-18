@@ -1,0 +1,67 @@
+.pageWrapper {
+    background-color: #f8f9fa;
+    font-family: 'Arial, sans-serif';
+    overflow-x: hidden; /* Para evitar scrolls horizontales inesperados */
+    padding: 20px;
+  }
+
+  .section {
+    opacity: 0;
+    transform: translateY(30px); /* Más distancia en la entrada */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Más tiempo para la animación */
+  }
+
+  .show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .sectionTitle {
+    font-size: 36px;
+    font-weight: 600;
+    color: #343a40;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    transition: color 0.3s ease; /* Transición al cambiar el color */
+  }
+  
+  .card {
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s; /* Transiciones suaves */
+  }
+  
+  .card:hover {
+    transform: scale(1.05); /* Aumenta el tamaño al hacer hover */
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+  }
+  
+  .cardImage {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+  }
+  
+  .cardButton {
+    background-color: #ff4500;
+    border-radius: 30px;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-weight: bold;
+    transition: background-color 0.3s ease; /* Transicion suave en el botón */
+  }
+  
+  .cardButton:hover {
+    background-color: #ff5733; /* Cambio de color al hacer hover*/
+  }
+  
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
