@@ -52,6 +52,7 @@ function PaqueteDetails() {
     setUserRating(rating);
   };
 
+  /////Videos
   const getEmbedUrl = (url) => {
     if (url.includes('youtube.com/watch')) {
       const videoId = url.split('v=')[1].split('&')[0];
@@ -65,13 +66,16 @@ function PaqueteDetails() {
     return url;
   };
 
+  ///ver mas descripcion
   const toggleDescription = () => {
     setExpandedDescription(!expandedDescription);
   };
-
+  ///ver mas de productos
   const toggleProducts = () => {
     setExpandedProducts(!expandedProducts);
   };
+
+  ///Boton del carrito
 
   if (!paquete) return <div>Cargando...</div>;
 
@@ -172,11 +176,7 @@ function PaqueteDetails() {
       );
     })}
 </div>
-
-
         </div>
-
-        
 
         <div className="col-12 col-md-4 container-details" style={{ padding: '1%' }}>
           <div
