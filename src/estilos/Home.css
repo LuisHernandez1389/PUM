@@ -1,14 +1,18 @@
+/* General */
 .pageWrapper {
     background-color: #f8f9fa;
-    font-family: 'Arial, sans-serif';
-    overflow-x: hidden; /* Para evitar scrolls horizontales inesperados */
-    padding: 20px;
+    font-family: 'Roboto', sans-serif; /* Tipografía moderna */
+    padding: 20px 10px;
+    max-width: 100%; /* Permite que el contenedor ocupe todo el ancho */
+    margin: 0 auto; /* Centra el contenido */
   }
 
+  /* Secciones */
   .section {
     opacity: 0;
     transform: translateY(30px); /* Más distancia en la entrada */
     transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Más tiempo para la animación */
+    margin-bottom: 40px; /* Añadimos mas espacio entre secciones */
   }
 
   .show {
@@ -16,19 +20,23 @@
     transform: translateY(0);
   }
   
+  /* Títulos */
   .sectionTitle {
     font-size: 36px;
-    font-weight: 600;
+    font-weight: 700; /* Hacemos mas grueso el texto */
     color: #343a40;
     text-transform: uppercase;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     transition: color 0.3s ease; /* Transición al cambiar el color */
+    text-align: center;
   }
   
+  /* Tarjetas */
   .card {
     border-radius: 15px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s; /* Transiciones suaves */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transiciones suaves */
+    overflow: hidden;
   }
   
   .card:hover {
@@ -39,21 +47,44 @@
   .cardImage {
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
+    height: 250px; /* Fija una altura mas equilibrada para las imágenes */
+    object-fit: cover;
+    width: 100%;
   }
   
+  /* Botones */
   .cardButton {
     background-color: #ff4500;
     border-radius: 30px;
     color: #ffffff;
-    padding: 10px 20px;
+    padding: 12px 25px;
     font-weight: bold;
+    font-size: 16px;
+    display: inline-block;
     transition: background-color 0.3s ease; /* Transicion suave en el botón */
+    text-align: center;
   }
   
   .cardButton:hover {
     background-color: #ff5733; /* Cambio de color al hacer hover*/
   }
   
+  /* Responsividad */
+  @media (max-width: 768px) {
+    .sectionTitle {
+      font-size: 28px;
+    }
+
+    .card {
+      margin-bottom: 20px;
+    }
+
+    .cardImage {
+      height: 200px;
+    }
+
+  }
+
   @keyframes fadeIn {
     0% {
       opacity: 0;
