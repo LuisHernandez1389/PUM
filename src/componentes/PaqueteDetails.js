@@ -1,19 +1,93 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ref, onValue } from 'firebase/database';
-import { database } from '../firebase';
+import { ref, onValue, getDatabase,update } from 'firebase/database';
+import { database, auth } from '../firebase';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Importa los estilos
+import { logEvent } from 'firebase/analytics'; 
+import { analytics } from '../firebase'; 
+import ReactGA from 'react-ga'; 
 
-function PaqueteDetails() {
+function PaqueteDetails({}) {
   const { id } = useParams();
   const [paquete, setPaquete] = useState(null);
-  const [userRating, setUserRating] = useState(0);
   const [productos, setProductos] = useState({});
   const [expandedDescription, setExpandedDescription] = useState(false); // Estado para manejar la descripción
   const [expandedProducts, setExpandedProducts] = useState(false); // Estado para manejar los nombres de los productos
   const [activeItem, setActiveItem] = useState(0); // Estado para el item activo
-  
+  const [carrito, setCarrito] = useState([]);
+  const pesoMaximo = 9000;
+  const [, setCarritoPeso] = useState(0);
+  const [paquetesDatabase, setPaquetesDatabase] = useState([]);
+
+  const [userRating, setUserRating] = useState(0);
+  const [userId, setUserId] = useState(null);
+  const [, setUserTotalRating] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+
+  useEffect(() => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setUserId(currentUser.uid);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      const ratingsRef = ref(database, `productos/${id}/calificaciones/${userId}/rating`);
+      const getUserRating = () => {
+        onValue(ratingsRef, (snapshot) => {
+          if (snapshot.exists()) {
+            setUserRating(snapshot.val());
+          } else {
+            setUserRating(0);
+          }
+        });
+      };
+      getUserRating();
+    }
+  }, [id, userId]);
+
+  useEffect(() => {
+    const getUserTotalRating = () => {
+      const ratingsRef = ref(database, `productos/${id}/calificaciones`);
+      let totalRating = 0;
+      let totalRatingsCount = 0;
+      onValue(ratingsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const calificaciones = snapshot.val();
+          totalRatingsCount = Object.keys(calificaciones).length;
+          totalRating = Object.values(calificaciones).reduce((acc, usuario) => {
+            return acc + usuario.rating;
+          }, 0);
+          setUserTotalRating(totalRating);
+          setAverageRating(totalRating / totalRatingsCount);
+        } else {
+          setUserTotalRating(0);
+          setAverageRating(0);
+        }
+      });
+    };
+    getUserTotalRating();
+  }, [id]);
+
+  const handleRatingChange = async (stars) => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const userId = currentUser.uid;
+
+      const ratingsRef = ref(database, `productos/${id}/calificaciones/${userId}`);
+
+      try {
+        await update(ratingsRef, { rating: stars });
+        setUserRating(stars);
+      } catch (error) {
+        console.error('Error al actualizar la calificación:', error.message);
+      }
+    }
+  };
+
+///////
   useEffect(() => {
     const paqueteRef = ref(database, `paquetes/${id}`);
     const paqueteUnsubscribe = onValue(paqueteRef, (snapshot) => {
@@ -48,10 +122,6 @@ function PaqueteDetails() {
     return () => clearInterval(interval); // Limpia el intervalo al desmontar
   }, [paquete]);
 
-  const handleRatingChange = (rating) => {
-    setUserRating(rating);
-  };
-
   /////Videos
   const getEmbedUrl = (url) => {
     if (url.includes('youtube.com/watch')) {
@@ -74,6 +144,116 @@ function PaqueteDetails() {
   const toggleProducts = () => {
     setExpandedProducts(!expandedProducts);
   };
+
+
+ useEffect(() => {
+  const getPaqueteDetails = (snapshot) => {
+    try {
+      if (snapshot.exists()) {
+        const paqueteData = snapshot.val();
+        setPaquete(paqueteData);
+      } else {
+        console.error('Datos del paquete no encontrados');
+      }
+    } catch (error) {
+      console.error('Error al obtener detalles del paquete:', error);
+    }
+  };
+
+  const databaseInstance = getDatabase();
+  const paqueteDatabaseRef = ref(databaseInstance, `paquetes/${id}`);
+  const paqueteListener = onValue(paqueteDatabaseRef, getPaqueteDetails);
+
+  return () => {
+    paqueteListener();
+  };
+}, [id]);
+
+////////////////////////////////////////////
+// Efecto para cargar paquetes y carrito desde localStorage y la base de datos
+useEffect(() => {
+  const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
+  const pesoGuardado = JSON.parse(localStorage.getItem('carritoPeso')) || 0;
+  setCarrito(carritoGuardado);
+  setCarritoPeso(pesoGuardado);
+
+  const databaseRef = ref(database, 'paquetes'); // Cambié 'productos' a 'paquetes'
+  onValue(databaseRef, (snapshot) => {
+    const paquetes = [];
+    snapshot.forEach((childSnapshot) => {
+      const paquete = {
+        id: childSnapshot.key,
+        ...childSnapshot.val(),
+      };
+      paquetes.push(paquete);
+    });
+    setPaquetesDatabase(paquetes);
+  });
+
+}, []);
+
+// Función para guardar el carrito en localStorage
+const guardarCarritoEnLocalStorage = (carrito) => {
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+   
+  // Obtener los detalles del paquete
+  const paqueteDetalles = paquete; // Asumiendo que 'paquete' tiene los datos que necesitas
+
+  // Mostrar los detalles en la consola
+  if (paqueteDetalles) {
+    console.log('Detalles del paquete guardado en localStorage:');
+    console.log('Nombre:', paqueteDetalles.nombre);
+    console.log('Precio:', paqueteDetalles.precio);
+    console.log('Peso:', paqueteDetalles.peso);
+    console.log('ID:', paqueteDetalles.id);
+    console.log('Productos:', paqueteDetalles.productos);
+  }
+  console.log('Carrito guardado en localStorage:', JSON.parse(localStorage.getItem('carrito')));
+};
+
+const calcularPesoActualCarrito = () => {
+  const totalPeso = carrito.reduce((totalPeso, itemId) => {
+    const itemCarrito = paquetesDatabase.find((item) => item.id === itemId);
+    const peso = itemCarrito ? Number(itemCarrito.peso) : 0; // Convertir a número
+    console.log('ID del paquete:', itemId, 'Peso:', peso);
+    return totalPeso + peso;
+  }, 0);
+  console.log('Peso total del carrito:', totalPeso);
+  return totalPeso;
+};
+
+const anyadirPaqueteAlCarrito = (paqueteid, pesoPaquete) => {
+  console.log('Agregando paquete con ID:', paqueteid, 'y peso:', pesoPaquete);
+  const pesoEnGramos = Number(pesoPaquete); // Asegúrate de que sea un número
+
+  const pesoActual = calcularPesoActualCarrito();
+  console.log('Peso actual:', pesoActual, 'Peso a añadir:', pesoEnGramos);
+  console.log('Peso máximo permitido:', pesoMaximo);
+
+  if (pesoActual + pesoEnGramos <= pesoMaximo) {
+    const nuevoCarrito = [...carrito, paqueteid];
+    setCarrito(nuevoCarrito);
+    guardarCarritoEnLocalStorage(nuevoCarrito);
+
+    const pesoCarritoActualizado = pesoActual + pesoEnGramos;
+    setCarritoPeso(pesoCarritoActualizado);
+    localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
+
+    logEvent(analytics, 'agregar_al_carrito', {
+      paqueteid,
+    });
+    ReactGA.event({
+      category: 'Interacción',
+      action: 'Agregar al Carrito',
+      label: 'Paquete: ' + paqueteid,
+    });
+  } else {
+    alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
+  }
+};
+
+
+
 
   ///Boton del carrito
 
@@ -98,7 +278,7 @@ function PaqueteDetails() {
           {/* Mostrar primero la imagen del paquete */}
           <div key="paquete">
             <img
-              src={paquete.imagenURL}  // Imagen del paquete
+              src={paquete.imagenUrl}  // Imagen del paquete
               alt={paquete.nombre}      // Nombre del paquete
               className="d-block w-100"
               style={{ height: '400px', objectFit: 'cover' }}
@@ -137,7 +317,7 @@ function PaqueteDetails() {
   {/* Miniatura de la imagen del paquete */}
   <img
     key="paquete-thumb"
-    src={paquete.imagenURL}
+    src={paquete.imagenUrl}
     alt={paquete.nombre}
     onClick={() => setActiveItem(0)} // La imagen del paquete es el primer item
     style={{
@@ -240,15 +420,15 @@ function PaqueteDetails() {
             <hr className="w-100" />
 
             <div className="button-add" style={{ width: '100%' }}>
-              <button
-                className="btn btn-primary d-flex align-items-center justify-content-center m-2"
-                onClick={() => {
-                  console.log('Añadir al carrito');
-                }}
-                style={{ borderRadius: '0', width: '100%' }}
-              >
-                Agregar al carrito
-              </button>
+            <button
+  className="btn btn-primary d-flex align-items-center justify-content-center m-2"
+  onClick={() => {
+    anyadirPaqueteAlCarrito(paquete?.id, paquete?.peso); 
+  }}
+  style={{ borderRadius: '0', width: '100%' }}
+>
+  Agregar al carrito
+</button>
             </div>
           </div>
         </div>

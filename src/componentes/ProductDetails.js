@@ -81,6 +81,21 @@ const ProductDetails = ({ producto, onClose }) => {
     }
   };
 
+
+
+  // Manejo de VideoUrl por medio de iframe
+  const getEmbedUrl = (url) => {
+    if (url.includes('youtube.com/watch')) {
+      return url.replace('watch?v=', 'embed/');
+    } else if (url.includes('facebook.com/watch')) {
+      const videoId = url.split('v=')[1];
+      return `https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/facebook/videos/${videoId}/`;
+    } else if (url.includes('drive.google.com')) {
+      return url.replace('/view', '/preview');
+    }
+    return url; // Retorna la URL sin cambios si no es de esos servicios
+  };
+
   useEffect(() => {
     const getProductDetails = (snapshot) => {
       try {
@@ -103,19 +118,6 @@ const ProductDetails = ({ producto, onClose }) => {
       productListener();
     };
   }, [id]);
-
-  // Manejo de VideoUrl por medio de iframe
-  const getEmbedUrl = (url) => {
-    if (url.includes('youtube.com/watch')) {
-      return url.replace('watch?v=', 'embed/');
-    } else if (url.includes('facebook.com/watch')) {
-      const videoId = url.split('v=')[1];
-      return `https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/facebook/videos/${videoId}/`;
-    } else if (url.includes('drive.google.com')) {
-      return url.replace('/view', '/preview');
-    }
-    return url; // Retorna la URL sin cambios si no es de esos servicios
-  };
  ////////////////////////////////////////////////
   // Efecto para cargar productos y carrito desde localStorage y la base de datos
   useEffect(() => {
@@ -141,6 +143,8 @@ const ProductDetails = ({ producto, onClose }) => {
 // Función para guardar el carrito en localStorage
 const guardarCarritoEnLocalStorage = (carrito) => {
   localStorage.setItem('carrito', JSON.stringify(carrito));
+  console.log('Carrito guardado en localStorage:', JSON.parse(localStorage.getItem('carrito')));
+
 };
 
 // Función para calcular el peso actual del carrito
@@ -253,7 +257,7 @@ const pesoActualCarrito = carrito.reduce((totalPeso, itemId) => {
               <button
     className="btn btn-primary d-flex align-items-center justify-content-center m-2"
     onClick={() => {
-      anyadirProductoAlCarrito(product?.id, product?.peso); // Aquí debes usar "product" en lugar de "info"
+      anyadirProductoAlCarrito(product?.id, product?.peso); 
       showToast();
     }}
     style={{ borderRadius: '0', width: '100%' }}

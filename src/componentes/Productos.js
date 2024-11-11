@@ -226,7 +226,6 @@ const renderizarProductos = () => {
     if (pesoActualCarrito + pesoEnGramos <= pesoMaximo) {
       const nuevoCarrito = [...carrito, productoId];
       setCarrito(nuevoCarrito);
-
       guardarCarritoEnLocalStorage(nuevoCarrito);
 
       const pesoCarritoActualizado = pesoActualCarrito + pesoEnGramos;

@@ -64,7 +64,7 @@ function Paquetes() {
             <MDBCardImage
               position="top"
               alt={paquete.nombre}
-              src={paquete.imagenURL}
+              src={paquete.imagenUrl}
               style={{ height: '200px', objectFit: 'cover' }}
             />
             <MDBCardBody style={{ flex: '1' }}>

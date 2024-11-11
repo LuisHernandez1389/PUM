@@ -5,6 +5,7 @@ import Navbar from './componentes/navbar';
 import LoadingPlaceholder from './componentes/LoadingPlaceholder'; // Componente de indicador de carga
 
 import ProductDetails from './componentes/ProductDetails';
+import PaqueteDetails from './componentes/PaqueteDetails';
 import SearchPage from './componentes/SearchPage';
 import MisFavoritos from './componentes/Misfavoritos';
 import Footer from './componentes/Footer';
@@ -25,7 +26,6 @@ const Miscompras = lazy(() => import('./componentes/Miscompras'));
 const FormUser = lazy(() => import('./componentes/UserView'));
 const Login = lazy(() => import('./componentes/Login'));
 const Register = lazy(() => import('./componentes/Register'));
-const PaqueteDetails = lazy(() => import('./componentes/PaqueteDetails'))
 
 const App = (selectedProduct, selectedPaquete ) => {
   const [user, setUser] = useState(null); 
@@ -55,7 +55,7 @@ const App = (selectedProduct, selectedPaquete ) => {
         <Suspense fallback={<LoadingPlaceholder />}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/paquete/:id" element={<PaqueteDetails></PaqueteDetails>} />
+            <Route path="/paquete/:id" element={<PaqueteDetails selectedPaquete={selectedPaquete} />} />
             <Route path="/producto/:id" element={<ProductDetails selectedProduct={selectedProduct} />} />
             <Route path="/navbar" element={<Navbar />} />
             <Route path="/eventos" element={<Eventos />} />

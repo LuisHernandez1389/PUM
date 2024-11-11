@@ -26,6 +26,7 @@ function Micarrito() {
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const popoverRef = useRef(null);
   const [user, setUser] = useState(null);
+  const [paquetesDatabase, setPaquetesDatabase] = useState([]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -71,119 +72,6 @@ function Micarrito() {
     setIsPopoverVisible(false);
     setIsPayPalButtonRendered(false);
   };
-
-  const calcularTotal = useCallback(() => {
-    return carrito.reduce((total, item) => {
-      const miItem = productosDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
-      if (miItem) {
-        return total + miItem.precio;
-      } else {
-        return total;
-      }
-    }, 0).toFixed(2);
-  }, [carrito, productosDatabase]);
-
-  const [total, setTotal] = useState(calcularTotal());
-  useEffect(() => {
-    setTotal(calcularTotal());
-    console.log(carritoPeso);
-  }, [carrito, productosDatabase, calcularTotal, carritoPeso]);
-
-
-  const createOrder = (data, actions) => {
-    return actions.order.create({
-      purchase_units: [
-        {
-          amount: {
-            value: calcularTotal()
-          }
-        }
-      ]
-    });
-  };
-
-  const onApprove = (data, actions) => {
-    return actions.order.capture().then(async function (details) {
-      const auth = getAuth();
-      const user = auth.currentUser;
-
-      if (user) {
-        const userUid = user.uid;
-        const userRef = ref(database, 'users/' + userUid);
-
-        try {
-          const snapshot = await get(userRef);
-
-          if (snapshot.exists()) {
-            const userData = snapshot.val();
-
-            // Crear el array de detalles del pago
-            const detailsArray = Object.entries(details).map(([key, value]) => ({ key, value }));
-
-            // Crear la orden con la fecha actual
-            const orden = {
-              usuario: {
-                uid: user.uid,
-                nombre: userData.nombre,
-                apellido: userData.apellido,
-                direccion: userData.direccion,
-                numeroTelefono: userData.numeroTelefono,
-                email: user.email,
-              },
-              productos: carrito,  // Asegúrate de que carrito esté definido en el ámbito
-              total: calcularTotal(),  // Asegúrate de que calcularTotal esté definido en el ámbito
-              detallesPago: detailsArray,  // Detalles del pago
-              fechaCompra: new Date().toISOString(),  // Fecha de compra actual
-            };
-
-            // Referencia a la base de datos para guardar la orden
-            const ordenesRef = ref(database, 'ordenes');
-
-            // Guardar la orden en Firebase
-            await push(ordenesRef, orden);
-            console.log('Orden guardada en Firebase:', orden);
-
-            // Resetear el carrito local después de guardar la orden
-            setCarrito([]);  // Asegúrate de que setCarrito esté definido en el ámbito
-            guardarCarritoEnLocalStorage([]);  // Asegúrate de que esta función esté definida
-
-          } else {
-            console.log('No se encontraron datos del usuario.');
-          }
-        } catch (error) {
-          console.error('Error al cargar datos del usuario:', error.message);
-        }
-      } else {
-        console.log('Usuario no autenticado.');
-      }
-    });
-  };
-
-  useEffect(() => {
-    const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
-    const pesoGuardado = JSON.parse(localStorage.getItem('carritoPeso')) || 0;
-    setCarrito(carritoGuardado);
-    setCarritoPeso(pesoGuardado);
-
-    const databaseRef = ref(database, 'productos');
-    onValue(databaseRef, (snapshot) => {
-      const productos = [];
-      snapshot.forEach((childSnapshot) => {
-        const producto = {
-          id: childSnapshot.key,
-          ...childSnapshot.val(),
-        };
-        productos.push(producto);
-      });
-      setProductosDatabase(productos);
-    });
-  }, []);
-
-  /////Guarda en localStorage
-  const guardarCarritoEnLocalStorage = (carrito) => {
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-  };
-
 
   /////////////////////// Borra productos del carrito
   const borrarItemCarrito = (productoId) => {
@@ -261,12 +149,189 @@ function Micarrito() {
   useEffect(() => {
     setTotalUnidades(calcularTotalUnidades());
   }, [carrito, calcularTotalUnidades]);
+  
+
+  const calcularTotal = useCallback(() => {
+    // Inicializamos un objeto para almacenar tanto el precio como el peso totales
+    const resultado = carrito.reduce(
+      (totales, item) => {
+        const miItemPaquete = paquetesDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
+        const miItemProducto = productosDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
+  
+        console.log("Item:", item);
+        console.log("Paquete encontrado:", miItemPaquete);
+        console.log("Producto encontrado:", miItemProducto);
+  
+        if (miItemPaquete) {
+          console.log("Sumando precio del paquete:", miItemPaquete.precio);
+          console.log("Sumando peso del paquete:", miItemPaquete.peso);
+          
+          // Sumamos el precio y el peso del paquete, asegurando que el peso sea numérico
+          return {
+            precioTotal: totales.precioTotal + miItemPaquete.precio,
+            pesoTotal: totales.pesoTotal + parseFloat(miItemPaquete.peso || 0)
+          };
+        }
+  
+        if (miItemProducto) {
+          console.log("Sumando precio del producto:", miItemProducto.precio);
+          console.log("Sumando peso del producto:", miItemProducto.peso);
+          
+          // Sumamos el precio y el peso del producto, asegurando que el peso sea numérico
+          return {
+            precioTotal: totales.precioTotal + miItemProducto.precio,
+            pesoTotal: totales.pesoTotal + parseFloat(miItemProducto.peso || 0)
+          };
+        }
+  
+        // Si el item no está en ninguno de los arrays, retornamos los totales sin cambios
+        return totales;
+      },
+      { precioTotal: 0, pesoTotal: 0 }
+    );
+  
+    // Retorna el precio con dos decimales y el peso total
+    return {
+      precio: resultado.precioTotal.toFixed(2),
+      peso: resultado.pesoTotal
+    };
+  }, [carrito, productosDatabase, paquetesDatabase]);
+  
+  const [total, setTotal] = useState(calcularTotal().precio);
+  
+  useEffect(() => {
+    const { precio, peso } = calcularTotal();
+    setTotal(precio);
+    setCarritoPeso(peso);
+    console.log("Peso total del carrito:", peso);
+  }, [carrito, productosDatabase, paquetesDatabase, calcularTotal]);
+  
+
+
+  const createOrder = (data, actions) => {
+    return actions.order.create({
+      purchase_units: [
+        {
+          amount: {
+            value: calcularTotal()
+          }
+        }
+      ]
+    });
+  };
+
+  const onApprove = (data, actions) => {
+    return actions.order.capture().then(async function (details) {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (user) {
+        const userUid = user.uid;
+        const userRef = ref(database, 'users/' + userUid);
+
+        try {
+          const snapshot = await get(userRef);
+
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+
+            // Crear el array de detalles del pago
+            const detailsArray = Object.entries(details).map(([key, value]) => ({ key, value }));
+
+            // Crear la orden con la fecha actual
+            const orden = {
+              usuario: {
+                uid: user.uid,
+                nombre: userData.nombre,
+                apellido: userData.apellido,
+                direccion: userData.direccion,
+                numeroTelefono: userData.numeroTelefono,
+                email: user.email,
+              },
+              productos: carrito,  // Asegúrate de que carrito esté definido en el ámbito
+              total: calcularTotal(),  // Asegúrate de que calcularTotal esté definido en el ámbito
+              detallesPago: detailsArray,  // Detalles del pago
+              fechaCompra: new Date().toISOString(),  // Fecha de compra actual
+            };
+
+            // Referencia a la base de datos para guardar la orden
+            const ordenesRef = ref(database, 'ordenes');
+
+            // Guardar la orden en Firebase
+            await push(ordenesRef, orden);
+            console.log('Orden guardada en Firebase:', orden);
+
+            // Resetear el carrito local después de guardar la orden
+            setCarrito([]);  // Asegúrate de que setCarrito esté definido en el ámbito
+            guardarCarritoEnLocalStorage([]);  // Asegúrate de que esta función esté definida
+
+          } else {
+            console.log('No se encontraron datos del usuario.');
+          }
+        } catch (error) {
+          console.error('Error al cargar datos del usuario:', error.message);
+        }
+      } else {
+        console.log('Usuario no autenticado.');
+      }
+    });
+  };
+
+  useEffect(() => {
+    const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
+    const pesoGuardado = JSON.parse(localStorage.getItem('carritoPeso')) || 0;
+    setCarrito(carritoGuardado);
+    setCarritoPeso(pesoGuardado);
+
+    const databaseRefProductos = ref(database, 'productos');
+    const databaseRefPaquetes = ref(database, 'paquetes');
+
+    const fetchData = async () => {
+        // Cargar productos
+        onValue(databaseRefProductos, (snapshot) => {
+            const productos = [];
+            snapshot.forEach((childSnapshot) => {
+                const producto = {
+                    id: childSnapshot.key,
+                    ...childSnapshot.val(),
+                };
+                productos.push(producto);
+            });
+            setProductosDatabase(productos);
+        });
+
+        // Cargar paquetes
+        onValue(databaseRefPaquetes, (snapshot) => {
+            const paquetes = [];
+            snapshot.forEach((childSnapshot) => {
+                const paquete = {
+                    id: childSnapshot.key,
+                    ...childSnapshot.val(),
+                };
+                paquetes.push(paquete);
+            });
+            setPaquetesDatabase(paquetes);
+        });
+    };
+
+    fetchData();
+}, []);
+
+  /////Guarda en localStorage
+  const guardarCarritoEnLocalStorage = (carrito) => {
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+  };
+
+
+
   const renderizarCarrito = () => {
     const carritoSinDuplicados = [...new Set(carrito)];
 
     return carritoSinDuplicados.map((item) => {
-      const miItem = productosDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
-
+      const miItem = {
+        ...productosDatabase.find((itemBaseDatos) => itemBaseDatos.id === item),
+        ...paquetesDatabase.find((itemBaseDatos) => itemBaseDatos.id === item)
+    };
       if (miItem) {
         const numeroUnidadesItem = carrito.filter((itemId) => itemId === item).length;
 
@@ -379,6 +444,7 @@ function Micarrito() {
             <div className="col-sm-3">
               <h2>Resumen</h2>
               <p>Cantidad de artículos: {totalUnidades}</p>
+              <p>Peso en gramos: {carritoPeso}</p>
               <p className="text-right">
                 <span id="total">
                   <h2>Total: {divisa} {total} </h2>
