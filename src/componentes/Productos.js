@@ -1,5 +1,5 @@
 // Importaciones de React y otras bibliotecas
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, seEffect } from 'react';
 import { database, auth } from '../firebase'; 
 import { ref, onValue, set, get, child } from 'firebase/database'; 
 import ProductDetails from './ProductDetails'; 
@@ -14,12 +14,13 @@ import "../estilos/Productos.css";
 import { MDBPagination, MDBPaginationItem, MDBPaginationLink } from 'mdb-react-ui-kit'; // Asegúrate de que MDB esté instalado y importado correctamente
 
 const Productos = () => {
+  
   // Estado para almacenar los productos de la base de datos
   const [productosDatabase, setProductosDatabase] = useState([]);
   // Estado para almacenar el carrito de compras
   const [carrito, setCarrito] = useState([]);
   // Estado para almacenar el peso total del carrito
-  const [, setCarritoPeso] = useState(0);
+  const [carritoPeso, setCarritoPeso] = useState(0); // Mantenemos el estado del peso del carrito actualizado
   // Configuraciones para la moneda y el peso máximo del carrito
   const divisa = '$';
   const pesoMaximo = 9000;
@@ -49,6 +50,13 @@ const Productos = () => {
   };
 
   
+// Función para calcular el peso actual del carrito
+const calcularPesoCarrito = (carrito) => {
+  return carrito.reduce((totalPeso, itemId) => {
+    const itemCarrito = productosDatabase.find((item) => item.id === itemId);
+    return itemCarrito ? totalPeso + itemCarrito.peso : totalPeso;
+  }, 0);
+};
 
   // Función para cerrar los detalles de un producto
   const closeProductDetails = () => {
@@ -58,9 +66,8 @@ const Productos = () => {
   // Efecto para cargar productos y carrito desde localStorage y la base de datos
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
-    const pesoGuardado = JSON.parse(localStorage.getItem('carritoPeso')) || 0;
     setCarrito(carritoGuardado);
-    setCarritoPeso(pesoGuardado);
+    setCarritoPeso(calcularPesoCarrito(carritoGuardado)); // Calcula el peso inicial del carrito
 
     const databaseRef = ref(database, 'productos');
     onValue(databaseRef, (snapshot) => {
@@ -75,26 +82,25 @@ const Productos = () => {
       setProductosDatabase(productos);
     });
 
-     // Obtener favoritos del usuario autenticado desde la base de datos
-     const user = auth.currentUser;
-     if (user) {
-       const userId = user.uid;
-       const userFavoritesRef = ref(database, `users/${userId}/favoritos`);
-       onValue(userFavoritesRef, (snapshot) => {
-         const userFavoritesData = snapshot.val() || {};
-         setUserFavorites(userFavoritesData);
-         setLikes(userFavoritesData); // Inicializar los likes con los datos de favoritos del usuario
-       });
-     }
+    const user = auth.currentUser;
+    if (user) {
+      const userId = user.uid;
+      const userFavoritesRef = ref(database, `users/${userId}/favoritos`);
+      onValue(userFavoritesRef, (snapshot) => {
+        const userFavoritesData = snapshot.val() || {};
+        setUserFavorites(userFavoritesData);
+        setLikes(userFavoritesData); // Inicializar los likes con los datos de favoritos del usuario
+      });
+    }
 
     return () => {
       setSelectedCohete(null);
     };
   }, []);
 
-  // Función para guardar el carrito en localStorage
-  const guardarCarritoEnLocalStorage = (carrito) => {
+  const guardarCarritoEnLocalStorage = (carrito, peso) => {
     localStorage.setItem('carrito', JSON.stringify(carrito));
+    localStorage.setItem('carritoPeso', JSON.stringify(peso));
   };
 
   // Manejador para hacer clic en el icono de "Me gusta"
@@ -221,19 +227,15 @@ const renderizarProductos = () => {
 
   // Función para agregar un producto al carrito
   const anyadirProductoAlCarrito = (productoId, pesoProducto) => {
-    const pesoEnGramos = pesoProducto;
+    const pesoCarritoActualizado = carritoPeso + pesoProducto;
 
-    if (pesoActualCarrito + pesoEnGramos <= pesoMaximo) {
+    if (pesoCarritoActualizado <= pesoMaximo) {
       const nuevoCarrito = [...carrito, productoId];
       setCarrito(nuevoCarrito);
-      guardarCarritoEnLocalStorage(nuevoCarrito);
-
-      const pesoCarritoActualizado = pesoActualCarrito + pesoEnGramos;
       setCarritoPeso(pesoCarritoActualizado);
-      localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
-      logEvent(analytics, 'agregar_al_carrito', {
-        productoId,
-      });
+      guardarCarritoEnLocalStorage(nuevoCarrito, pesoCarritoActualizado);
+
+      logEvent(analytics, 'agregar_al_carrito', { productoId });
       ReactGA.event({
         category: 'Interacción',
         action: 'Agregar al Carrito',
