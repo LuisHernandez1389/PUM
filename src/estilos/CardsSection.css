@@ -1,0 +1,52 @@
+.sectionTitle {
+    font-size: 36px;
+    font-weight: 600;
+    color: #343a40;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.cardContainer {
+    transition: transform 0.2s ease-in-out;
+    position: relative;
+    cursor: pointer;
+    height: 100%; /* Permite que las tarjetas llenen el contenedor disponible */
+}
+
+.cardContainer:hover {
+    transform: scale(1.05);
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    height: 100%; /* Ajusta la tarjeta al tamaño del contenido */
+    display: flex;
+    flex-direction: column; /* Hace que los elementos dentro se organicen en columna */
+    justify-content: space-between; /* Distribuyen los elementos en el espacio */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cardImage {
+    height: 250px; /* Ajustamos la altura para que sea proporcional */
+    object-fit: cover;
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+.hidden {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+}
+
+.show {
+    opacity: 1;
+    transform: translateY(0);
+}
