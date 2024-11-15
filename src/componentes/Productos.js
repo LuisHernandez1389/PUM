@@ -1,5 +1,5 @@
 // Importaciones de React y otras bibliotecas
-import React, { useState, useEffect, useRef, seEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { database, auth } from '../firebase'; 
 import { ref, onValue, set, get, child } from 'firebase/database'; 
 import ProductDetails from './ProductDetails'; 
@@ -14,7 +14,6 @@ import "../estilos/Productos.css";
 import { MDBPagination, MDBPaginationItem, MDBPaginationLink } from 'mdb-react-ui-kit'; // Asegúrate de que MDB esté instalado y importado correctamente
 
 const Productos = () => {
-  
   // Estado para almacenar los productos de la base de datos
   const [productosDatabase, setProductosDatabase] = useState([]);
   // Estado para almacenar el carrito de compras
@@ -319,6 +318,8 @@ const renderizarProductos = () => {
         </MDBPaginationItem>
       </MDBPagination>
       </div>
+      <p>Peso total del carrito: {pesoActualCarrito} kg</p>
+
     </div>
   );
 };

@@ -16,6 +16,7 @@ const Navbar = ({ user }) => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const [isMobile, setIsMobile] = useState(false); // Estado para detectar dispositivo móvil
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     initMDB({ Dropdown, Collapse });
@@ -113,6 +114,40 @@ const Navbar = ({ user }) => {
     menu.classList.remove('show');
   };
 
+  /// Función para actualizar el contador del carrito
+  const actualizarContadorCarrito = () => {
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    setCartCount(carrito.length); // Contar elementos en el carrito
+  };
+
+  // Escuchar cambios en el almacenamiento local
+  useEffect(() => {
+    actualizarContadorCarrito(); // Actualización inicial
+
+    // Evento de almacenamiento (solo funciona para cambios en otras pestañas/ventanas)
+    const handleStorageChange = () => {
+      actualizarContadorCarrito();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Limpieza del evento al desmontar el componente
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Actualización manual en la misma pestaña
+  useEffect(() => {
+    const observer = setInterval(() => {
+      actualizarContadorCarrito();
+    }, 500); // Comprobar cada 500 ms
+
+    return () => {
+      clearInterval(observer);
+    };
+  }, []);
+
   return (
     <div>
       {/* Navbar */}
@@ -186,9 +221,14 @@ const Navbar = ({ user }) => {
             <i className="fas fa-search"></i>
           </Link>
           <div className="d-flex align-items-center">
-            <Link className="text-reset me-3" to='/micarrito'>
-              <i className="fas fa-shopping-cart"></i>
-            </Link>
+          <Link to="/micarrito" className="text-reset me-3">
+            <i className="fas fa-shopping-cart"></i>
+            {cartCount > 0 && (
+              <span className="badge rounded-pill bg-danger">
+                {cartCount}
+              </span>
+            )}
+          </Link>
 
             <div className="dropdown">
               <a
