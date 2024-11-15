@@ -295,6 +295,7 @@ const renderizarProductos = () => {
           </div>
         </div>
       </div>
+      <p>Peso total del carrito: {pesoActualCarrito} kg</p>
 
        {/* Paginación */}
      <div className="d-flex justify-content-center">
@@ -318,7 +319,6 @@ const renderizarProductos = () => {
         </MDBPaginationItem>
       </MDBPagination>
       </div>
-      <p>Peso total del carrito: {pesoActualCarrito} kg</p>
 
     </div>
   );
