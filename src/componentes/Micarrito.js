@@ -429,7 +429,6 @@ function Micarrito() {
           </div>
         </aside>
       </div>
-
       {isPopoverVisible && (
         <div className="popover-container">
           <div className="popover-content">
