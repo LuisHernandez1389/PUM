@@ -7,6 +7,7 @@ import { MDBContainer, MDBCard, MDBCardBody, MDBCardHeader, MDBCardFooter, MDBTy
 const Miscompras = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [productos, setProductos] = useState([]);
+  const [paquetes, setPaquetes] = useState([]);  // Nuevo estado para los paquetes
   const [loading, setLoading] = useState(true);
   const auth = getAuth();
   const userUID = auth.currentUser?.uid;
@@ -20,6 +21,16 @@ const Miscompras = () => {
         productosArray.push(producto);
       });
       setProductos(productosArray);
+    });
+
+    const paquetesRef = ref(database, 'paquetes');  // Consulta los paquetes
+    onValue(paquetesRef, (snapshot) => {
+      const paquetesArray = [];
+      snapshot.forEach((childSnapshot) => {
+        const paquete = { id: childSnapshot.key, ...childSnapshot.val() };
+        paquetesArray.push(paquete);
+      });
+      setPaquetes(paquetesArray);  // Almacena los paquetes en el estado
     });
   }, []);
 
@@ -42,21 +53,25 @@ const Miscompras = () => {
         .sort((a, b) => new Date(b.fechaCompra) - new Date(a.fechaCompra));
 
       const ordenesConNombres = ordenesOrdenadas.map((orden) => {
-        const productosEnOrden = orden.productos.map((productoId) => {
+        // Combina productos y paquetes en la misma lista
+        const productosYPaquetesEnOrden = orden.productos.map((productoId) => {
           const producto = productos.find((prod) => prod.id === productoId);
-          return producto ? producto.nombre : 'Desconocido';
+          if (producto) return producto.nombre; // Si es un producto, devuelve su nombre
+          
+          const paquete = paquetes.find((paq) => paq.id === productoId);  // Busca paquetes
+          return paquete ? paquete.nombre : 'Desconocido';  // Si es un paquete, devuelve su nombre
         });
 
         return {
           ...orden,
-          productos: productosEnOrden,
+          productos: productosYPaquetesEnOrden,  // Añade los nombres de productos y paquetes
         };
       });
 
       setOrdenes(ordenesConNombres);
       setLoading(false);
     });
-  }, [userUID, productos]);
+  }, [userUID, productos, paquetes]);
 
   if (loading) {
     return (
@@ -114,3 +129,4 @@ const Miscompras = () => {
 };
 
 export default Miscompras;
+

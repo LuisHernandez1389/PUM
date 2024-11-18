@@ -151,62 +151,35 @@ function Micarrito() {
   }, [carrito, calcularTotalUnidades]);
   
 
+
   const calcularTotal = useCallback(() => {
-    // Inicializamos un objeto para almacenar tanto el precio como el peso totales
-    const resultado = carrito.reduce(
-      (totales, item) => {
-        const miItemPaquete = paquetesDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
-        const miItemProducto = productosDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
+    return carrito.reduce((total, item) => {
+      // Buscar en productosDatabase
+      const miItemProducto = productosDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
+      
+      // Buscar en paquetesDatabase
+      const miItemPaquete = paquetesDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
   
-        console.log("Item:", item);
-        console.log("Paquete encontrado:", miItemPaquete);
-        console.log("Producto encontrado:", miItemProducto);
-  
-        if (miItemPaquete) {
-          console.log("Sumando precio del paquete:", miItemPaquete.precio);
-          console.log("Sumando peso del paquete:", miItemPaquete.peso);
-          
-          // Sumamos el precio y el peso del paquete, asegurando que el peso sea numérico
-          return {
-            precioTotal: totales.precioTotal + miItemPaquete.precio,
-            pesoTotal: totales.pesoTotal + parseFloat(miItemPaquete.peso || 0)
-          };
-        }
-  
-        if (miItemProducto) {
-          console.log("Sumando precio del producto:", miItemProducto.precio);
-          console.log("Sumando peso del producto:", miItemProducto.peso);
-          
-          // Sumamos el precio y el peso del producto, asegurando que el peso sea numérico
-          return {
-            precioTotal: totales.precioTotal + miItemProducto.precio,
-            pesoTotal: totales.pesoTotal + parseFloat(miItemProducto.peso || 0)
-          };
-        }
-  
-        // Si el item no está en ninguno de los arrays, retornamos los totales sin cambios
-        return totales;
-      },
-      { precioTotal: 0, pesoTotal: 0 }
-    );
-  
-    // Retorna el precio con dos decimales y el peso total
-    return {
-      precio: resultado.precioTotal.toFixed(2),
-      peso: resultado.pesoTotal
-    };
+      if (miItemProducto) {
+        // Si se encuentra en productosDatabase, sumar el precio de ese item
+        return total + miItemProducto.precio;
+      } else if (miItemPaquete) {
+        // Si se encuentra en paquetesDatabase, sumar el precio de ese paquete
+        return total + miItemPaquete.precio;
+      } else {
+        // Si no se encuentra en ninguno, devolver el total sin cambios
+        return total;
+      }
+    }, 0).toFixed(2);
   }, [carrito, productosDatabase, paquetesDatabase]);
   
-  const [total, setTotal] = useState(calcularTotal().precio);
+  const [total, setTotal] = useState(calcularTotal());
   
   useEffect(() => {
-    const { precio, peso } = calcularTotal();
-    setTotal(precio);
-    setCarritoPeso(peso);
-    console.log("Peso total del carrito:", peso);
-  }, [carrito, productosDatabase, paquetesDatabase, calcularTotal]);
+    setTotal(calcularTotal());
+    console.log(carritoPeso);
+  }, [carrito, productosDatabase, paquetesDatabase, calcularTotal, carritoPeso]);
   
-
 
   const createOrder = (data, actions) => {
     return actions.order.create({
