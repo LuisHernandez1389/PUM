@@ -73,68 +73,115 @@ function Micarrito() {
     setIsPayPalButtonRendered(false);
   };
 
-  /////////////////////// Borra productos del carrito
-  const borrarItemCarrito = (productoId) => {
-    const nuevoCarrito = carrito.filter((item) => item !== productoId);
-    setCarrito(nuevoCarrito);
-    guardarCarritoEnLocalStorage(nuevoCarrito);
+ // Función para guardar el carrito y el peso en localStorage
+const actualizarCarrito = (nuevoCarrito, pesoActualizado) => {
+  setCarrito(nuevoCarrito);
+  setCarritoPeso(pesoActualizado);
+  guardarCarritoEnLocalStorage(nuevoCarrito);
+  localStorage.setItem('carritoPeso', JSON.stringify(pesoActualizado));
+};
 
-    // Actualizar el peso del carrito
-    const itemCarrito = productosDatabase.find((item) => item.id === productoId);
-    const pesoProducto = itemCarrito?.peso || 0;
-    const pesoCarritoActualizado = carritoPeso - (pesoProducto * carrito.filter((id) => id === productoId).length);
-    setCarritoPeso(pesoCarritoActualizado);
-    localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
-  };
+// Función para obtener el peso de un producto
+const obtenerPesoProducto = (productoId) => {
+  const producto = productosDatabase.find((item) => item.id === productoId);
+  return producto?.peso || 0;
+};
 
-  ///////Agrega producto del carrito
-  const agregarItemCarrito = (productoId) => {
-    const itemCarrito = productosDatabase.find((item) => item.id === productoId);
-    const pesoProducto = itemCarrito?.peso || 0;
-
-    if (carritoPeso + pesoProducto > 9000) {
-      // Mostrar un mensaje de advertencia
-      alert('No puedes agregar más productos. El peso total del carrito supera los 9000 gramos.');
-      return; // No agregar más productos
-    }
-
-    // Agregar el producto al carrito
-    const nuevoCarrito = [...carrito, productoId];
-    setCarrito(nuevoCarrito);
-    guardarCarritoEnLocalStorage(nuevoCarrito);
-
-    // Actualizar el peso del carrito
-    const pesoCarritoActualizado = carritoPeso + pesoProducto;
-    setCarritoPeso(pesoCarritoActualizado);
-    localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
-  };
-
-  ///////Reducir producto
-  const reducirItemCarrito = (productoId) => {
-    const indiceProducto = carrito.indexOf(productoId);
-
-    if (indiceProducto !== -1) {
-      const nuevoCarrito = [...carrito];
-      nuevoCarrito.splice(indiceProducto, 1); // Elimina una unidad del producto
-      setCarrito(nuevoCarrito);
-      guardarCarritoEnLocalStorage(nuevoCarrito);
-
-      // Actualizar el peso del carrito
-      const itemCarrito = productosDatabase.find((item) => item.id === productoId);
-      const pesoProducto = itemCarrito?.peso || 0;
-      const pesoCarritoActualizado = carritoPeso - pesoProducto;
-      setCarritoPeso(pesoCarritoActualizado);
-      localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
-    }
-  };
+// Función para obtener el peso de un paquete
+const obtenerPesoPaquete = (paqueteId) => {
+  const paquete = paquetesDatabase.find((item) => item.id === paqueteId);
+  return paquete?.peso || 0;
+};
 
 
-  //////// Vaicia le carrito
-  const vaciarCarrito = () => {
-    setCarrito([]);
-    setCarritoPeso(0); // Reiniciar el peso del carrito
-    guardarCarritoEnLocalStorage([]);
-  };
+// Borra productos o paquetes del carrito
+const borrarItemCarrito = (itemId) => {
+  // Verifica si es un producto o un paquete
+  const esProducto = productosDatabase.some((item) => item.id === itemId);
+  const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
+
+  if (!esProducto && !esPaquete) {
+    console.warn('El ítem no es un producto ni un paquete válido.');
+    return;
+  }
+
+  const nuevoCarrito = carrito.filter((item) => item !== itemId);
+
+  // Obtiene el peso según el tipo de ítem
+  const pesoItem = esProducto 
+    ? obtenerPesoProducto(itemId) 
+    : obtenerPesoPaquete(itemId);
+
+  const pesoActualizado = carritoPeso - (pesoItem * carrito.filter((id) => id === itemId).length);
+
+  actualizarCarrito(nuevoCarrito, pesoActualizado);
+};
+
+// Aumenta una unidad de un producto o paquete
+const aumentarItemCarrito = (itemId) => {
+  // Verifica si es un producto o un paquete
+  const esProducto = productosDatabase.some((item) => item.id === itemId);
+  const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
+
+  if (!esProducto && !esPaquete) {
+    console.warn('El ítem no es un producto ni un paquete válido.');
+    return;
+  }
+
+  // Agrega una unidad más del ítem al carrito
+  const nuevoCarrito = [...carrito, itemId];
+
+  // Obtiene el peso según el tipo de ítem
+  const pesoItem = esProducto 
+    ? obtenerPesoProducto(itemId) 
+    : obtenerPesoPaquete(itemId);
+
+  const pesoActualizado = carritoPeso + pesoItem;
+
+  actualizarCarrito(nuevoCarrito, pesoActualizado);
+};
+
+
+
+// Reduce una unidad de un producto o paquete
+const reducirItemCarrito = (itemId) => {
+  // Verifica si es un producto o un paquete
+  const esProducto = productosDatabase.some((item) => item.id === itemId);
+  const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
+
+  if (!esProducto && !esPaquete) {
+    console.warn('El ítem no es un producto ni un paquete válido.');
+    return;
+  }
+
+  // Encuentra el índice del ítem en el carrito
+  const indiceItem = carrito.indexOf(itemId);
+
+  if (indiceItem !== -1) {
+    const nuevoCarrito = [...carrito];
+    nuevoCarrito.splice(indiceItem, 1); // Elimina una unidad
+
+    // Obtiene el peso según el tipo de ítem
+    const pesoItem = esProducto 
+      ? obtenerPesoProducto(itemId) 
+      : obtenerPesoPaquete(itemId);
+
+    const pesoActualizado = carritoPeso - pesoItem;
+
+    actualizarCarrito(nuevoCarrito, pesoActualizado);
+  }
+};
+
+
+// Vaciar el carrito
+const vaciarCarrito = () => {
+  setCarrito([]);
+  setCarritoPeso(0);
+  localStorage.removeItem('carrito');
+  localStorage.removeItem('carritoPeso');
+};
+
+  
 
 
   const calcularTotalUnidades = useCallback(() => {
@@ -296,6 +343,33 @@ function Micarrito() {
   };
 
 
+// Función para obtener el peso total del carrito
+const calcularPesoTotalCarrito = useCallback(() => {
+  let pesoTotal = 0;
+  
+  carrito.forEach(itemId => {
+    // Buscar en productosDatabase
+    const producto = productosDatabase.find((item) => item.id === itemId);
+    
+    // Buscar en paquetesDatabase
+    const paquete = paquetesDatabase.find((item) => item.id === itemId);
+
+    if (producto) {
+      pesoTotal += producto.peso || 0;  // Sumar el peso del producto
+    } else if (paquete) {
+      pesoTotal += paquete.peso || 0;  // Sumar el peso del paquete
+    }
+  });
+
+  return pesoTotal;
+}, [carrito, productosDatabase, paquetesDatabase]);
+
+useEffect(() => {
+  // Actualizar el peso del carrito cada vez que cambie el carrito
+  const pesoTotal = calcularPesoTotalCarrito();
+  setCarritoPeso(pesoTotal);  // Actualizar el estado del peso total
+}, [carrito, calcularPesoTotalCarrito]);
+
 
   const renderizarCarrito = () => {
     const carritoSinDuplicados = [...new Set(carrito)];
@@ -333,7 +407,7 @@ function Micarrito() {
   </div>
 
   <div className="d-flex gap-3"> {/* Contenedor con más separación */}
-    <MDBBtn className="custom-btn add-btn" onClick={() => agregarItemCarrito(miItem.id)}>
+    <MDBBtn className="custom-btn add-btn" onClick={() => aumentarItemCarrito(miItem.id)}>
       <MDBIcon fas icon="plus" />
     </MDBBtn>
     
@@ -417,7 +491,7 @@ function Micarrito() {
             <div className="col-sm-3">
               <h2>Resumen</h2>
               <p>Cantidad de artículos: {totalUnidades}</p>
-              <p>Peso en gramos: {carritoPeso}</p>
+              <p>Peso total del carrito: {carritoPeso} gramos</p>
               <p className="text-right">
                 <span id="total">
                   <h2>Total: {divisa} {total} </h2>

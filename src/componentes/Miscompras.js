@@ -16,29 +16,40 @@ const guardarCarritoEnLocalStorage = (carrito) => {
 };
 
 // Función para añadir un paquete al carrito
-const anyadirPaqueteAlCarrito = (paqueteid, pesoPaquete) => {
-  const pesoMaximo = 9000; // Peso máximo permitido
-  const pesoEnGramos = Number(pesoPaquete); // Asegúrate de que sea un número
+const anyadirPaqueteAlCarrito = (paqueteId, paquetes, setCarritoPeso) => {
+  const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+  carrito.push(paqueteId);
+  guardarCarritoEnLocalStorage(carrito);
+
+  const paquete = paquetes.find((paq) => paq.id === paqueteId);
+  const pesoPaquete = paquete?.peso || 0;
+
+  // Asegurarse de que el peso actual del carrito sea un número
   const pesoActual = calcularPesoActualCarrito();
+  const nuevoPeso = pesoActual + parseFloat(pesoPaquete);  // Asegúrate de que el peso se trata como un número
 
-  if (pesoActual + pesoEnGramos <= pesoMaximo) {
-    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    const nuevoCarrito = [...carrito, paqueteid];
-    guardarCarritoEnLocalStorage(nuevoCarrito);
-
-    const pesoCarritoActualizado = pesoActual + pesoEnGramos;
-    localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
-  } else {
-    alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
-  }
+  localStorage.setItem('carritoPeso', nuevoPeso.toString());  // Guardar como cadena de texto
+  setCarritoPeso(nuevoPeso);  // Actualiza el estado
 };
 
-// Función para añadir un producto al carrito
-const anyadirProductoAlCarrito = (productoId) => {
+
+const anyadirProductoAlCarrito = (productoId, productos, setCarritoPeso) => {
   const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   carrito.push(productoId);
   guardarCarritoEnLocalStorage(carrito);
+
+  // Busca el producto por su ID
+  const producto = productos.find((prod) => prod.id === productoId);
+  const pesoProducto = producto?.peso || 0;
+
+  const pesoActual = calcularPesoActualCarrito();
+  const nuevoPeso = pesoActual + pesoProducto;
+
+  localStorage.setItem('carritoPeso', JSON.stringify(nuevoPeso));
+  setCarritoPeso(nuevoPeso); // Actualiza el estado
 };
+
+
 
 const Miscompras = () => {
   const [ordenes, setOrdenes] = useState([]);
@@ -47,6 +58,7 @@ const Miscompras = () => {
   const [loading, setLoading] = useState(true);
   const auth = getAuth();
   const userUID = auth.currentUser?.uid;
+  const [carritoPeso, setCarritoPeso] = useState(0); // Estado para el peso del carrito
 
   useEffect(() => {
     const databaseRef = ref(database, 'productos');
@@ -110,19 +122,24 @@ const Miscompras = () => {
   }, [userUID, productos, paquetes]);
 
   const handleVolverAComenzar = (orden) => {
-    // Lógica para volver a comprar
+    let pesoTotal = calcularPesoActualCarrito(); // Recupera el peso actual del carrito
+    
     orden.productos.forEach((producto) => {
-      const productoEncontrado = productos.find(prod => prod.nombre === producto);  // Busca el producto por nombre
-      const paqueteEncontrado = paquetes.find(paq => paq.nombre === producto);  // Busca el paquete por nombre
-
+      const productoEncontrado = productos.find((prod) => prod.nombre === producto); // Busca el producto por nombre
+      const paqueteEncontrado = paquetes.find((paq) => paq.nombre === producto); // Busca el paquete por nombre
+    
       if (productoEncontrado) {
-        anyadirProductoAlCarrito(productoEncontrado.id);  // Añade el producto al carrito
+        anyadirProductoAlCarrito(productoEncontrado.id, productos, setCarritoPeso); // Pasa los parámetros necesarios
       } else if (paqueteEncontrado) {
-        anyadirPaqueteAlCarrito(paqueteEncontrado.id, paqueteEncontrado.peso);  // Añade el paquete al carrito
+        anyadirPaqueteAlCarrito(paqueteEncontrado.id, paquetes, setCarritoPeso); // Llama la función para paquetes
       }
     });
   };
-
+  
+  
+  
+  
+   
   if (loading) {
     return (
       <MDBContainer className="d-flex justify-content-center align-items-center my-5">
