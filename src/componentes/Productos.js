@@ -37,17 +37,7 @@ const Productos = () => {
     const [likes, setLikes] = useState({});
     const [userFavorites, setUserFavorites] = useState({});
 
-  const showToast = () => {
-    // Obtén el elemento toast del DOM
-    const toastElement = document.getElementById('myToast');
-
-    // Crea un nuevo objeto Toast de Bootstrap
-    const bootstrapToast = new window.bootstrap.Toast(toastElement);
-
-    // Muestra el toast
-    bootstrapToast.show();
-  };
-
+ 
   
 // Función para calcular el peso actual del carrito
 const calcularPesoCarrito = (carrito) => {
@@ -191,7 +181,6 @@ const renderizarProductos = () => {
               className="btn btn-primary d-flex align-items-center justify-content-center m-2"
               onClick={() => {
                 anyadirProductoAlCarrito(info.id, info.peso);
-                showToast();
               }}
               style={{ borderRadius: '0', width: '100%' }}
             >

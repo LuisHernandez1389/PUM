@@ -244,21 +244,35 @@ const vaciarCarrito = () => {
     return actions.order.capture().then(async function (details) {
       const auth = getAuth();
       const user = auth.currentUser;
-
+  
       if (user) {
         const userUid = user.uid;
         const userRef = ref(database, 'users/' + userUid);
-
+  
         try {
           const snapshot = await get(userRef);
-
+  
           if (snapshot.exists()) {
             const userData = snapshot.val();
-
-            // Crear el array de detalles del pago
-            const detailsArray = Object.entries(details).map(([key, value]) => ({ key, value }));
-
-            // Crear la orden con la fecha actual
+  
+            // Extraer información del DireccionCompra desde los detalles de PayPal
+            const shipping = details?.purchase_units?.[0]?.shipping || {};
+            const payer = details?.payer || {};
+  
+            // Crear el arreglo DireccionCompra con los datos del cliente
+            const DireccionCompra = {
+              nombre: shipping?.name?.full_name || "N/A",
+              direccion: shipping?.address?.address_line_1 || "N/A",
+              colonia: shipping?.address?.address_line_2 || "N/A", // Si existe
+              ciudad: shipping?.address?.admin_area_2 || "N/A",
+              estado: shipping?.address?.admin_area_1 || "N/A",
+              codigoPostal: shipping?.address?.postal_code || "N/A",
+              pais: shipping?.address?.country_code || "N/A",
+              celular: payer?.phone?.phone_number?.national_number || "N/A",
+              correo: payer?.email_address || "N/A",
+            };
+  
+            // Crear la orden con el arreglo Cliente
             const orden = {
               usuario: {
                 uid: user.uid,
@@ -268,23 +282,21 @@ const vaciarCarrito = () => {
                 numeroTelefono: userData.numeroTelefono,
                 email: user.email,
               },
-              productos: carrito,  // Asegúrate de que carrito esté definido en el ámbito
-              total: calcularTotal(),  // Asegúrate de que calcularTotal esté definido en el ámbito
-              detallesPago: detailsArray,  // Detalles del pago
-              fechaCompra: new Date().toISOString(),  // Fecha de compra actual
+              DireccionCompra, // Agregar el arreglo DireccionCompra aquí
+              productos: carrito, // Asegúrate de que carrito esté definido
+              total: calcularTotal(),
+              detallesPago: details, // Detalles del pago proporcionados por PayPal
+              fechaCompra: new Date().toISOString(),
             };
-
-            // Referencia a la base de datos para guardar la orden
-            const ordenesRef = ref(database, 'ordenes');
-
+  
             // Guardar la orden en Firebase
+            const ordenesRef = ref(database, 'ordenes');
             await push(ordenesRef, orden);
             console.log('Orden guardada en Firebase:', orden);
-
-            // Resetear el carrito local después de guardar la orden
-            setCarrito([]);  // Asegúrate de que setCarrito esté definido en el ámbito
-            guardarCarritoEnLocalStorage([]);  // Asegúrate de que esta función esté definida
-
+  
+            // Resetear carrito local
+            setCarrito([]);
+            guardarCarritoEnLocalStorage([]);
           } else {
             console.log('No se encontraron datos del usuario.');
           }
@@ -296,6 +308,8 @@ const vaciarCarrito = () => {
       }
     });
   };
+  
+  
 
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
