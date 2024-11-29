@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { database } from '../firebase';
-import { ref, onValue, push } from 'firebase/database';
+import { ref, onValue, push, set } from 'firebase/database';
 import ReactDOM from "react-dom";
 import "../estilos/carrito.css"
 import { auth } from '../firebase';
@@ -248,6 +248,8 @@ const vaciarCarrito = () => {
       if (user) {
         const userUid = user.uid;
         const userRef = ref(database, 'users/' + userUid);
+        const contadorRef = ref(database, 'contadorOrdenes'); // Nodo para el contador de IDs
+        const ordenesRef = ref(database, 'ordenes');
   
         try {
           const snapshot = await get(userRef);
@@ -255,15 +257,14 @@ const vaciarCarrito = () => {
           if (snapshot.exists()) {
             const userData = snapshot.val();
   
-            // Extraer información del DireccionCompra desde los detalles de PayPal
+            // Extraer información de la dirección de compra desde PayPal
             const shipping = details?.purchase_units?.[0]?.shipping || {};
             const payer = details?.payer || {};
   
-            // Crear el arreglo DireccionCompra con los datos del cliente
             const DireccionCompra = {
               nombre: shipping?.name?.full_name || "N/A",
               direccion: shipping?.address?.address_line_1 || "N/A",
-              colonia: shipping?.address?.address_line_2 || "N/A", // Si existe
+              colonia: shipping?.address?.address_line_2 || "N/A",
               ciudad: shipping?.address?.admin_area_2 || "N/A",
               estado: shipping?.address?.admin_area_1 || "N/A",
               codigoPostal: shipping?.address?.postal_code || "N/A",
@@ -272,8 +273,20 @@ const vaciarCarrito = () => {
               correo: payer?.email_address || "N/A",
             };
   
-            // Crear la orden con el arreglo Cliente
+            // Obtener y actualizar el contador para generar un ID numérico único
+            const contadorSnapshot = await get(contadorRef);
+            let nuevoID = 1;
+  
+            if (contadorSnapshot.exists()) {
+              nuevoID = contadorSnapshot.val() + 1;
+            }
+  
+            // Actualizar el contador en Firebase
+            await set(contadorRef, nuevoID);
+  
+            // Crear la orden con el ID numérico generado
             const orden = {
+              id: nuevoID, // ID numérico único
               usuario: {
                 uid: user.uid,
                 nombre: userData.nombre,
@@ -282,17 +295,16 @@ const vaciarCarrito = () => {
                 numeroTelefono: userData.numeroTelefono,
                 email: user.email,
               },
-              DireccionCompra, // Agregar el arreglo DireccionCompra aquí
-              productos: carrito, // Asegúrate de que carrito esté definido
+              DireccionCompra,
+              productos: carrito,
               total: calcularTotal(),
-              detallesPago: details, // Detalles del pago proporcionados por PayPal
+              detallesPago: details,
               fechaCompra: new Date().toISOString(),
             };
   
-            // Guardar la orden en Firebase
-            const ordenesRef = ref(database, 'ordenes');
-            await push(ordenesRef, orden);
-            console.log('Orden guardada en Firebase:', orden);
+            // Guardar la orden en Firebase usando el ID numérico como clave
+            await set(ref(database, `ordenes/${nuevoID}`), orden);
+            console.log('Orden guardada en Firebase con ID:', nuevoID);
   
             // Resetear carrito local
             setCarrito([]);
@@ -308,6 +320,8 @@ const vaciarCarrito = () => {
       }
     });
   };
+  
+  
   
   
 
