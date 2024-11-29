@@ -49,12 +49,12 @@ const Home = () => {
     <Banner></Banner>
     </div>
     <div className="hidden section">
-    {/* Extra Card Section */}
-    <CardVideo></CardVideo>
-    </div>
-    <div className="hidden section">
     {/* Mas Vendido */}
     <MasVendido></MasVendido>
+    </div>
+    <div className="hidden section">
+    {/* Extra Card Section */}
+    <CardVideo></CardVideo>
     </div>
     <div className="hidden section">
     {/* HPaquetes */}
