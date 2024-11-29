@@ -5,13 +5,36 @@ import { auth } from "../firebase";
 function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [passwordError, setPasswordError] = useState("");
 
-  const handleRegister = async () => {
+  // Función para validar la contraseña
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    // Validar la contraseña antes de enviar el formulario
+    if (!validatePassword(password)) {
+      setPasswordError(
+        "La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y un carácter especial."
+      );
+      return;
+    }
+
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       console.log("Usuario registrado exitosamente");
+      setEmail("");
+      setPassword("");
+      setError(null);
+      setPasswordError(""); // Limpiar error de contraseña
     } catch (error) {
       console.error("Error al registrar el usuario:", error.message);
+      setError(error.message);
     }
   };
 
@@ -59,8 +82,20 @@ function Register() {
                       id="exampleInputPassword1"
                       placeholder="Contraseña"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (!validatePassword(e.target.value)) {
+                          setPasswordError(
+                            "La contraseña debe tener al menos 8 caracteres, incluyendo letras, números y un carácter especial."
+                          );
+                        } else {
+                          setPasswordError("");
+                        }
+                      }}
                     />
+                    {passwordError && (
+                      <p className="text-danger mt-1">{passwordError}</p>
+                    )}
                   </div>
                   <div className="mb-3 form-check">
                     <input
@@ -72,9 +107,14 @@ function Register() {
                       Recordarme
                     </label>
                   </div>
-                  <button type="submit" className="btn btn-primary btn-block">
+                  <button 
+                  type="submit" 
+                  className="btn btn-primary btn-block" 
+                  disable={!!passwordError} // Deshabilitar botón si hay errores
+                  >
                     Registrarse
                   </button>
+                  {error && <p className="text-danger mt-3">{error}</p>}
                 </form>
               </div>
             </div>
