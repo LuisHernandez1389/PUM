@@ -124,20 +124,26 @@ const Miscompras = () => {
 
   const handleVolverAComenzar = (orden) => {
     let pesoTotal = calcularPesoActualCarrito(); // Recupera el peso actual del carrito
-    
-    orden.productos.forEach((producto) => {
-      const productoEncontrado = productos.find((prod) => prod.nombre === producto); // Busca el producto por nombre
-      const paqueteEncontrado = paquetes.find((paq) => paq.nombre === producto); // Busca el paquete por nombre
-    
-      if (productoEncontrado) {
-        anyadirProductoAlCarrito(productoEncontrado.id, productos, setCarritoPeso); // Pasa los parámetros necesarios
-      } else if (paqueteEncontrado) {
-        anyadirPaqueteAlCarrito(paqueteEncontrado.id, paquetes, setCarritoPeso); // Llama la función para paquetes
-      }
-      toast.success('El paquete se añadió al carrito con éxito 🎉'); // Mensaje de éxito
-
-    });
+  
+    // Verifica si el peso total actual no excede el límite
+    if (pesoTotal <= 9000) {
+      orden.productos.forEach((producto) => {
+        const productoEncontrado = productos.find((prod) => prod.nombre === producto); // Busca el producto por nombre
+        const paqueteEncontrado = paquetes.find((paq) => paq.nombre === producto); // Busca el paquete por nombre
+  
+        if (productoEncontrado) {
+          anyadirProductoAlCarrito(productoEncontrado.id, productos, setCarritoPeso); // Pasa los parámetros necesarios
+        } else if (paqueteEncontrado) {
+          anyadirPaqueteAlCarrito(paqueteEncontrado.id, paquetes, setCarritoPeso); // Llama la función para paquetes
+        }
+  
+        toast.success('El paquete se añadió al carrito con éxito 🎉'); // Mensaje de éxito
+      });
+    } else {
+      toast.error('Has alcanzado el límite de peso en el carrito (9000 gramos) ⚠️'); // Mensaje de error si el peso excede el límite
+    }
   };
+  
   
   
   
