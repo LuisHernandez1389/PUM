@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase";
-import { useNavigate } from "react-router-dom"; //Necesario para redirigir a la pagina de registro
+import { useNavigate } from "react-router-dom"; // Necesario para redirigir a la pagina de registro
 import { toast } from "react-toastify";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); //Hook para la navegación
+  const [showResetModal, setShowResetModal] = useState(false); // Controla la visibilidad del modal de restablecimiento
+  const [resetEmail, setResetEmail] = useState(""); // Email para restablecer contraseña
+  const navigate = useNavigate(); // Hook para la navegación
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevenir el comportamiento predeterminado del formulario
@@ -25,6 +27,19 @@ function Login() {
       console.error("Error al iniciar sesión:", error.message);
       setError(error.message); // Mostrar mensaje de error al usuario
       toast.error("Error al iniciar sesión: " + error.message);
+    }
+  };
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      toast.success("Correo de restablecimiento enviado. ¡Revisa tu correo electrónico!");
+      setResetEmail("");
+      setShowResetModal(false);
+    } catch (error) {
+      console.error("Error al enviar correo de restablecimiento:", error.message);
+      toast.error("Error: " + error.message);
     }
   };
 
@@ -65,15 +80,8 @@ function Login() {
                         border: "1px solid #ced4da",
                         padding: "0.375rem 0.75rem",
                         borderRadius: "0.25rem",
-                        transition:
-                          "box-shadow 0.3s ease, border-color 0.3s ease",
                       }}
                       placeholder="Ingresa tu correo electrónico"
-                      onFocus={(e) =>
-                      (e.target.style.boxShadow =
-                        "0 0 5px rgba(0, 123, 255, 0.5)")
-                      }
-                      onBlur={(e) => (e.target.style.boxShadow = "none")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -112,27 +120,25 @@ function Login() {
                         Recordarme
                       </label>
                     </div>
-                    <a
-                      href="#!"
-                      className="text-decoration-none"
-                      style={{ fontSize: "0.9rem" }}
+                    <button
+                    type="button"
+                    className="btn btn-link p-0"
+                    style={{ fontSize: "0.9rem", textDecoration: "none", color: "#007bff" }}
+                    onClick={() => setShowResetModal(true)} // Mostrar modal de restablecimiento
                     >
                       ¿Olvidaste tu contraseña?
-                    </a>
+                    </button>
                   </div>
 
                   <button
                     type="submit"
                     className="btn btn-primary btn-block w-100"
                     style={{
-                      backgroundColor: "#007bff",
-                      borderColor: "#007bff",
-                    }}
+                      backgroundColor: "#007bff", borderColor: "#007bff" }}
                   >
                     Iniciar sesión
                   </button>
                 </form>
-
                 <div className="text-center mt-4">
                   <p>
                     ¿No tienes una cuenta?{" "}
@@ -154,6 +160,52 @@ function Login() {
           </div>
         </div>
       </div>
+
+      {/* Modal para restablecimiento de contraseña */}
+      {showResetModal && (
+        <div
+          className="modal d-block"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Restablecer Contraseña</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowResetModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handlePasswordReset}>
+                  <div className="form-outline mb-4">
+                    <label className="form-label" htmlFor="resetEmail">
+                      Correo Electrónico
+                    </label>
+                    <input
+                      type="email"
+                      id="resetEmail"
+                      className="form-control"
+                      placeholder="Ingresa tu correo electrónico"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    Enviar Correo de Restablecimiento
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
