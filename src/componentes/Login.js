@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom"; // Necesario para redirigir a la pagina de registro
@@ -7,10 +7,20 @@ import { toast } from "react-toastify";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false); // Estado para "Recordarme"
   const [error, setError] = useState(null);
   const [showResetModal, setShowResetModal] = useState(false); // Controla la visibilidad del modal de restablecimiento
   const [resetEmail, setResetEmail] = useState(""); // Email para restablecer contraseña
   const navigate = useNavigate(); // Hook para la navegación
+
+  // Prellenar el correo si "Recordarme" esta activado
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevenir el comportamiento predeterminado del formulario
@@ -18,6 +28,14 @@ function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("¡Inicio de sesión exitoso!");
       console.log("Usuario autenticado exitosamente");
+
+      // Guardar o eliminar el correo basado en "Recordarme"
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
+
       // Limpiar campos después del inicio de sesión exitoso
       setEmail("");
       setPassword("");
@@ -115,6 +133,8 @@ function Login() {
                         className="form-check-input"
                         type="checkbox"
                         id="rememberMe"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)} // Actualiza el estado
                       />
                       <label className="form-check-label" htmlFor="rememberMe">
                         Recordarme
