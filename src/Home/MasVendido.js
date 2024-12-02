@@ -1,177 +1,89 @@
-import React from 'react';
-import {
-  MDBContainer,
-  MDBRow,
-  MDBCol,
-  MDBTypography,
-  MDBCard,
-  MDBCardImage,
-  MDBCardBody,
-  MDBCardText,
-  MDBCarousel, MDBCarouselItem,
-} from 'mdb-react-ui-kit';
+  import React, { useState, useEffect } from 'react';
+  import {
+    MDBContainer,
+    MDBRow,
+    MDBCol,
+    MDBTypography,
+    MDBCard,
+    MDBCardImage,
+    MDBCardBody,
+    MDBCardText,
+    MDBCarousel, 
+    MDBCarouselItem,
+    MDBBtn
+  } from 'mdb-react-ui-kit';
+  import { getDatabase, ref, get } from 'firebase/database';
 
-const MasVendido = () =>{
-    return(
-        <div>
-             <MDBContainer className='mt-5'>
-  <MDBTypography tag="h2" className="text-center mb-4" style={styles.sectionTitle}>
-    Mas vendido
-  </MDBTypography>
-  
-  <MDBCarousel showControls showIndicators>
-    <MDBCarouselItem className='active'>
-      <MDBRow className='justify-content-center'>
-        {/* Tarjeta 1 */}
-        <MDBCol md='3'>
-          <MDBCard>
-            <MDBCardImage 
-              src='https://mdbootstrap.com/img/new/standard/nature/182.webp' 
-              alt='...' 
-              position='top' 
-              style={{ height: '200px', objectFit: 'cover' }}  
-            />
-            <MDBCardBody>
-              <MDBCardText>
-                Some quick example text to build on the card title.
-              </MDBCardText>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBCol>
+  const MasVendido = () => {
+    const [productos, setProductos] = useState([]);
 
-        {/* Tarjeta 2 */}
-        <MDBCol md='3'>
-          <MDBCard>
-            <MDBCardImage 
-              src='https://mdbootstrap.com/img/new/standard/nature/183.webp' 
-              alt='...' 
-              position='top' 
-              style={{ height: '200px', objectFit: 'cover' }} 
-            />
-            <MDBCardBody>
-              <MDBCardText>
-                Another example text to make up the bulk of the.
-              </MDBCardText>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBCol>
+    useEffect(() => {
+      const fetchProductos = async () => {
+        const db = getDatabase();
+        const productosRef = ref(db, 'productos');
+        const snapshot = await get(productosRef);
 
-        {/* Tarjeta 3 */}
-        <MDBCol md='3'>
-          <MDBCard>
-            <MDBCardImage 
-              src='https://mdbootstrap.com/img/new/standard/nature/184.webp' 
-              alt='...' 
-              position='top' 
-              style={{ height: '200px', objectFit: 'cover' }} 
-            />
-            <MDBCardBody>
-              <MDBCardText>
-                A third example text for the bulk of the card's content.
-              </MDBCardText>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBCol>
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const productosArray = Object.values(data);
+          const productosAleatorios = productosArray.sort(() => 0.5 - Math.random()).slice(0, 8);
+          setProductos(productosAleatorios);
+        }
+      };
 
-        {/* Tarjeta 4 */}
-        <MDBCol md='3'>
-          <MDBCard>
-            <MDBCardImage 
-              src='https://mdbootstrap.com/img/new/standard/nature/185.webp' 
-              alt='...' 
-              position='top' 
-              style={{ height: '200px', objectFit: 'cover' }} 
-            />
-            <MDBCardBody>
-              <MDBCardText>
-                Fourth card example text for bulk content.
-              </MDBCardText>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBCol>
-      </MDBRow>
-    </MDBCarouselItem>
+      fetchProductos();
+    }, []);
 
-    <MDBCarouselItem>
-      <MDBRow className='justify-content-center'>
-        {/* Tarjeta 5 */}
-        <MDBCol md='3'>
-          <MDBCard>
-            <MDBCardImage 
-              src='https://mdbootstrap.com/img/new/standard/nature/186.webp' 
-              alt='...' 
-              position='top' 
-              style={{ height: '200px', objectFit: 'cover' }} 
-            />
-            <MDBCardBody>
-              <MDBCardText>
-                Fifth card example text for bulk content.
-              </MDBCardText>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBCol>
+    return (
+      <div style={styles.pageWrapper}>
+        <MDBContainer className='mt-5'>
+          <MDBTypography tag="h2" className="text-center mb-4" style={styles.sectionTitle}>
+            Más Vendido
+          </MDBTypography>
 
-        {/* Tarjeta 6 */}
-        <MDBCol md='3'>
-          <MDBCard>
-            <MDBCardImage 
-              src='https://mdbootstrap.com/img/new/standard/nature/187.webp' 
-              alt='...' 
-              position='top' 
-              style={{ height: '200px', objectFit: 'cover' }} 
-            />
-            <MDBCardBody>
-              <MDBCardText>
-                Sixth card example text for bulk content.
-              </MDBCardText>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBCol>
+          {/* Quitar las flechas del carrusel */}
+          <MDBCarousel showIndicators>
+            {Array.from({ length: Math.ceil(productos.length / 4) }, (_, i) => (
+              <MDBCarouselItem className={i === 0 ? 'active' : ''} key={i}>
+                <MDBRow className='justify-content-center'>
+                  {productos.slice(i * 4, i * 4 + 4).map((producto, index) => (
+                    <MDBCol md='3' key={index} className='mb-4'>
+                      <MDBCard style={styles.card} className="hover-shadow">
+                        <MDBCardImage
+                          src={producto.imagenUrl}
+                          alt={producto.nombre}
+                          position='top'
+                          style={styles.cardImage}
+                        />
+                        <MDBCardBody>
+                          <MDBCardText className='text-center'>
+                            {producto.nombre}
+                          </MDBCardText>
+                          <div className='text-center'>
+                            <MDBBtn 
+                              style={styles.cardButton}
+                              href={`producto/${producto.id}`}>
+                              Comprar
+                            </MDBBtn>
+                          </div>
+                        </MDBCardBody>
+                      </MDBCard>
+                    </MDBCol>
+                  ))}
+                </MDBRow>
+              </MDBCarouselItem>
+            ))}
+          </MDBCarousel>
+        </MDBContainer>
+      </div>
+    );
+  };
 
-        {/* Tarjeta 7 */}
-        <MDBCol md='3'>
-          <MDBCard>
-            <MDBCardImage 
-              src='https://mdbootstrap.com/img/new/standard/nature/188.webp' 
-              alt='...' 
-              position='top' 
-              style={{ height: '200px', objectFit: 'cover' }} 
-            />
-            <MDBCardBody>
-              <MDBCardText>
-                Seventh card example text for bulk content.
-              </MDBCardText>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBCol>
-
-        {/* Tarjeta 8 */}
-        <MDBCol md='3'>
-          <MDBCard>
-            <MDBCardImage 
-              src='https://mdbootstrap.com/img/new/standard/nature/189.webp' 
-              alt='...' 
-              position='top' 
-              style={{ height: '200px', objectFit: 'cover' }} 
-            />
-            <MDBCardBody>
-              <MDBCardText>
-                Eighth card example text for bulk content.
-              </MDBCardText>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBCol>
-      </MDBRow>
-    </MDBCarouselItem>
-  </MDBCarousel>
-</MDBContainer>
-        </div>
-    )
-}
-const styles = {
+  const styles = {
     pageWrapper: {
       backgroundColor: '#f8f9fa',
       fontFamily: 'Arial, sans-serif',
+      paddingBottom: '50px'
     },
     sectionTitle: {
       fontSize: '36px',
@@ -187,11 +99,14 @@ const styles = {
     cardImage: {
       borderTopLeftRadius: '15px',
       borderTopRightRadius: '15px',
+      height: '200px',
+      objectFit: 'cover',
     },
     cardButton: {
-      backgroundColor: '#ff4500',
+      backgroundColor: '#007bff',
+      color: 'white',
       borderRadius: '30px',
-    },
-   
+    }
   };
-export default MasVendido;
+
+  export default MasVendido;
