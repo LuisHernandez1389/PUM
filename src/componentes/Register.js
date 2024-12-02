@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from "../firebase";
+import { useNavigate } from "react-router-dom"; 
+import { toast } from "react-toastify";
 
 function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [passwordError, setPasswordError] = useState("");
+  const navigate = useNavigate(); //Hook para la navegación
 
   // Función para validar la contraseña
   const validatePassword = (password) => {
@@ -27,60 +30,68 @@ function Register() {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      toast.success("¡Registro exitoso! Ahora puedes iniciar sesión.");
       console.log("Usuario registrado exitosamente");
       setEmail("");
       setPassword("");
       setError(null);
       setPasswordError(""); // Limpiar error de contraseña
+      navigate("/login"); //Redirigir al login después del registro exitoso
     } catch (error) {
       console.error("Error al registrar el usuario:", error.message);
       setError(error.message);
+      toast.error("Error al registrar: " + error.message);
     }
   };
 
   return (
-    <section className="vh-100">
+    <section className="vh-100" style={{ backgroundColor: "#f4f4f9" }}>
       <div className="container py-5 h-100">
         <div className="row d-flex justify-content-center align-items-center h-100">
-          <div className="col-md-6 col-lg-5 d-none d-lg-flex">
-            <img
-              src="https://mdbootstrap.com/img/new/ecommerce/vertical/004.jpg"
-              alt="Trendy Pants and Shoes"
-              className="w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5"
-              height='600px'
-            />
-          </div>
-          <div className="col-md-6 col-lg-7">
-            <div className="card" style={{ borderRadius: "1rem" }}>
-              <div className="card-body">
-                <h2 className="card-title text-center">Registro</h2>
+          <div className="col-md-8 col-lg-6 col-xl-4">
+            <div className="card text-black shadow-lg" style={{ borderRadius: "10px" }}>
+              <div className="card-body p-4">
+                <div className="text-center">
+                  {/* Logo del Registro */}
+                  <img
+                  src="/LOGOLeyker.png"
+                  alt="Logo"
+                  className="mb-4"
+                  style={{ width: "100px" }}
+                  />
+                  <h3 className="mb-4">Registro</h3>
+                  <p className="text-muted">
+                    Crea una cuenta para acceder a nuestros servicios
+                  </p>
+                </div>
                 <form onSubmit={handleRegister}>
-                  <div className="mb-3">
-                    <label htmlFor="exampleInputEmail1" className="form-label">
+                  <div className="form-outline mb-4">
+                    <label className="form-label" htmlFor="email">
+                      <i className="fas fa-envelope me-2"></i> 
                       Correo electrónico
                     </label>
                     <input
                       type="email"
+                      id="email"
                       className="form-control"
-                      id="exampleInputEmail1"
-                      aria-describedby="emailHelp"
-                      placeholder="Correo electrónico"
+                      style={{ border: "1px solid #ced4da", padding: "0.375rem 0.75rem", borderRadius: "0.25rem" }}
+                      placeholder="Ingresa tu correo electrónico"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
-                    <div id="emailHelp" className="form-text">
-                      Nunca compartiremos tu correo electrónico con nadie más.
-                    </div>
                   </div>
-                  <div className="mb-3">
-                    <label htmlFor="exampleInputPassword1" className="form-label">
+
+                  <div className="form-outline mb-4">
+                    <label className="form-label" htmlFor="password">
+                      <i className="fas fa-lock me-2"></i> 
                       Contraseña
                     </label>
                     <input
                       type="password"
+                      id="password"
                       className="form-control"
-                      id="exampleInputPassword1"
-                      placeholder="Contraseña"
+                      style={{ border: "1px solid #ced4da", padding: "0.375rem 0.75rem", borderRadius: "0.25rem" }}
+                      placeholder="Crea una contraseña segura"
                       value={password}
                       onChange={(e) => {
                         setPassword(e.target.value);
@@ -97,25 +108,33 @@ function Register() {
                       <p className="text-danger mt-1">{passwordError}</p>
                     )}
                   </div>
-                  <div className="mb-3 form-check">
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      id="exampleCheck1"
-                    />
-                    <label className="form-check-label" htmlFor="exampleCheck1">
-                      Recordarme
-                    </label>
-                  </div>
-                  <button 
-                  type="submit" 
-                  className="btn btn-primary btn-block" 
-                  disable={!!passwordError} // Deshabilitar botón si hay errores
+
+                  {error && <p className="text-danger mb-3">{error}</p>}
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-block w-100"
                   >
-                    Registrarse
+                    Registrarme
                   </button>
-                  {error && <p className="text-danger mt-3">{error}</p>}
                 </form>
+
+                <div className="text-center mt-4">
+                  <p>
+                    ¿Ya tienes una cuenta?{" "}
+                    <button
+                      className="btn btn-link p-0"
+                      style={{
+                        textDecoration: "none",
+                        color: "#007bff",
+                        fontWeight: "bold",
+                      }}
+                      onClick={() => navigate("/login")}
+                    >
+                      Inicia sesión aquí
+                    </button>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

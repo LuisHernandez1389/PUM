@@ -14,6 +14,8 @@ import PBaterias from './Productos/PBaterias';
 import PTrueno from './Productos/PTrueno';
 import PLuz from './Productos/PLuz';
 
+import { ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 // Componentes que deseas cargar de forma diferida
 const Home = lazy(() => import('./componentes/Home'));
@@ -52,6 +54,7 @@ const App = (selectedProduct, selectedPaquete ) => {
         <Navbar
           user={user}
         />
+        <ToastContainer /> 
         <Suspense fallback={<LoadingPlaceholder />}>
           <Routes>
             <Route path="/" element={<Home />} />
