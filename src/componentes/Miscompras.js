@@ -3,7 +3,8 @@ import { database } from '../firebase';
 import { ref, onValue } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 import { MDBContainer, MDBCard, MDBCardBody, MDBCardHeader, MDBCardFooter, MDBTypography, MDBBtn, MDBListGroup, MDBListGroupItem, MDBSpinner, MDBBadge, MDBIcon } from 'mdb-react-ui-kit';
-
+import { ToastContainer, toast } from 'react-toastify'; // Importar ToastContainer y toast
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de toast
 // Función para calcular el peso actual del carrito desde el localStorage
 const calcularPesoActualCarrito = () => {
   const pesoCarrito = localStorage.getItem('carritoPeso');
@@ -133,6 +134,8 @@ const Miscompras = () => {
       } else if (paqueteEncontrado) {
         anyadirPaqueteAlCarrito(paqueteEncontrado.id, paquetes, setCarritoPeso); // Llama la función para paquetes
       }
+      toast.success('El paquete se añadió al carrito con éxito 🎉'); // Mensaje de éxito
+
     });
   };
   
@@ -152,6 +155,7 @@ const Miscompras = () => {
 
   return (
     <MDBContainer className="my-5">
+          <ToastContainer />
       <MDBTypography tag="h3" className="text-center mb-4">
         <MDBIcon fas icon="shopping-cart" className="me-2" /> MIS COMPRAS
       </MDBTypography>

@@ -6,6 +6,8 @@ import "../estilos/carrito.css"
 import { auth } from '../firebase';
 import { getAuth } from 'firebase/auth';
 import { get } from 'firebase/database';
+import { ToastContainer, toast } from 'react-toastify'; // Importar ToastContainer y toast
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de toast  
 import {
   MDBCard,
   MDBCardBody,
@@ -16,6 +18,7 @@ import {
   MDBBtn,MDBIcon
 } from 'mdb-react-ui-kit';
 const PayPalButton = window.paypal.Buttons.driver("react", { React, ReactDOM });
+
 
 function Micarrito() {
   const [productosDatabase, setProductosDatabase] = useState([]);
@@ -301,7 +304,8 @@ const vaciarCarrito = () => {
               detallesPago: details,
               fechaCompra: new Date().toISOString(),
             };
-  
+            toast.success("Compra realizada correctamente"); // Mensaje de éxito
+
             // Guardar la orden en Firebase usando el ID numérico como clave
             await set(ref(database, `ordenes/${nuevoID}`), orden);
             console.log('Orden guardada en Firebase con ID:', nuevoID);
@@ -314,6 +318,7 @@ const vaciarCarrito = () => {
           }
         } catch (error) {
           console.error('Error al cargar datos del usuario:', error.message);
+          toast.error("Error de compra"); // Mensaje de error
         }
       } else {
         console.log('Usuario no autenticado.');
@@ -548,6 +553,7 @@ useEffect(() => {
           </div>
         </div>
       )}
+            <ToastContainer /> {/* Agregar el ToastContainer de confirmacion */}
     </div>
   );
 }

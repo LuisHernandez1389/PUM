@@ -5,7 +5,8 @@ import { database, auth } from '../firebase';
 import { logEvent } from 'firebase/analytics'; 
 import { analytics } from '../firebase'; 
 import ReactGA from 'react-ga'; 
-
+import { ToastContainer, toast } from 'react-toastify'; // Importar ToastContainer y toast
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de toast
 
 const ProductDetails = ({ producto, onClose }) => {
   const { id } = useParams();
@@ -177,25 +178,17 @@ const pesoActualCarrito = carrito.reduce((totalPeso, itemId) => {
       action: 'Agregar al Carrito',
       label: 'Producto: ' + productoId,
     });
-    showToast(); // Mostrar toast después de añadir al carrito
+    toast.success('El paquete se añadió al carrito con éxito 🎉'); // Mensaje de éxito
   } else {
-    alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
+      toast.error('Has alcanzado el límite de peso en el carrito (9000 gramos) ⚠️'); // Mensaje de error
   }
 };
-  // Función para mostrar el toast
-  const showToast = () => {
-    const toastElement = document.getElementById('myToast');
-    if (toastElement) {
-      const bootstrapToast = new window.bootstrap.Toast(toastElement);
-      bootstrapToast.show();
-    } else {
-      console.error("El elemento 'myToast' no existe en el DOM");
-    }
-  };
+
 
   return (
     <>
       <div className="container card product-general mt-5">
+      <ToastContainer />
         <div className="row">
           <div className="col-12 col-md-8">
             <div
@@ -258,7 +251,6 @@ const pesoActualCarrito = carrito.reduce((totalPeso, itemId) => {
     className="btn btn-primary d-flex align-items-center justify-content-center m-2"
     onClick={() => {
       anyadirProductoAlCarrito(product?.id, product?.peso); 
-      showToast();
     }}
     style={{ borderRadius: '0', width: '100%' }}
   >

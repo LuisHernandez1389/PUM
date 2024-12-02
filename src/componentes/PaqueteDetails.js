@@ -7,7 +7,8 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css'; // Importa los e
 import { logEvent } from 'firebase/analytics'; 
 import { analytics } from '../firebase'; 
 import ReactGA from 'react-ga'; 
-
+import { ToastContainer, toast } from 'react-toastify'; // Importar ToastContainer y toast
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de toast
 function PaqueteDetails({}) {
   const { id } = useParams();
   const [paquete, setPaquete] = useState(null);
@@ -212,14 +213,10 @@ const guardarCarritoEnLocalStorage = (carrito) => {
 };
 
 const calcularPesoActualCarrito = () => {
-  const totalPeso = carrito.reduce((totalPeso, itemId) => {
+  return carrito.reduce((totalPeso, itemId) => {
     const itemCarrito = paquetesDatabase.find((item) => item.id === itemId);
-    const peso = itemCarrito ? Number(itemCarrito.peso) : 0; // Convertir a número
-    console.log('ID del paquete:', itemId, 'Peso:', peso);
-    return totalPeso + peso;
+    return totalPeso + (itemCarrito ? Number(itemCarrito.peso) : 0);
   }, 0);
-  console.log('Peso total del carrito:', totalPeso);
-  return totalPeso;
 };
 
 const anyadirPaqueteAlCarrito = (paqueteid, pesoPaquete) => {
@@ -231,27 +228,27 @@ const anyadirPaqueteAlCarrito = (paqueteid, pesoPaquete) => {
   console.log('Peso máximo permitido:', pesoMaximo);
 
   if (pesoActual + pesoEnGramos <= pesoMaximo) {
-    const nuevoCarrito = [...carrito, paqueteid];
-    setCarrito(nuevoCarrito);
-    guardarCarritoEnLocalStorage(nuevoCarrito);
+      const nuevoCarrito = [...carrito, paqueteid];
+      setCarrito(nuevoCarrito);
+      guardarCarritoEnLocalStorage(nuevoCarrito);
 
-    const pesoCarritoActualizado = pesoActual + pesoEnGramos;
-    setCarritoPeso(pesoCarritoActualizado);
-    localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
+      const pesoCarritoActualizado = pesoActual + pesoEnGramos;
+      setCarritoPeso(pesoCarritoActualizado);
+      localStorage.setItem('carritoPeso', JSON.stringify(pesoCarritoActualizado));
 
-    logEvent(analytics, 'agregar_al_carrito', {
-      paqueteid,
-    });
-    ReactGA.event({
-      category: 'Interacción',
-      action: 'Agregar al Carrito',
-      label: 'Paquete: ' + paqueteid,
-    });
+      logEvent(analytics, 'agregar_al_carrito', {
+          paqueteid,
+      });
+      ReactGA.event({
+          category: 'Interacción',
+          action: 'Agregar al Carrito',
+          label: 'Paquete: ' + paqueteid,
+      });
+      toast.success('El paquete se añadió al carrito con éxito 🎉'); // Mensaje de éxito
   } else {
-    alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
+      toast.error('Has alcanzado el límite de peso en el carrito (9000 gramos) ⚠️'); // Mensaje de error
   }
 };
-
 
 
 
@@ -261,6 +258,8 @@ const anyadirPaqueteAlCarrito = (paqueteid, pesoPaquete) => {
 
   return (
     <div className="container card product-general mt-5">
+          <ToastContainer />
+
     <div className="row">
       <div className="col-12 col-md-8">
         {/* Carrusel con react-responsive-carousel */}

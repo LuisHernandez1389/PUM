@@ -12,6 +12,8 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { Link } from 'react-router-dom';
 import "../estilos/Productos.css";
 import { MDBPagination, MDBPaginationItem, MDBPaginationLink } from 'mdb-react-ui-kit'; // Asegúrate de que MDB esté instalado y importado correctamente
+import { ToastContainer, toast } from 'react-toastify'; // Importar ToastContainer y toast
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de toast
 
 const Productos = () => {
   // Estado para almacenar los productos de la base de datos
@@ -229,6 +231,7 @@ const renderizarProductos = () => {
         action: 'Agregar al Carrito',
         label: 'Producto: ' + productoId,
       });
+      toast.success("Se añadio al carrito"); // Mensaje de éxito
     } else {
       alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
     }
@@ -284,6 +287,7 @@ const renderizarProductos = () => {
           </div>
         </div>
       </div>
+      <ToastContainer /> {/* Agregar el ToastContainer de confirmacion */}
       <p>Peso total del carrito: {pesoActualCarrito} kg</p>
 
        {/* Paginación */}

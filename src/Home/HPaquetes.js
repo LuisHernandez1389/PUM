@@ -1,6 +1,6 @@
 import React from 'react';
 import { MDBContainer, MDBTypography } from 'mdb-react-ui-kit';
-import PaquetesAleatorios from './PaquetesAleatorios'; // Ajustar la ruta según tu estructura de carpetas
+import PaquetesAleatorios from './PaquetesAleatorios'; 
 
 const HPaquetes = () => {
   return (
