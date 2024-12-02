@@ -15,7 +15,7 @@ import {
   MDBCardText,
   MDBRow,
   MDBCol,
-  MDBBtn,MDBIcon
+  MDBBtn, MDBIcon
 } from 'mdb-react-ui-kit';
 const PayPalButton = window.paypal.Buttons.driver("react", { React, ReactDOM });
 
@@ -68,123 +68,121 @@ function Micarrito() {
     setIsPopoverVisible(true);
     setIsPayPalButtonRendered(true);
     console.log(user)
-
   };
 
   const handleClosePopover = () => {
     setIsPopoverVisible(false);
-    setIsPayPalButtonRendered(false);
   };
 
- // Función para guardar el carrito y el peso en localStorage
-const actualizarCarrito = (nuevoCarrito, pesoActualizado) => {
-  setCarrito(nuevoCarrito);
-  setCarritoPeso(pesoActualizado);
-  guardarCarritoEnLocalStorage(nuevoCarrito);
-  localStorage.setItem('carritoPeso', JSON.stringify(pesoActualizado));
-};
+  // Función para guardar el carrito y el peso en localStorage
+  const actualizarCarrito = (nuevoCarrito, pesoActualizado) => {
+    setCarrito(nuevoCarrito);
+    setCarritoPeso(pesoActualizado);
+    guardarCarritoEnLocalStorage(nuevoCarrito);
+    localStorage.setItem('carritoPeso', JSON.stringify(pesoActualizado));
+  };
 
-// Función para obtener el peso de un producto
-const obtenerPesoProducto = (productoId) => {
-  const producto = productosDatabase.find((item) => item.id === productoId);
-  return producto?.peso || 0;
-};
+  // Función para obtener el peso de un producto
+  const obtenerPesoProducto = (productoId) => {
+    const producto = productosDatabase.find((item) => item.id === productoId);
+    return producto?.peso || 0;
+  };
 
-// Función para obtener el peso de un paquete
-const obtenerPesoPaquete = (paqueteId) => {
-  const paquete = paquetesDatabase.find((item) => item.id === paqueteId);
-  return paquete?.peso || 0;
-};
-
-
-// Borra productos o paquetes del carrito
-const borrarItemCarrito = (itemId) => {
-  // Verifica si es un producto o un paquete
-  const esProducto = productosDatabase.some((item) => item.id === itemId);
-  const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
-
-  if (!esProducto && !esPaquete) {
-    console.warn('El ítem no es un producto ni un paquete válido.');
-    return;
-  }
-
-  const nuevoCarrito = carrito.filter((item) => item !== itemId);
-
-  // Obtiene el peso según el tipo de ítem
-  const pesoItem = esProducto 
-    ? obtenerPesoProducto(itemId) 
-    : obtenerPesoPaquete(itemId);
-
-  const pesoActualizado = carritoPeso - (pesoItem * carrito.filter((id) => id === itemId).length);
-
-  actualizarCarrito(nuevoCarrito, pesoActualizado);
-};
-
-// Aumenta una unidad de un producto o paquete
-const aumentarItemCarrito = (itemId) => {
-  // Verifica si es un producto o un paquete
-  const esProducto = productosDatabase.some((item) => item.id === itemId);
-  const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
-
-  if (!esProducto && !esPaquete) {
-    console.warn('El ítem no es un producto ni un paquete válido.');
-    return;
-  }
-
-  // Agrega una unidad más del ítem al carrito
-  const nuevoCarrito = [...carrito, itemId];
-
-  // Obtiene el peso según el tipo de ítem
-  const pesoItem = esProducto 
-    ? obtenerPesoProducto(itemId) 
-    : obtenerPesoPaquete(itemId);
-
-  const pesoActualizado = carritoPeso + pesoItem;
-
-  actualizarCarrito(nuevoCarrito, pesoActualizado);
-};
+  // Función para obtener el peso de un paquete
+  const obtenerPesoPaquete = (paqueteId) => {
+    const paquete = paquetesDatabase.find((item) => item.id === paqueteId);
+    return paquete?.peso || 0;
+  };
 
 
+  // Borra productos o paquetes del carrito
+  const borrarItemCarrito = (itemId) => {
+    // Verifica si es un producto o un paquete
+    const esProducto = productosDatabase.some((item) => item.id === itemId);
+    const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
 
-// Reduce una unidad de un producto o paquete
-const reducirItemCarrito = (itemId) => {
-  // Verifica si es un producto o un paquete
-  const esProducto = productosDatabase.some((item) => item.id === itemId);
-  const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
+    if (!esProducto && !esPaquete) {
+      console.warn('El ítem no es un producto ni un paquete válido.');
+      return;
+    }
 
-  if (!esProducto && !esPaquete) {
-    console.warn('El ítem no es un producto ni un paquete válido.');
-    return;
-  }
-
-  // Encuentra el índice del ítem en el carrito
-  const indiceItem = carrito.indexOf(itemId);
-
-  if (indiceItem !== -1) {
-    const nuevoCarrito = [...carrito];
-    nuevoCarrito.splice(indiceItem, 1); // Elimina una unidad
+    const nuevoCarrito = carrito.filter((item) => item !== itemId);
 
     // Obtiene el peso según el tipo de ítem
-    const pesoItem = esProducto 
-      ? obtenerPesoProducto(itemId) 
+    const pesoItem = esProducto
+      ? obtenerPesoProducto(itemId)
       : obtenerPesoPaquete(itemId);
 
-    const pesoActualizado = carritoPeso - pesoItem;
+    const pesoActualizado = carritoPeso - (pesoItem * carrito.filter((id) => id === itemId).length);
 
     actualizarCarrito(nuevoCarrito, pesoActualizado);
-  }
-};
+  };
+
+  // Aumenta una unidad de un producto o paquete
+  const aumentarItemCarrito = (itemId) => {
+    // Verifica si es un producto o un paquete
+    const esProducto = productosDatabase.some((item) => item.id === itemId);
+    const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
+
+    if (!esProducto && !esPaquete) {
+      console.warn('El ítem no es un producto ni un paquete válido.');
+      return;
+    }
+
+    // Agrega una unidad más del ítem al carrito
+    const nuevoCarrito = [...carrito, itemId];
+
+    // Obtiene el peso según el tipo de ítem
+    const pesoItem = esProducto
+      ? obtenerPesoProducto(itemId)
+      : obtenerPesoPaquete(itemId);
+
+    const pesoActualizado = carritoPeso + pesoItem;
+
+    actualizarCarrito(nuevoCarrito, pesoActualizado);
+  };
 
 
-// Vaciar el carrito
-const vaciarCarrito = () => {
-  setCarrito([]);
-  setCarritoPeso(0);
-  localStorage.removeItem('carrito');
-  localStorage.removeItem('carritoPeso');
-};
 
-  
+  // Reduce una unidad de un producto o paquete
+  const reducirItemCarrito = (itemId) => {
+    // Verifica si es un producto o un paquete
+    const esProducto = productosDatabase.some((item) => item.id === itemId);
+    const esPaquete = paquetesDatabase.some((item) => item.id === itemId);
+
+    if (!esProducto && !esPaquete) {
+      console.warn('El ítem no es un producto ni un paquete válido.');
+      return;
+    }
+
+    // Encuentra el índice del ítem en el carrito
+    const indiceItem = carrito.indexOf(itemId);
+
+    if (indiceItem !== -1) {
+      const nuevoCarrito = [...carrito];
+      nuevoCarrito.splice(indiceItem, 1); // Elimina una unidad
+
+      // Obtiene el peso según el tipo de ítem
+      const pesoItem = esProducto
+        ? obtenerPesoProducto(itemId)
+        : obtenerPesoPaquete(itemId);
+
+      const pesoActualizado = carritoPeso - pesoItem;
+
+      actualizarCarrito(nuevoCarrito, pesoActualizado);
+    }
+  };
+
+
+  // Vaciar el carrito
+  const vaciarCarrito = () => {
+    setCarrito([]);
+    setCarritoPeso(0);
+    localStorage.removeItem('carrito');
+    localStorage.removeItem('carritoPeso');
+  };
+
+
 
 
   const calcularTotalUnidades = useCallback(() => {
@@ -199,17 +197,17 @@ const vaciarCarrito = () => {
   useEffect(() => {
     setTotalUnidades(calcularTotalUnidades());
   }, [carrito, calcularTotalUnidades]);
-  
+
 
 
   const calcularTotal = useCallback(() => {
     return carrito.reduce((total, item) => {
       // Buscar en productosDatabase
       const miItemProducto = productosDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
-      
+
       // Buscar en paquetesDatabase
       const miItemPaquete = paquetesDatabase.find((itemBaseDatos) => itemBaseDatos.id === item);
-  
+
       if (miItemProducto) {
         // Si se encuentra en productosDatabase, sumar el precio de ese item
         return total + miItemProducto.precio;
@@ -222,14 +220,14 @@ const vaciarCarrito = () => {
       }
     }, 0).toFixed(2);
   }, [carrito, productosDatabase, paquetesDatabase]);
-  
+
   const [total, setTotal] = useState(calcularTotal());
-  
+
   useEffect(() => {
     setTotal(calcularTotal());
     console.log(carritoPeso);
   }, [carrito, productosDatabase, paquetesDatabase, calcularTotal, carritoPeso]);
-  
+
 
   const createOrder = (data, actions) => {
     return actions.order.create({
@@ -247,23 +245,23 @@ const vaciarCarrito = () => {
     return actions.order.capture().then(async function (details) {
       const auth = getAuth();
       const user = auth.currentUser;
-  
+
       if (user) {
         const userUid = user.uid;
         const userRef = ref(database, 'users/' + userUid);
         const contadorRef = ref(database, 'contadorOrdenes'); // Nodo para el contador de IDs
         const ordenesRef = ref(database, 'ordenes');
-  
+
         try {
           const snapshot = await get(userRef);
-  
+
           if (snapshot.exists()) {
             const userData = snapshot.val();
-  
+
             // Extraer información de la dirección de compra desde PayPal
             const shipping = details?.purchase_units?.[0]?.shipping || {};
             const payer = details?.payer || {};
-  
+
             const DireccionCompra = {
               nombre: shipping?.name?.full_name || "N/A",
               direccion: shipping?.address?.address_line_1 || "N/A",
@@ -275,18 +273,18 @@ const vaciarCarrito = () => {
               celular: payer?.phone?.phone_number?.national_number || "N/A",
               correo: payer?.email_address || "N/A",
             };
-  
+
             // Obtener y actualizar el contador para generar un ID numérico único
             const contadorSnapshot = await get(contadorRef);
             let nuevoID = 1;
-  
+
             if (contadorSnapshot.exists()) {
               nuevoID = contadorSnapshot.val() + 1;
             }
-  
+
             // Actualizar el contador en Firebase
             await set(contadorRef, nuevoID);
-  
+
             // Crear la orden con el ID numérico generado
             const orden = {
               id: nuevoID, // ID numérico único
@@ -309,7 +307,7 @@ const vaciarCarrito = () => {
             // Guardar la orden en Firebase usando el ID numérico como clave
             await set(ref(database, `ordenes/${nuevoID}`), orden);
             console.log('Orden guardada en Firebase con ID:', nuevoID);
-  
+
             // Resetear carrito local
             setCarrito([]);
             guardarCarritoEnLocalStorage([]);
@@ -325,10 +323,10 @@ const vaciarCarrito = () => {
       }
     });
   };
-  
-  
-  
-  
+
+
+
+
 
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
@@ -340,35 +338,35 @@ const vaciarCarrito = () => {
     const databaseRefPaquetes = ref(database, 'paquetes');
 
     const fetchData = async () => {
-        // Cargar productos
-        onValue(databaseRefProductos, (snapshot) => {
-            const productos = [];
-            snapshot.forEach((childSnapshot) => {
-                const producto = {
-                    id: childSnapshot.key,
-                    ...childSnapshot.val(),
-                };
-                productos.push(producto);
-            });
-            setProductosDatabase(productos);
+      // Cargar productos
+      onValue(databaseRefProductos, (snapshot) => {
+        const productos = [];
+        snapshot.forEach((childSnapshot) => {
+          const producto = {
+            id: childSnapshot.key,
+            ...childSnapshot.val(),
+          };
+          productos.push(producto);
         });
+        setProductosDatabase(productos);
+      });
 
-        // Cargar paquetes
-        onValue(databaseRefPaquetes, (snapshot) => {
-            const paquetes = [];
-            snapshot.forEach((childSnapshot) => {
-                const paquete = {
-                    id: childSnapshot.key,
-                    ...childSnapshot.val(),
-                };
-                paquetes.push(paquete);
-            });
-            setPaquetesDatabase(paquetes);
+      // Cargar paquetes
+      onValue(databaseRefPaquetes, (snapshot) => {
+        const paquetes = [];
+        snapshot.forEach((childSnapshot) => {
+          const paquete = {
+            id: childSnapshot.key,
+            ...childSnapshot.val(),
+          };
+          paquetes.push(paquete);
         });
+        setPaquetesDatabase(paquetes);
+      });
     };
 
     fetchData();
-}, []);
+  }, []);
 
   /////Guarda en localStorage
   const guardarCarritoEnLocalStorage = (carrito) => {
@@ -376,32 +374,32 @@ const vaciarCarrito = () => {
   };
 
 
-// Función para obtener el peso total del carrito
-const calcularPesoTotalCarrito = useCallback(() => {
-  let pesoTotal = 0;
-  
-  carrito.forEach(itemId => {
-    // Buscar en productosDatabase
-    const producto = productosDatabase.find((item) => item.id === itemId);
-    
-    // Buscar en paquetesDatabase
-    const paquete = paquetesDatabase.find((item) => item.id === itemId);
+  // Función para obtener el peso total del carrito
+  const calcularPesoTotalCarrito = useCallback(() => {
+    let pesoTotal = 0;
 
-    if (producto) {
-      pesoTotal += producto.peso || 0;  // Sumar el peso del producto
-    } else if (paquete) {
-      pesoTotal += paquete.peso || 0;  // Sumar el peso del paquete
-    }
-  });
+    carrito.forEach(itemId => {
+      // Buscar en productosDatabase
+      const producto = productosDatabase.find((item) => item.id === itemId);
 
-  return pesoTotal;
-}, [carrito, productosDatabase, paquetesDatabase]);
+      // Buscar en paquetesDatabase
+      const paquete = paquetesDatabase.find((item) => item.id === itemId);
 
-useEffect(() => {
-  // Actualizar el peso del carrito cada vez que cambie el carrito
-  const pesoTotal = calcularPesoTotalCarrito();
-  setCarritoPeso(pesoTotal);  // Actualizar el estado del peso total
-}, [carrito, calcularPesoTotalCarrito]);
+      if (producto) {
+        pesoTotal += producto.peso || 0;  // Sumar el peso del producto
+      } else if (paquete) {
+        pesoTotal += paquete.peso || 0;  // Sumar el peso del paquete
+      }
+    });
+
+    return pesoTotal;
+  }, [carrito, productosDatabase, paquetesDatabase]);
+
+  useEffect(() => {
+    // Actualizar el peso del carrito cada vez que cambie el carrito
+    const pesoTotal = calcularPesoTotalCarrito();
+    setCarritoPeso(pesoTotal);  // Actualizar el estado del peso total
+  }, [carrito, calcularPesoTotalCarrito]);
 
 
   const renderizarCarrito = () => {
@@ -411,7 +409,7 @@ useEffect(() => {
       const miItem = {
         ...productosDatabase.find((itemBaseDatos) => itemBaseDatos.id === item),
         ...paquetesDatabase.find((itemBaseDatos) => itemBaseDatos.id === item)
-    };
+      };
       if (miItem) {
         const numeroUnidadesItem = carrito.filter((itemId) => itemId === item).length;
 
@@ -431,29 +429,29 @@ useEffect(() => {
 
               {/* Contenido del lado derecho */}
               <MDBCol md="8">
-              <MDBCardBody className="d-flex justify-content-between align-items-center">
-  <div>
-    <MDBCardText>{miItem.nombre}</MDBCardText>
-    <MDBCardText>Unidades: {numeroUnidadesItem}</MDBCardText>
-    <MDBCardText>Gramos: {miItem.peso}</MDBCardText>
-    <MDBCardText>{divisa} {miItem.precio}</MDBCardText>
-  </div>
+                <MDBCardBody className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <MDBCardText>{miItem.nombre}</MDBCardText>
+                    <MDBCardText>Unidades: {numeroUnidadesItem}</MDBCardText>
+                    <MDBCardText>Gramos: {miItem.peso}</MDBCardText>
+                    <MDBCardText>{divisa} {miItem.precio}</MDBCardText>
+                  </div>
 
-  <div className="d-flex gap-3"> {/* Contenedor con más separación */}
-    <MDBBtn className="custom-btn add-btn" onClick={() => aumentarItemCarrito(miItem.id)}>
-      <MDBIcon fas icon="plus" />
-    </MDBBtn>
-    
-    <MDBBtn className="custom-btn subtract-btn" onClick={() => reducirItemCarrito(miItem.id)}>
-      <MDBIcon fas icon="minus" />
-    </MDBBtn>
-    
-    <MDBBtn className="custom-btn delete-btn" onClick={() => borrarItemCarrito(miItem.id)}>
-      <MDBIcon fas icon="trash-alt" />
-    </MDBBtn>
-  </div>
-  {/* Estilos personalizados */}
-  <style jsx>{`
+                  <div className="d-flex gap-3"> {/* Contenedor con más separación */}
+                    <MDBBtn className="custom-btn add-btn" onClick={() => aumentarItemCarrito(miItem.id)}>
+                      <MDBIcon fas icon="plus" />
+                    </MDBBtn>
+
+                    <MDBBtn className="custom-btn subtract-btn" onClick={() => reducirItemCarrito(miItem.id)}>
+                      <MDBIcon fas icon="minus" />
+                    </MDBBtn>
+
+                    <MDBBtn className="custom-btn delete-btn" onClick={() => borrarItemCarrito(miItem.id)}>
+                      <MDBIcon fas icon="trash-alt" />
+                    </MDBBtn>
+                  </div>
+                  {/* Estilos personalizados */}
+                  <style jsx>{`
     .custom-btn {
       padding: 10px 15px;
       border-radius: 50px;
@@ -494,7 +492,7 @@ useEffect(() => {
       background-color: #c82333; /* Más oscuro al hacer hover */
     }
   `}</style>
-</MDBCardBody>
+                </MDBCardBody>
 
               </MDBCol>
             </MDBRow>
@@ -553,7 +551,7 @@ useEffect(() => {
           </div>
         </div>
       )}
-            <ToastContainer /> {/* Agregar el ToastContainer de confirmacion */}
+      <ToastContainer /> {/* Agregar el ToastContainer de confirmacion */}
     </div>
   );
 }

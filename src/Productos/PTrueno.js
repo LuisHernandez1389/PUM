@@ -12,6 +12,8 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { Link } from 'react-router-dom';
 import '../estilos/Productos.css'; // Asegúrate de que Productos.css esté en la carpeta estilos
 import { MDBPagination, MDBPaginationItem, MDBPaginationLink } from 'mdb-react-ui-kit'; // Asegúrate de que MDB esté instalado y importado correctamente
+import { ToastContainer, toast } from 'react-toastify'; // Importar ToastContainer y toast
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de toast
 
 const PTrueno = () => {
   // Estado para almacenar los productos de la base de datos
@@ -192,7 +194,6 @@ const renderizarProductos = () => {
               className="btn btn-primary d-flex align-items-center justify-content-center m-2"
               onClick={() => {
                 anyadirProductoAlCarrito(info.id, info.peso);
-                showToast();
               }}
               style={{ borderRadius: '0', width: '100%' }}
             >
@@ -246,13 +247,15 @@ const renderizarProductos = () => {
         action: 'Agregar al Carrito',
         label: 'Producto: ' + productoId,
       });
-    } else {
-      alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
-    }
+      toast.success('El paquete se añadió al carrito con éxito 🎉'); // Mensaje de éxito
+  } else {
+    toast.error('Has alcanzado el límite de peso en el carrito (9000 gramos) ⚠️'); // Mensaje de error si el peso excede el límite
+  }
   };
 
   return (
     <div className="container">
+            <ToastContainer />
       <main id="items" className="col-sm-12 row">
   {/* Barra de búsqueda */}
   <input

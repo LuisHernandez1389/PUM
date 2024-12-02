@@ -1,17 +1,19 @@
 // Importaciones de React y otras bibliotecas
 import React, { useState, useEffect, useRef } from 'react';
 import { database, auth } from '../firebase'; // Correcto si está en config
-import { ref, onValue, set, get, child } from 'firebase/database'; 
+import { ref, onValue, set, get, child } from 'firebase/database';
 import ProductDetails from '../componentes/ProductDetails'; // Asegúrate de que ProductDetails.js esté en la misma carpeta
-import { logEvent } from 'firebase/analytics'; 
+import { logEvent } from 'firebase/analytics';
 import { analytics } from '../firebase'; // Reutiliza la misma importación si analytics está en firebase.js
-import ReactGA from 'react-ga'; 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faHeart } from '@fortawesome/free-solid-svg-icons'; 
-import '@fortawesome/fontawesome-free/css/all.css'; 
+import ReactGA from 'react-ga';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import '@fortawesome/fontawesome-free/css/all.css';
 import { Link } from 'react-router-dom';
 import '../estilos/Productos.css'; // Asegúrate de que Productos.css esté en la carpeta estilos
 import { MDBPagination, MDBPaginationItem, MDBPaginationLink } from 'mdb-react-ui-kit'; // Asegúrate de que MDB esté instalado y importado correctamente
+import { ToastContainer, toast } from 'react-toastify'; // Importar ToastContainer y toast
+import 'react-toastify/dist/ReactToastify.css'; // Importar estilos de toast
 
 const PLuz = () => {
   // Estado para almacenar los productos de la base de datos
@@ -33,9 +35,9 @@ const PLuz = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(12);
 
-    // Estados para gestionar productos marcados como favoritos
-    const [likes, setLikes] = useState({});
-    const [userFavorites, setUserFavorites] = useState({});
+  // Estados para gestionar productos marcados como favoritos
+  const [likes, setLikes] = useState({});
+  const [userFavorites, setUserFavorites] = useState({});
 
   const showToast = () => {
     // Obtén el elemento toast del DOM
@@ -76,17 +78,17 @@ const PLuz = () => {
       setProductosDatabase(productos);
     });
 
-     // Obtener favoritos del usuario autenticado desde la base de datos
-     const user = auth.currentUser;
-     if (user) {
-       const userId = user.uid;
-       const userFavoritesRef = ref(database, `users/${userId}/favoritos`);
-       onValue(userFavoritesRef, (snapshot) => {
-         const userFavoritesData = snapshot.val() || {};
-         setUserFavorites(userFavoritesData);
-         setLikes(userFavoritesData); // Inicializar los likes con los datos de favoritos del usuario
-       });
-     }
+    // Obtener favoritos del usuario autenticado desde la base de datos
+    const user = auth.currentUser;
+    if (user) {
+      const userId = user.uid;
+      const userFavoritesRef = ref(database, `users/${userId}/favoritos`);
+      onValue(userFavoritesRef, (snapshot) => {
+        const userFavoritesData = snapshot.val() || {};
+        setUserFavorites(userFavoritesData);
+        setLikes(userFavoritesData); // Inicializar los likes con los datos de favoritos del usuario
+      });
+    }
 
     return () => {
       setSelectedCohete(null);
@@ -157,60 +159,59 @@ const PLuz = () => {
   }, [currentPage]);
 
   // Función para renderizar la lista de productos
-const renderizarProductos = () => {
-  const productosFiltrados = currentProducts.filter((producto) => {
-    // Filtra por búsqueda y categoría
-    return (
-      producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
-      producto.categoria === "Luz" // Asegúrate de que esta propiedad exista
-    );
-  });
+  const renderizarProductos = () => {
+    const productosFiltrados = currentProducts.filter((producto) => {
+      // Filtra por búsqueda y categoría
+      return (
+        producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
+        producto.categoria === "Luz" // Asegúrate de que esta propiedad exista
+      );
+    });
 
-  return productosFiltrados.map((info) => (
-    <div key={info.id} className="col-lg-3 col-md-4 col-sm-6 col-12 mb-3">
-      <div className="card d-flex flex-column" style={{ height: '100%', margin: '1px' }}>
-        <FontAwesomeIcon
-          icon={faHeart}
-          className={`heart-icon ${likes[info.id] || false ? 'liked' : ''}`}
-          onClick={() => handleLikeClick(info.id)}
-        />
-        <img
-          className="card-img-top img-fluid"
-          src={info.imagenUrl}
-          alt="paquete"
-          style={{ height: '200px', objectFit: 'cover' }}
-        />
-        <div className="card-body d-flex flex-column flex-grow-1">
-          <div className="text-center">
-            <h5 className="card-title">{info.nombre}</h5>
-            <p>{info.peso} gramos</p>
-            <p className="card-text">{info.precio}{divisa}</p>
-          </div>
-          <div className="mt-auto d-flex flex-column align-items-center">
-            <button
-              className="btn btn-primary d-flex align-items-center justify-content-center m-2"
-              onClick={() => {
-                anyadirProductoAlCarrito(info.id, info.peso);
-                showToast();
-              }}
-              style={{ borderRadius: '0', width: '100%' }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-plus-square-fill" viewBox="0 0 16 16">
-                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0" />
-              </svg>
-            </button>
-            <Link to={`/producto/${info.id}`} className="btn btn-primary d-flex align-items-center justify-content-center m-2" style={{ borderRadius: '0', width: '100%' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye-fill" viewBox="0 0 16 16">
-                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
-                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
-              </svg>
-            </Link>
+    return productosFiltrados.map((info) => (
+      <div key={info.id} className="col-lg-3 col-md-4 col-sm-6 col-12 mb-3">
+        <div className="card d-flex flex-column" style={{ height: '100%', margin: '1px' }}>
+          <FontAwesomeIcon
+            icon={faHeart}
+            className={`heart-icon ${likes[info.id] || false ? 'liked' : ''}`}
+            onClick={() => handleLikeClick(info.id)}
+          />
+          <img
+            className="card-img-top img-fluid"
+            src={info.imagenUrl}
+            alt="paquete"
+            style={{ height: '200px', objectFit: 'cover' }}
+          />
+          <div className="card-body d-flex flex-column flex-grow-1">
+            <div className="text-center">
+              <h5 className="card-title">{info.nombre}</h5>
+              <p>{info.peso} gramos</p>
+              <p className="card-text">{info.precio}{divisa}</p>
+            </div>
+            <div className="mt-auto d-flex flex-column align-items-center">
+              <button
+                className="btn btn-primary d-flex align-items-center justify-content-center m-2"
+                onClick={() => {
+                  anyadirProductoAlCarrito(info.id, info.peso);
+                }}
+                style={{ borderRadius: '0', width: '100%' }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-plus-square-fill" viewBox="0 0 16 16">
+                  <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0" />
+                </svg>
+              </button>
+              <Link to={`/producto/${info.id}`} className="btn btn-primary d-flex align-items-center justify-content-center m-2" style={{ borderRadius: '0', width: '100%' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye-fill" viewBox="0 0 16 16">
+                  <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                  <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  ));
-};
+    ));
+  };
 
 
   // Función para calcular el peso actual del carrito
@@ -245,25 +246,27 @@ const renderizarProductos = () => {
         action: 'Agregar al Carrito',
         label: 'Producto: ' + productoId,
       });
+      toast.success('El paquete se añadió al carrito con éxito 🎉'); // Mensaje de éxito
     } else {
-      alert('Has alcanzado el límite de peso en el carrito (9000 gramos)');
+      toast.error('Has alcanzado el límite de peso en el carrito (9000 gramos) ⚠️'); // Mensaje de error si el peso excede el límite
     }
   };
 
   return (
     <div className="container">
+      <ToastContainer />
       <main id="items" className="col-sm-12 row">
-  {/* Barra de búsqueda */}
-  <input
-    className="form-control mb-3"  // Agregamos margen inferior (mb-3)
-    placeholder="Buscar productos..."
-    value={busqueda}
-    onChange={(e) => setBusqueda(e.target.value)}
-    style={{ margin: '20px 0' }}  // Margen superior e inferior de 20px
-  />
-  {/* Lista de productos */}
-  {renderizarProductos()}
-</main>
+        {/* Barra de búsqueda */}
+        <input
+          className="form-control mb-3"  // Agregamos margen inferior (mb-3)
+          placeholder="Buscar productos..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          style={{ margin: '20px 0' }}  // Margen superior e inferior de 20px
+        />
+        {/* Lista de productos */}
+        {renderizarProductos()}
+      </main>
 
       <div className="position-fixed bottom-0 end-0 p-3">
         {/* Componente Toast de Bootstrap */}
@@ -302,26 +305,26 @@ const renderizarProductos = () => {
       </div>
 
       {/* Paginación */}
-     <div className="d-flex justify-content-center">
-      <MDBPagination className='mb-0'>
-        <MDBPaginationItem disabled={currentPage === 1}>
-          <MDBPaginationLink href='#' aria-label='Previous' onClick={() => paginate(currentPage - 1)}>
-            <span aria-hidden='true'>«</span>
-          </MDBPaginationLink>
-        </MDBPaginationItem>
-        {Array.from({ length: Math.ceil(productosDatabase.length / productsPerPage) }).map((_, index) => (
-          <MDBPaginationItem key={index} active={currentPage === index + 1}>
-            <MDBPaginationLink href='#' onClick={() => paginate(index + 1)}>
-              {index + 1}
+      <div className="d-flex justify-content-center">
+        <MDBPagination className='mb-0'>
+          <MDBPaginationItem disabled={currentPage === 1}>
+            <MDBPaginationLink href='#' aria-label='Previous' onClick={() => paginate(currentPage - 1)}>
+              <span aria-hidden='true'>«</span>
             </MDBPaginationLink>
           </MDBPaginationItem>
-        ))}
-        <MDBPaginationItem disabled={currentPage === Math.ceil(productosDatabase.length / productsPerPage)}>
-          <MDBPaginationLink href='#' aria-label='Next' onClick={() => paginate(currentPage + 1)}>
-            <span aria-hidden='true'>»</span>
-          </MDBPaginationLink>
-        </MDBPaginationItem>
-      </MDBPagination>
+          {Array.from({ length: Math.ceil(productosDatabase.length / productsPerPage) }).map((_, index) => (
+            <MDBPaginationItem key={index} active={currentPage === index + 1}>
+              <MDBPaginationLink href='#' onClick={() => paginate(index + 1)}>
+                {index + 1}
+              </MDBPaginationLink>
+            </MDBPaginationItem>
+          ))}
+          <MDBPaginationItem disabled={currentPage === Math.ceil(productosDatabase.length / productsPerPage)}>
+            <MDBPaginationLink href='#' aria-label='Next' onClick={() => paginate(currentPage + 1)}>
+              <span aria-hidden='true'>»</span>
+            </MDBPaginationLink>
+          </MDBPaginationItem>
+        </MDBPagination>
       </div>
     </div>
   );

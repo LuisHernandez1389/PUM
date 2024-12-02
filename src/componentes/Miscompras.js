@@ -106,7 +106,7 @@ const Miscompras = () => {
         const productosYPaquetesEnOrden = orden.productos.map((productoId) => {
           const producto = productos.find((prod) => prod.id === productoId);
           if (producto) return producto.nombre; // Si es un producto, devuelve su nombre
-          
+
           const paquete = paquetes.find((paq) => paq.id === productoId);  // Busca paquetes
           return paquete ? paquete.nombre : 'Desconocido';  // Si es un paquete, devuelve su nombre
         });
@@ -124,31 +124,31 @@ const Miscompras = () => {
 
   const handleVolverAComenzar = (orden) => {
     let pesoTotal = calcularPesoActualCarrito(); // Recupera el peso actual del carrito
-  
+
     // Verifica si el peso total actual no excede el límite
     if (pesoTotal <= 9000) {
       orden.productos.forEach((producto) => {
         const productoEncontrado = productos.find((prod) => prod.nombre === producto); // Busca el producto por nombre
         const paqueteEncontrado = paquetes.find((paq) => paq.nombre === producto); // Busca el paquete por nombre
-  
+
         if (productoEncontrado) {
           anyadirProductoAlCarrito(productoEncontrado.id, productos, setCarritoPeso); // Pasa los parámetros necesarios
         } else if (paqueteEncontrado) {
           anyadirPaqueteAlCarrito(paqueteEncontrado.id, paquetes, setCarritoPeso); // Llama la función para paquetes
         }
-  
+
         toast.success('El paquete se añadió al carrito con éxito 🎉'); // Mensaje de éxito
       });
     } else {
       toast.error('Has alcanzado el límite de peso en el carrito (9000 gramos) ⚠️'); // Mensaje de error si el peso excede el límite
     }
   };
-  
-  
-  
-  
-  
-   
+
+
+
+
+
+
   if (loading) {
     return (
       <MDBContainer className="d-flex justify-content-center align-items-center my-5">
@@ -161,7 +161,7 @@ const Miscompras = () => {
 
   return (
     <MDBContainer className="my-5">
-          <ToastContainer />
+      <ToastContainer />
       <MDBTypography tag="h3" className="text-center mb-4">
         <MDBIcon fas icon="shopping-cart" className="me-2" /> MIS COMPRAS
       </MDBTypography>
@@ -192,8 +192,8 @@ const Miscompras = () => {
             </MDBCardBody>
             <MDBCardFooter className="text-muted text-center">
               <MDBIcon fas icon="calendar-alt" className="me-2" />
-              Fecha de Compra: {orden.fechaCompra 
-                ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(orden.fechaCompra)) 
+              Fecha de Compra: {orden.fechaCompra
+                ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(orden.fechaCompra))
                 : 'Sin fecha de compra'}
             </MDBCardFooter>
           </MDBCard>
