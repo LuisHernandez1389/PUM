@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
-import { database } from '../firebase';
-import { ref, onValue } from 'firebase/database';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import { database } from "../firebase";
+import { ref, onValue } from "firebase/database";
 import { Dropdown, Collapse, initMDB } from "mdb-ui-kit";
+import '../estilos/Navbar.css';
 
 initMDB({ Dropdown, Collapse });
 
@@ -13,10 +14,12 @@ const Navbar = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState("");
   const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar el colapso
-  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const [isMobile, setIsMobile] = useState(false); // Estado para detectar dispositivo móvil
   const [cartCount, setCartCount] = useState(0);
+
+  const navigate = useNavigate();
+  const location = useLocation(); // Detecta la ruta actual
 
   useEffect(() => {
     initMDB({ Dropdown, Collapse });
@@ -27,13 +30,13 @@ const Navbar = ({ user }) => {
     };
 
     // Escuchar el cambio de tamaño de pantalla
-    window.addEventListener('resize', handleResize);
-    
+    window.addEventListener("resize", handleResize);
+
     // Ejecutar la función una vez para establecer el valor inicial
     handleResize();
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -47,32 +50,36 @@ const Navbar = ({ user }) => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/');
-      setPhotoURL('');
+      navigate("/");
+      setPhotoURL("");
     } catch (error) {
-      console.error('Error al cerrar sesión:', error.message);
+      console.error("Error al cerrar sesión:", error.message);
     }
   };
 
   useEffect(() => {
     if (currentUser) {
       const userRef = ref(database, `users/${currentUser.uid}`);
-      const unsubscribe = onValue(userRef, (snapshot) => {
-        try {
-          const userData = snapshot.val();
-          if (userData) {
-            setPhotoURL(userData.photoURL || "");
-            setUsername(userData.username || "");
+      const unsubscribe = onValue(
+        userRef,
+        (snapshot) => {
+          try {
+            const userData = snapshot.val();
+            if (userData) {
+              setPhotoURL(userData.photoURL || "");
+              setUsername(userData.username || "");
+            }
+            setLoading(false);
+          } catch (error) {
+            console.error("Error al procesar datos del usuario:", error);
+            setLoading(false);
           }
-          setLoading(false);
-        } catch (error) {
-          console.error("Error al procesar datos del usuario:", error);
+        },
+        (error) => {
+          console.error("Error al obtener datos del usuario:", error);
           setLoading(false);
         }
-      }, (error) => {
-        console.error("Error al obtener datos del usuario:", error);
-        setLoading(false);
-      });
+      );
 
       return () => {
         unsubscribe();
@@ -99,24 +106,24 @@ const Navbar = ({ user }) => {
   };
 
   const handleMouseEnter = () => {
-    const dropdown = document.getElementById('navbarDropdownMenuLink');
+    const dropdown = document.getElementById("navbarDropdownMenuLink");
     const menu = dropdown.nextElementSibling;
 
-    dropdown.classList.add('show');
-    menu.classList.add('show');
+    dropdown.classList.add("show");
+    menu.classList.add("show");
   };
 
   const handleMouseLeave = () => {
-    const dropdown = document.getElementById('navbarDropdownMenuLink');
+    const dropdown = document.getElementById("navbarDropdownMenuLink");
     const menu = dropdown.nextElementSibling;
 
-    dropdown.classList.remove('show');
-    menu.classList.remove('show');
+    dropdown.classList.remove("show");
+    menu.classList.remove("show");
   };
 
   /// Función para actualizar el contador del carrito
   const actualizarContadorCarrito = () => {
-    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     setCartCount(carrito.length); // Contar elementos en el carrito
   };
 
@@ -129,11 +136,11 @@ const Navbar = ({ user }) => {
       actualizarContadorCarrito();
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
     // Limpieza del evento al desmontar el componente
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
 
@@ -148,10 +155,15 @@ const Navbar = ({ user }) => {
     };
   }, []);
 
+  const isActive = (path) => location.pathname === path ? "active" : "";
+
   return (
     <div>
       {/* Navbar */}
-       <nav className="navbar navbar-expand-lg navbar-light bg-body-tertiary" style={{ height: '60px' }}>
+      <nav
+        className="navbar navbar-expand-lg navbar-light bg-body-tertiary"
+        style={{ height: "60px" }}
+      >
         <div className="container-fluid">
           <button
             className="navbar-toggler"
@@ -166,20 +178,29 @@ const Navbar = ({ user }) => {
             <i className="fas fa-bars"></i>
           </button>
 
-          <div className={`collapse navbar-collapse ${isExpanded ? 'show' : ''}`} id="navbarSupportedContent">
+          <div
+            className={`collapse navbar-collapse ${isExpanded ? "show" : ""}`}
+            id="navbarSupportedContent"
+          >
             <a className="navbar-brand mt-2 mt-lg-0" href="/">
               <img
                 src="https://firebasestorage.googleapis.com/v0/b/pirotecniacq.appspot.com/o/Noche_de_amor_1706133687956-removebg-preview.png?alt=media&token=2b8c1968-44ee-486b-869d-2b2ad289bf40"
                 alt="Logo"
                 loading="lazy"
-                style={{ maxHeight: '70px', objectFit: 'contain' }}
+                style={{ maxHeight: "70px", objectFit: "contain" }}
               />
             </a>
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <Link className="nav-link" to="/">Inicio</Link>
+              <li className={`nav-item ${isActive("/")}`}>
+                <Link className="nav-link" to="/">
+                  Inicio
+                </Link>
               </li>
-              <li className="nav-item dropdown" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              <li
+                className={`nav-item dropdown ${isActive("/productos")}`}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
                 <a
                   className="nav-link dropdown-toggle"
                   href="/productos"
@@ -190,99 +211,147 @@ const Navbar = ({ user }) => {
                 >
                   Productos
                 </a>
-                <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <ul
+                  className="dropdown-menu"
+                  aria-labelledby="navbarDropdownMenuLink"
+                >
                   <li>
-                    <a className="dropdown-item" href="/productos">Pirotecnia</a>
+                    <a className="dropdown-item" href="/productos">
+                      Pirotecnia
+                    </a>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="/luz">Luz</a>
+                    <a className="dropdown-item" href="/luz">
+                      Luz
+                    </a>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="/trueno">Trueno</a>
+                    <a className="dropdown-item" href="/trueno">
+                      Trueno
+                    </a>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="/baterias">Baterías</a>
+                    <a className="dropdown-item" href="/baterias">
+                      Baterías
+                    </a>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="/paquetes">Paquetes</a>
+                    <a className="dropdown-item" href="/paquetes">
+                      Paquetes
+                    </a>
                   </li>
                 </ul>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/eventos">Eventos</Link>
+              <li className={`nav-item ${isActive("/eventos")}`}>
+                <Link className="nav-link" to="/eventos">
+                  Eventos
+                </Link>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/contacto">Contactanos</Link>
+              <li className={`nav-item ${isActive("/contacto")}`}>
+                <Link className="nav-link" to="/contacto">
+                  Contactanos
+                </Link>
               </li>
             </ul>
           </div>
 
-          <Link to='/search-page' className="input-group-text border-0" id="search-addon">
+          <Link
+            to="/search-page"
+            className="input-group-text border-0"
+            id="search-addon"
+          >
             <i className="fas fa-search"></i>
           </Link>
           <div className="d-flex align-items-center">
-          <Link to="/micarrito" className="text-reset me-3">
-            <i className="fas fa-shopping-cart"></i>
-            {cartCount > 0 && (
-              <span className="badge rounded-pill bg-danger">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+            <Link to="/micarrito" className="text-reset me-3">
+              <i className="fas fa-shopping-cart"></i>
+              {cartCount > 0 && (
+                <span className="badge rounded-pill bg-danger">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
 
-            <div className="dropdown">
-              <a
-                data-mdb-dropdown-init
-                className="dropdown-toggle d-flex align-items-center hidden-arrow"
-                href="/micuenta"
-                id="navbarDropdownMenuAvatar"
-                role="button"
-                aria-expanded="false"
-              >
-                {photoURL ? (
-                  <img
-                    src={photoURL}
-                    className="rounded-circle"
-                    alt="User Avatar"
-                    loading="lazy"
-                    style={{ 
-                      width: "25px", // Fijo ancho
-                      height: "25px", // Fijo alto
-                      objectFit: "cover" // Para que la imagen se ajuste al contenedor
-                    }}
-                  />
-                ) : (
-                  <div
-                    className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
-                    style={{ width: "25px", height: "25px", fontSize: "12px" }}
-                  >
-                    {username ? getInitials(username) : <i className="fas fa-user"></i>}
-                  </div>
-                )}
-              </a>
-              <ul
-                className="dropdown-menu dropdown-menu-end"
-                aria-labelledby="navbarDropdownMenuAvatar"
-              >
-                <li>
-                  <Link className="dropdown-item" to='/micuenta'>Mi Perfil</Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" to='/misfavoritos'>Mis favoritos</Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" to='/miscompras'>Mis compras</Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" onClick={handleLogout}>Cerrar sesión</Link>
-                </li>
-              </ul>
-            </div>
+            {currentUser ? (
+              <div className="dropdown">
+                <a
+                  data-mdb-dropdown-init
+                  className="dropdown-toggle d-flex align-items-center hidden-arrow"
+                  href="/micuenta"
+                  id="navbarDropdownMenuAvatar"
+                  role="button"
+                  aria-expanded="false"
+                >
+                  {photoURL ? (
+                    <img
+                      src={photoURL}
+                      className="rounded-circle"
+                      alt="User Avatar"
+                      loading="lazy"
+                      style={{
+                        width: "25px", // Fijo ancho
+                        height: "25px", // Fijo alto
+                        objectFit: "cover", // Para que la imagen se ajuste al contenedor
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+                      style={{
+                        width: "25px",
+                        height: "25px",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {username ? (
+                        getInitials(username)
+                      ) : (
+                        <i className="fas fa-user"></i>
+                      )}
+                    </div>
+                  )}
+                </a>
+                <ul
+                  className="dropdown-menu dropdown-menu-end"
+                  aria-labelledby="navbarDropdownMenuAvatar"
+                >
+                  <li>
+                    <Link className="dropdown-item" to="/micuenta">
+                      Mi Perfil
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/misfavoritos">
+                      Mis favoritos
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/miscompras">
+                      Mis compras
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item text-danger" onClick={handleLogout}>
+                      Cerrar sesión
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <Link to="/login" className="btn btn-primary">
+                Iniciar Sesión
+              </Link>
+            )}
           </div>
         </div>
       </nav>
       {/* Contenedor ajustable con padding dinámico */}
-      <div style={{ paddingTop: isExpanded ? '300px' : '0px', transition: 'padding-top 0.5s ease' }}>
+      <div
+        style={{
+          paddingTop: isExpanded ? "300px" : "0px",
+          transition: "padding-top 0.5s ease",
+        }}
+      >
         {/* Resto del contenido de la página */}
       </div>
     </div>

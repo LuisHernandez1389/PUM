@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom"; // Necesario para redirigir a la pagina de registro
 import { toast } from "react-toastify";
+import "animate.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -12,6 +18,7 @@ function Login() {
   const [showResetModal, setShowResetModal] = useState(false); // Controla la visibilidad del modal de restablecimiento
   const [resetEmail, setResetEmail] = useState(""); // Email para restablecer contraseña
   const navigate = useNavigate(); // Hook para la navegación
+  const [showPassword, setShowPassword] = useState(false); // Estado para mostrar contraseña
 
   // Prellenar el correo si "Recordarme" esta activado
   useEffect(() => {
@@ -22,8 +29,19 @@ function Login() {
     }
   }, []);
 
+  // Funcion para botón de mostrar contraseña
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevenir el comportamiento predeterminado del formulario
+
+    if (!email || !password) {
+      toast.error("Por favor, completa todos los campos.");
+      return;
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("¡Inicio de sesión exitoso!");
@@ -41,6 +59,7 @@ function Login() {
       setPassword("");
       setError(null);
       navigate("/");
+      window.scrollTo(0, 0); // Desplaza la vista al inicio de la página
     } catch (error) {
       console.error("Error al iniciar sesión:", error.message);
       setError(error.message); // Mostrar mensaje de error al usuario
@@ -50,25 +69,51 @@ function Login() {
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
+
+    if (!resetEmail || !/\S+@\S+\.\S+/.test(resetEmail)) {
+      toast.error("Por favor, ingresa un correo electrónico válido.");
+      return;
+    }
+
     try {
       await sendPasswordResetEmail(auth, resetEmail);
-      toast.success("Correo de restablecimiento enviado. ¡Revisa tu correo electrónico!");
+      toast.success(
+        "Correo de restablecimiento enviado. ¡Revisa tu correo electrónico!"
+      );
       setResetEmail("");
       setShowResetModal(false);
     } catch (error) {
-      console.error("Error al enviar correo de restablecimiento:", error.message);
+      console.error(
+        "Error al enviar correo de restablecimiento:",
+        error.message
+      );
       toast.error("Error: " + error.message);
     }
   };
 
+  const inputStyle = {
+    border: "1px solid #ced4da",
+    padding: "0.375rem 0.75rem",
+    borderRadius: "0.25rem",
+    transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+  };
+
+  const inputFocusStyle = {
+    borderColor: "#007bff",
+    animation: "glow 1.5s infinite ease-in-out", // Agregamos la animación
+  };
+
   return (
     <section className="vh-100" style={{ backgroundColor: "#f4f4f9" }}>
-      <div className="container py-5 h-100">
+      <div className="container py-3 h-100">
         <div className="row d-flex justify-content-center align-items-center h-100">
           <div className="col-md-8 col-lg-6 col-xl-4">
             <div
-              className="card text-black shadow-lg"
-              style={{ borderRadius: "10px" }}
+              className="card text-black shadow-lg animate__animated animate__fadeIn"
+              style={{
+                borderRadius: "15px",
+                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+              }}
             >
               <div className="card-body p-4">
                 <div className="text-center">
@@ -76,10 +121,18 @@ function Login() {
                   <img
                     src="/LOGOLeyker.png"
                     alt="Logo"
-                    className="mb-4"
-                    style={{ width: "100px" }}
+                    className="mb-4 animate__animated animate__bounce"
+                    style={{
+                      width: "120px",
+                      height: "auto",
+                    }}
                   />
-                  <h3 className="mb-4">Iniciar Sesión</h3>
+                  <h3
+                    className="mb-4"
+                    style={{ fontWeight: "bold", color: "#333" }}
+                  >
+                    Iniciar Sesión
+                  </h3>
                   <p className="text-muted">
                     Ingresa tus datos para acceder a tu cuenta
                   </p>
@@ -94,35 +147,58 @@ function Login() {
                       type="email"
                       id="email"
                       className="form-control"
-                      style={{
-                        border: "1px solid #ced4da",
-                        padding: "0.375rem 0.75rem",
-                        borderRadius: "0.25rem",
-                      }}
+                      style={inputStyle}
                       placeholder="Ingresa tu correo electrónico"
                       value={email}
+                      onFocus={(e) =>
+                        Object.assign(e.target.style, inputFocusStyle)
+                      }
+                      onBlur={(e) => Object.assign(e.target.style, inputStyle)}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-outline mb-4">
+                  <div className="form-outline mb-4 position-relative">
                     <label className="form-label" htmlFor="password">
                       <i className="fas fa-lock me-2"></i>
                       Contraseña
                     </label>
-                    <input
-                      type="password"
-                      id="password"
-                      className="form-control"
-                      style={{
-                        border: "1px solid #ced4da",
-                        padding: "0.375rem 0.75rem",
-                        borderRadius: "0.25rem",
-                      }}
-                      placeholder="Ingresa tu contraseña"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        className="form-control"
+                        style={{
+                          ...inputStyle,
+                          paddingRight: "2.5rem", // Espacio extra a la derecha para el icono
+                        }}
+                        placeholder="Ingresa tu contraseña"
+                        value={password}
+                        onFocus={(e) =>
+                          Object.assign(e.target.style, inputFocusStyle)
+                        }
+                        onBlur={(e) =>
+                          Object.assign(e.target.style, inputStyle)
+                        }
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                      <span
+                        className="position-absolute"
+                        style={{
+                          top: "50%", // Alinea el ícono verticalmente
+                          right: "10px", // Lo coloca al borde derecho del input
+                          transform: "translateY(-50%)", // Centra el ícono verticalmente
+                          cursor: "pointer", // Hace que sea clickeable
+                          color: "#007bff", // Color azul para que resalte
+                          fontSize: "1.2rem", // Ajusta el tamaño del ícono
+                        }}
+                        onClick={togglePasswordVisibility}
+                      >
+                        <FontAwesomeIcon
+                          icon={showPassword ? faEyeSlash : faEye}
+                        />
+                      </span>
+                    </div>
                   </div>
 
                   {error && <p className="text-danger mb-3">{error}</p>}
@@ -141,10 +217,14 @@ function Login() {
                       </label>
                     </div>
                     <button
-                    type="button"
-                    className="btn btn-link p-0"
-                    style={{ fontSize: "0.9rem", textDecoration: "none", color: "#007bff" }}
-                    onClick={() => setShowResetModal(true)} // Mostrar modal de restablecimiento
+                      type="button"
+                      className="btn btn-link p-0"
+                      style={{
+                        fontSize: "0.9rem",
+                        textDecoration: "none",
+                        color: "#007bff",
+                      }}
+                      onClick={() => setShowResetModal(true)} // Mostrar modal de restablecimiento
                     >
                       ¿Olvidaste tu contraseña?
                     </button>
@@ -154,7 +234,12 @@ function Login() {
                     type="submit"
                     className="btn btn-primary btn-block w-100"
                     style={{
-                      backgroundColor: "#007bff", borderColor: "#007bff" }}
+                      backgroundColor: "#007bff",
+                      borderColor: "#007bff",
+                      padding: "0.6rem 1.2rem",
+                      fontSize: "1rem",
+                      borderRadius: "5px",
+                    }}
                   >
                     Iniciar sesión
                   </button>
@@ -184,7 +269,7 @@ function Login() {
       {/* Modal para restablecimiento de contraseña */}
       {showResetModal && (
         <div
-          className="modal d-block"
+          className="modal d-block animate__animated animate__fadeIn"
           style={{
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             display: "flex",

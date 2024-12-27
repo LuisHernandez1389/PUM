@@ -1,0 +1,73 @@
+/* Hover para enlaces en el navbar */
+.nav-link {
+  transition: color 0.3s ease, background-color 0.3s ease, font-weight 0.3s ease;
+}
+
+.nav-item.active .nav-link {
+  font-weight: bold;
+  color: #007bff !important;
+  border-bottom: 2px solid #007bff;
+}
+
+.nav-link:hover {
+  color: #000;
+  background-color: rgba(0, 123, 255, 0.1); /* Fondo semi-transparente */
+  border-radius: 5px; /* Bordes redondeados */
+  font-weight:700; /* Letras más gruesas al hacer hover */
+}
+
+/* Hover para los elementos del dropdown */
+.dropdown-item {
+  transition: color 0.3s ease, background-color 0.3s ease, font-weight 0.3s ease;
+}
+
+.dropdown-item:hover {
+  color: #000;
+  font-weight: 700;
+  background-color: rgba(0, 123, 255, 0.1) !important; /* Fondo semi-transparente */
+  border-radius: 5px !important; /* Bordes redondeados */
+}
+
+/* Botón de carrito y buscar */
+.input-group-text, .text-reset {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.input-group-text:hover, .text-reset:hover {
+  transform: scale(1.1); /* Aumentar tamaño al hover */
+  color: #007bff; /* Azul profesional */
+}
+
+/* Imagen de usuario o avatar */
+.dropdown-toggle img {
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.dropdown-toggle img:hover {
+  border-color: #007bff; /* Cambiar color del borde al hover */
+  transform: scale(1.1); /* Aumentar tamaño */
+}
+
+/* Botón de iniciar sesión */
+.btn-primary {
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3; /* Azul más oscuro en hover */
+  transform: scale(1.05); /* Aumento leve de tamaño */
+}
+
+/* Estilo para el enlace de "Cerrar sesión" */
+.dropdown-item.text-danger {
+  color: #dc3545; /* Rojo predeterminado de Bootstrap */
+  font-weight: bold; /* Letras más gruesas */
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.dropdown-item.text-danger:hover {
+  color: #fff !important; /* Cambia a blanco en hover */
+  background-color: #dc3545 !important; /* Fondo rojo */
+  border-radius: 5px; /* Bordes redondeados para un diseño moderno */
+}
+
